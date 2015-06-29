@@ -166,7 +166,7 @@ printf("DiskBuffer size=%d\n",DiskBufSize);
 
   if (ReadCfgItem(PI_CFG_FILE,"Files","SaveFile",
                   SaveFileName,Cfg_String,MAX_FILENAME)==0)
-     strcpy(SaveFileName,"piceb.sav");
+     strcpy(SaveFileName,"/opt/Tools/PiCalc/Output/piceb.sav");
 
   InitFFT(Len);
   InitFFTMul(Len);
@@ -219,7 +219,7 @@ CreateBigInt(size_t Len)
   sprintf(Str,"Var%ld",VarsAllocated+1);
   if (ReadCfgItem(PI_CFG_FILE,"DiskNumbers",Str,
                   vp->FileName,Cfg_String,MAX_FILENAME)==0)
-     sprintf(vp->FileName,"pivar%ld.tmp",VarsAllocated+1);
+     sprintf(vp->FileName,"/opt/Tools/PiCalc/Output/pivar%ld.tmp",VarsAllocated+1);
 
   vp->fp=fopen(vp->FileName,"wb+");
   if (vp->fp==NULL)
@@ -1562,7 +1562,7 @@ DumpUnformattedPi(char *Str, double ETime, BigInt Num, size_t Len)
 
     if (ReadCfgItem(PI_CFG_FILE,"Files","Pi_Outfile_Mask",
                     Mask,Cfg_String,MAX_FILENAME)==0)
-       strcpy(Mask,"pi%s.txt");
+       strcpy(Mask,"/opt/Tools/PiCalc/Output/pi%s.txt");
 
      sprintf(str,Mask,Num2Str(Len*RawIntDigits));
      OutPutFile=fopen(str,"wb");
@@ -1609,7 +1609,7 @@ PrintFormattedPi(char *Str, double ETime, BigInt Num, size_t Len)
     {char str[80];
     if (ReadCfgItem(PI_CFG_FILE,"Files","Pi_Outfile_Mask",
                     Mask,Cfg_String,MAX_FILENAME)==0)
-       strcpy(Mask,"pi%s.txt");
+       strcpy(Mask,"/opt/Tools/PiCalc/Output/pi%s.txt");
 
      sprintf(str,Mask,Num2Str(Len*RawIntDigits));
      OutPutFile=fopen(str,"w");

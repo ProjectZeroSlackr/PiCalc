@@ -156,7 +156,7 @@ CreateTempFileName(char *TempFileName)
  FILE *TempFile=NULL;
  int tries=0;
 
-strcpy(TempFileName,"tempfile.tmp");
+strcpy(TempFileName,"/opt/Tools/PiCalc/Output/tempfile.tmp");
 
 do {
     srand((unsigned int)time(NULL)+tries);

@@ -245,14 +245,14 @@ for (x=0;x<MaxFFTCacheLines;x++)
 
 if (ReadCfgItem(PI_CFG_FILE,"Files","Convolution",FFTCash[0].Name,
                Cfg_String,MAX_FILENAME)==0)
-   strcpy(FFTCash[0].Name,"piconvl.tmp");
+   strcpy(FFTCash[0].Name,"/opt/Tools/PiCalc/Output/piconvl.tmp");
 
 for (x=1;x<MaxFFTCacheLines;x++)
   {
    sprintf(Str,"Cache%d",x);
    if (ReadCfgItem(PI_CFG_FILE,"FFT-Cache",Str,FFTCash[x].Name,
                   Cfg_String,MAX_FILENAME)==0)
-      sprintf(FFTCash[x].Name,"cache%d.tmp",x);
+      sprintf(FFTCash[x].Name,"/opt/Tools/PiCalc/Output/cache%d.tmp",x);
   }
 
 for (x=0;x<MaxFFTCacheLines;x++)
