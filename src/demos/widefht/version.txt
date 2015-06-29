@@ -1,0 +1,30 @@
+Okay, this is a 'wide'  FHT,  putting  dozens to thousands of digits
+into each element.
+
+Based on some timings, the 'best' seems to be about 43255 ticks  for
+1m decimals, putting 1k digits into each element.
+
+Okay, let's estimate the savings of various optimizations.
+
+1) I could cache transforms.  That would save 50%.  21627 ticks.
+(Including for the trig.)
+
+2) The fixedpoint multiplications are done using a slow, simple FFT.
+Assume that could be speeded up by 50%.  10813 ticks.
+
+3)  The  fixedpoint data size is not a power of two.  That means the
+FFT is doing too long of a transform.  Fix that.  5400 ticks.
+
+4) Assume that somehow we could  use  the  '3 mul' form of a complex
+multiplication,  instead  of  the  normal  one.   That'd  be   *.75,
+resulting in 4000 ticks.
+
+Since there are 91 ticks per second, that would predict an execution
+time of 44 seconds.
+
+To be competitive with David  Bailey's 'double double', I would have
+to drop it by at least a factor of 3, to below 15 seconds.
+
+
+(Also see widefht2 for a few more ideas.)
+

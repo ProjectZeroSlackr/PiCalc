@@ -1,0 +1,39 @@
+This version is a 64 bit NTT.
+
+It's designed for large 64 bit computers, but even 32 bit processors
+with fake, compiler  supplied  'long  long'  will work (although not
+very well!!)  (By '64 bit  computers',  I  mean  the NTT uses 64 bit
+integers, not that the rest of the program etc. has been tuned for a
+64 bit system.)
+
+This version  is  not  as  memory  frugal  as  the  NTT32  is.  That
+shouldn't be a problem, since most 64 bit  computers  are  going  to
+have gobbs of memory anyway.
+
+You might also want to take a look at modmath.h.  If your system has
+a way to do  64*64=128  and  then  128/64=64 remainder, then you can
+rewrite the ModMul() for much greater efficiency.  You might even be
+able to do it like how the ntt32/generic does it.
+
+I could have chosen to use some  other  prime.
+
+Perhaps a 52 bit prime, so  that  way  if you don't have a 64*64=128
+multiply, you could easily do it  like  the  ntt32/generic/modmath.h
+does.  That would put a rather low limit on the upper limit, though.
+Right off hand I don't know what, but it would probably limit things
+to around 32m digits of pi.
+
+The  only  reason  I  chose  that particular prime was because Mikko
+Tommila's APFloat package used it because it allowed any system with
+64 bit integers to do the modular multiplication.  The system didn't
+need any ability to do a 64*64=128, 128/64=64 arithmetic.
+
+
+Also, please note that you  may  get some compiler warnings when you
+compile this version.
+
+I use DJGPP 2.7.2.1, and it compiles cleanly with the -Wall  option.
+However,  DJGPP  2.7.2.1  is _very_ lax about things.  If a compiler
+doesn't warn you when  something  is  wrong or suspicious, then it's
+hard to know that it should be changed.
+

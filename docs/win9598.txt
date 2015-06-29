@@ -1,0 +1,98 @@
+
+========================================
+Running pi programs under Windows 95/98.
+========================================
+
+Windows 95/98  does  everything  in  its  power  to  make  sure your
+programs don't run very fast.  It goes out of its way to do what  it
+thinks is 'best' even when you know better.
+
+There  are  three  problems  with running a high performance program
+under Win95/98.
+
+First, Win95/98 usually  has  disk  write  caching enabled!  You can
+change that setting from within the 'systems' icon  in  the  control
+panel,  but  its buried in several sub-menus, so you have to know it
+exists or you'll probably never know  about it.  If you aren't doing
+a disk based pi run, it's not going to matter a lot, but if you  try
+one, it will definetly effect performance.
+
+Second, when you go into a DOS box, Win95/98 is still running.  It's
+still taking up performance.  On my system, that results in about 5%
+reduction in performance over genuine DOS.  Not a major problem  for
+small runs, though.  Of  course,  on  other systems, the performance
+difference might be less than 1%.
+
+Third (and most importantly), Windows 95/98 doesn't  like  giving  a
+DOS  program much memory.  Although the 'mem' command in DOS may say
+that you have a lot of memory  available, very little of that may be
+physical memory.  There is a good chance that much of it is  virtual
+memory being provided by Win95/98.  And a DOS program isn't normally
+going  to  know  the  difference.  And, as I've said many times, you
+don't want to do a FFT or NTT using virtual memory!
+
+(One side note about the memory that  Windows  gives  DOS...   It'll
+only  be  as  much  as  the amount of physical memory you have.   Or
+less,  depending  upon  the  setting  you  have  in  the  dos prompt
+properties.  Windows does _not_ supply virtual memory to a  DOS/DPMI
+program.   How  much ever physical memory you have is all that a DOS
+program  gets.   This  is  in  contrast  to  'pure  dos'  based DPMI
+providers such as cwsdpmi.)
+
+
+The solution is to completly exit  Win95/98, and run a genuine DOS.
+If you were smart enough to  still  have DOS 6.x installed, when the
+Win95/98 start-up menu asks you which OS  you  want,  you  can  just
+select  your  old  DOS.   (If  you  don't have the startup boot menu
+enabled, I think you can  reach  it  by holding down the control key
+when you boot.  Of course, if you don't have an old  DOS  installed,
+it's not going to do any good.)
+
+But, not everybody has an old DOS still installed.   In  that  case,
+you  are  going to have to force Win95/98 to drop to genuine command
+line DOS-7.
+
+At the boot menu, you can select the 'command line' option.  And  at
+the shut-down command in  Windows,  you  can  select the 'Restart in
+MS-DOS mode' prompt.  Both of those will _almost_ work.
+
+The problem, at least  on  my  system,  is  that it still insists on
+rebooting with emm386 installed.  You can do a "mem /d /p" and still
+see emm386 installed.  And EMM386 will  *NOT* let you have more than
+32 megs of physical memory.  (It just  seems  to  be  the  way  it's
+designed.)   That  means  the  DPMI server will end up using virtual
+memory.  Not good!
+
+What  I  have  done  is set up a new DOS .pif with the 'ms-dos' mode
+selected.  And have it use the 'specify new dos config', rather than
+the existing one.  And  in  the  config.sys  lines it lets you edit,
+make sure emm386 isn't in  there  and  himem.sys  is.   And  in  the
+autoexec, I have it load a 1meg disk read cache.
+
+(To create a  new  'pure  dos'  .pif,  just  create  a new shortcut,
+specify c:\windows\command.com as the program to run.  Then edit the
+properties for the full DOS mode, etc.  Then try it out, do a mem /d
+/p, look for emm386, etc.)
+
+This lets me easily get  down  to  a  pure,  clean  MS-DOS  7  boot.
+Windows  is  still  around,  mostly sleeping, but it's better than a
+normal dos shell.
+
+
+Anyway,  once  you  get  down  to  a clean OS, without Windows 95/98
+interfering, then you can run a pi program efficiently.
+
+Of course, I should also point out that with a very fast system with
+lots of memory, it is possible to do small 1m digit runs without too
+big of a performance penalty.
+
+And, some people do seem  to  manage  to  get it to run fairly well.
+Well enough to actually do their pi computations with it.   I'm  not
+one of those people, of course.
+
+
+Also,  be sure you have enough disk space.  Win98 likes to have some
+'breathing room', so you can't use all of it without Windows popping
+up a warning telling you that you've run out of disk.
+
+

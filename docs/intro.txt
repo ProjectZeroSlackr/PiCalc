@@ -1,0 +1,95 @@
+
+============
+Introduction
+============
+
+Hi. This is my latest  pi  program.
+
+By the last  day  of  May,  1999,  Dominique  Delande  has 1 billion
+(1,073,741,824) digits have been computed by v2.3 of my pi  program.
+1,073,741,686  were  correct.   That  is,  by  a sizable amount, the
+largest number of digits of pi ever computed on a desktop computer.
+
+The system was  a  Pentium-II  Xeon  running  at  450mhz, with 1g of
+memory and running Linux.  The run took 758,058 seconds total,  with
+(according   to   Linux)  421,633  seconds  being  consumed  by  the
+computation itself, with the remainder being used by the OS and disk
+I/O.
+
+My programs may not be the  absolute  fastest, but darn it, they are
+definetly the most versatile and can run on systems that most  other
+programs couldn't even think about.
+
+I'm not extremely good  at  writing documentation.   I either go too
+'high' or write too 'low', and nearly always  write  in  a  'chatty'
+style.  Even when it's not entirely appropriate.
+
+I've  been  writing quite a few pi programs this past year, and I've
+said a whole lot.  (Come  to  think  of it...  I've probably spent a
+thousand hours on them, this past year!)
+
+A lot of the earlier  stuff  (through  v1.5)  is mostly out of date.
+Although I did turn much of that into a fairly  decent  introduction
+on pi AGM programming.
+
+The docs of v2.0,  v2.1,  and  v2.2  contained all the needed stuff,
+plus a lot of extra 'chatty' stuff.
+
+Version  2.0  included a long bit about my thoughts on going from an
+'in memory' pi program to  something  more, and how I creatively got
+around what I called the 'insurmountable problem'.  And why I didn't
+just use an already existing disk number package.  A lot of  timings
+and  my  thoughts  on  those timings.  And a whole bunch of 'chatty'
+stuff.
+
+Version 2.1 added some more thoughts on my pi programs, gave a brief
+description of what I changed or improved.  And talked briefly about
+some new competition I had.
+
+Version 2.2 continued with all the new important stuff,  and  talked
+some more about the improvements my competition made to his program.
+
+The  result  was  a  fairly  unreadable mess.  I had three large doc
+files that, although they were  seperated into chapters, contained a
+lot of outdated information, a lot of  overlap,  some  contradictory
+information, and so on.
+
+This  new  style  is  much  more  readable.  And hopefully much more
+maintainable.
+
+Unfortunately, I couldn't  really  integrate  the  flavor from v2.0,
+v2.1 and v2.2 into the new docs.  I really liked my 'chat' stuff  in
+those old docs.  It didn't really add any useful information, but it
+was  all  stuff  that  _I_  would have wanted to read if it had been
+somebody else's program.  It added a lot of flavor to the docs.  So,
+rather than leave them out, I  cut  out the more important parts and
+put them into their own files.  I can't say I'm  really  happy  like
+that, but at least those bits and pieces are still here.
+
+
+Also, I think it's worth pointing out that I have  finally  upgraded
+to  a  Pentium/MMX  166mhz.  That means that the 586 version has now
+become the 'main' version.   It's  still  isn't really optimized for
+the 586, of course.  That's going to take some time!  I spent almost
+a year writing v1.3-v2.2 and tuning it for my 486.  You can't expect
+me to redo all that testing and tuning in just a few weeks.  At this
+point, I'm not even entirely sure what I need to test and tune.
+
+
+Also, please note that DJGPP v2.8.1 is a very poor release.   You'll
+be  better  off if you go find a copy of DJGPP v2.7.2.1!!!  Read the
+'djgpp281.txt' file.
+
+
+If you need to contact me,  you  can  reach  me  at  my  Juno  email
+address.   Be  aware that Juno has limitations on size etc., so keep
+messages under 30k of content.  If you want to send me stuff, let me
+know  in  advance!   And  you'll have to send it uuencoded, cut into
+about 30k each.  No MIME, no  attachments, etc.  I try to answer all
+my mail within a week, so if  you  don't  get  a  response,  then  I
+probably didn't get it.
+
+Carey Bloodworth
+cbloodworth@juno.com
+
+

@@ -1,0 +1,119 @@
+This version is the 32 bit NTT that _attempts_ to be fairly compiler
+neutral and is optimized for the Pentium processor.
+
+Please note that this requires the  FPU to be in 'long double' mode.
+It is also 'little endian'  specific,  due  to  the  way  the  float
+numbers  are  chopped to integer.  That could be changed, if needed,
+but regardless, this code absolutely  requires the FPU to have 'long
+double' in hardware.  That rules out most systems.
+
+Although this is a complete version  in  its own right, you can also
+use the seperate routines (crt.h, modmath.h, and  vector.c)  in  the
+gcc586 version if you are having compiler problems with it.
+
+The C version is *NOT* as fast  as Jason's asm version.  It was, but
+it's not anymore.  I told a number of people that  it  was,  but  it
+isn't.   See, I did much of the basic 'vector' reorganization when I
+still had a 486.  I had just gotten the 586 version reorganized when
+I got my Pentium.  Since I  had only done simple rearangment, rather
+than major code changes, when I checked to see  what  performance  I
+was  getting  with  the  Pentium  version,  I just used the 'work in
+progress' v2.3, rather than v2.2.   Over  the  next few days, when I
+wrote the C  version  of  Jason's  ntt586,  I  compared the run time
+against the v2.3 run times.  What I didn't realize at the  time  was
+that  the  gcc586  vector.c had the two global variables declared as
+'static'.  Seems like a reasonable change, and  good  C  programming
+practice,  but  that  one little change actually resulted in about a
+1/3rd runtime increase!  Just  declaring  two  variables  as  static
+slowed  the  whole  program down by a third!!  And, of course, I was
+comparing the C code to that slow runtime.
+
+In actuallity, the performance is surprisingly good.   Under  DJGPP,
+it's taking about 75% longer than the gcc586 with its  asm.   That's
+not too bad for pure C in crt.h, modmath.h and vector.c
+
+Saying  it takes 75% longer sounds bad, but that's _still_ less time
+than  the  486 version (with asm) takes on the Pentium.  That's more
+than what the FFT version takes,  but the FFT doesn't have the range
+that this does.
+
+And by using asm in crt.h and modmath.h (and still using  the  C  in
+vector.c), it takes only about 50% longer than the gcc586 version.
+
+So, it is fairly good for pure C. It's just not as good  as  what  I
+used to think it was.
+
+I might have been able to improve the performance a bit, but I think
+that would have ended up tuning  the  code for what GNU C generates,
+and obviously GNU C doesn't need the C code since it can do the  asm
+code!  The point is, the C code isn't the best and you could tune it
+for your compiler.
+
+The basic Pentium modular multiply  method  is  to  use the FPU in a
+manner  that  is  similar  to  the  ntt32/generic/modmath.h  method.
+Except instead of calling the floor() function, we take advantage of
+the fact that the FPU has 64 bits of mantissa and if we add and then
+subtract a 'magic' number, we will have pushed the fraction bits off
+the end.
+
+Doing it this way does require that the FPU be in 80 bit and 'round'
+mode.
+
+Also, this 586 version,  like  the  asm  one,  is  limited to 31 bit
+primes.  That's due to limitations of the FPU  and  the  way  we  do
+things.   If,  by  some  chance,  you  are  doing this on some other
+processor who's FPU can handle  80  bit floats (64 mantissa) and can
+do 32 bit unsigned integers, then you can change the modmath.h stuff
+too and work with 32 bit primes.
+
+Anyway, to do a simple C version of the modular multipies  would  be
+sort of like:
+
+#define MAGIC 3*2^63
+#define JUSTIFY 3*2^52
+
+double temp;
+
+void ntt586mul( long *a, long *b, long size ) {
+
+   register double f0, f1;
+   long ALU, temptr = (long *)&temp;
+
+   do {
+      f0 = (double)a[0];
+      f1 = (double)b[0];
+      f0 = f0 * f1;
+      f1 = f0;
+      f0 = f0 * reciprocal;        /* f0 = quotient, f1 = remainder */
+
+      f0 = f0 + MAGIC;
+      f0 = f0 - MAGIC;       /* round to nearest by justifying mantissa */
+
+      f0 = f0 * prime;
+      f1 = f1 - f0;          /* compute a*b-n*q */
+
+      f1 = f1 + JUSTIFY;     /* push answer to bottom of 53-bit mantissa */
+      temp = f1;             /* store to temporary space */
+
+      ALU = *temptr;         /* put bottom 32 bits of mantissa into ALU */
+
+      ALU = ALU + ((ALU>>31) & prime);  /* if answer negative add prime */
+      a[0] = ALU;                       /* put remainder back */
+
+      a++; b++; size--;
+   } while(size);
+}
+
+Note the 'ALU' stuff where it first gets the integer from the stored
+floating  point,  and  then does the underflow check with a jumpless
+version like the generic/ntt32/modmath.h shows.  (This can be slower
+under some circumstances, since it  requires  more  registers  etc.)
+This  is just a fancy way of doing a ALU=floor(f1) and then doing if
+(ALU < 0) ALU+=PRIME;
+
+The other important routine is  the VectorNTT_Part12() that does the
+first two passes of the DiT style NTT.  See  the  original  vector.c
+for a simple example of it.
+
+
+

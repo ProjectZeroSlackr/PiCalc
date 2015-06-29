@@ -1,0 +1,1557 @@
+This pi reference / history is placed into the public domain by  its
+author, Carey Bloodworth.
+
+
+I had planned on writing a  good  reference on the history of pi and
+how to calculate it, but  never  really  got  the time to finish it.
+So, rather than let it sit on my hard drive, I'm  releasing  what  I
+have done, and adding more when I get time, and re-releasing it.
+
+I  am  not  going  to give a large number of formulas for the simple
+reason that it's hard to do them in ASCII in a readable manner.  I'm
+also going to 'short change'  you  on  some  of the math in the more
+complex formulas.  You'll just have to take my word for  it,  or  go
+hunt up some reference works.
+
+This is more  of  a  reference  on  the  history of pi calculations,
+rather than a 'how to' for calculating millions of digits.  Although
+that would probably be interesting to write, this isn't it.
+
+This  document  uses  the IBM PC's 'high' ASCII characters.  In case
+the document gets stripped  of  all  'high' ASCII charcters and they
+are converted into regular ASCII characters, I'm also including what
+those are, so you can recognise what they should  be  when  you  see
+them:
+
+(253) ý (125) } is the 'squared' symbol.
+(252) ü (124) | is the 'nth' power symbol.
+(251) û (123) { is the square root symbol
+(247) ÷ (119) w is the 'approximatly equal' symbol.
+(246) ö (118) v is the 'divide' symbol
+(243) ó (115) s is the 'less than or equal' symbol: <=
+(242) ò (114) r is the 'greater than or equal' symbol: >=
+(241) ñ (113) q is the 'positive negative' symbol: +-
+(240) ð (112) p is the 'congruent' symbol.
+(236) ì (108) l is the 'infinity' symbol.
+(228) ä (100) d is the 'sumation' symbol.
+(172) ¬ ( 44) , is the 'one fourth' symbol.
+(171) « ( 43) + is the 'one half' symbol.
+(138) Š ( 10)   is an 'e' with an accent.  Converts into a line feed.
+
+Unfortunately,  charcter  (227),  the  'pi'  character  can _NOT_ be
+entered into this text document, because that is used as the 'end of
+line' character in the .QWK  message  packet  format that is used by
+many BBSs.  If somebody tried to post it on a BBS, it'd screw up.
+
+
+When I write a formula  and  it  requires  subscripts,  I do it as a
+programmer would, by using brackets [ and ] to suround the  index  /
+subscript number.  It would be nice  if  you could easily do sub and
+super scripts in an ASCII text,  but you can't.  Some people put the
+subscripts and the next line, but  that  never  really  looks  good.
+Some  people  may  prefer  to use parenthesis ( and ), but those are
+used to group mathematical sections and it would be confusing.  And,
+like Frank Sinatra,.... "I did it myyyyy WAAAAY".
+
+
+
+
+
+I'm  going  to  give  a  brief  overview of some of the ways you can
+calculate pi, and a history  of  pi calculations.  I obviously don't
+have the space to cover  everything,  but  hopefully,  I  can  cover
+enough  to  be  interesting.  I also recommend that you read Petr (1
+'e') Beckmann's book "A history  of pi".  It's very entertaining and
+gives a very good overview of its history.  It doesn't give a  great
+deal  of  heavy  math,  but it gives a few formulas that might be of
+interest.  My copy is dated  1974,  so obviously it doesn't have the
+latest algorithms, but it's still quite  readable.   I  do  strongly
+recommend  it for anybody who wants to enjoy reading about pi, and a
+bit of history of mathematics.
+
+
+My own personal pi computation  experience started in the early 80's
+when I computed pi on  an  8  bit  micro  using  various  arctangent
+formulas  in  assembly.   After  many years away from the subject, I
+started again in 1996 on  the  PC.   I  wrote a nice portable arctan
+program in C, and then a fairly simple  AGM  formula.   In  1998,  I
+started  up  again,  and  eventually  reached 32 million digits on a
+Cx486/66 in 36.5 hours, of  which  28  hours was computation and the
+rest was disk I/O. (It is,  of  course,  considerably  faster  on  a
+faster  computer.)  Also, my v2.3 program has reached a massive 512m
+digits of pi on somebody else's computer.  My programs usually  tend
+to  be  considerably better than the famous Japanese program SuperPi
+(written by Kanada and friends), so  although I may not be the best,
+I at least know enough about the subject to be able to write a  text
+like this.
+
+And  finally,  I'd  like  to say that there seems to be considerable
+discrepency  on  dates  and  the  number  of  digits  of some of the
+calculations.  I've tried  to  be  fairly  conservative, but since I
+don't have access to the original documents, there is no way  I  can
+really be sure about some of this.
+
+
+Chapter 1:  The early years
+===========================
+
+The first estimation of 'pi'  was, of course, by direct measurement.
+You draw a circle and measure the ratio  of  the  diameter  and  the
+circumference.   At  best  though,  you can only get maybe 2 decimal
+digits.  That's certainly  enough  for  most practical purposes, and
+certainly all practical purposes in ancient times.
+
+But, even then, there were the 'digit hunters', those who calculated
+the digits of pi beyond any practical use.  The first was Archimedes
+who discovered that a 'n' sided polygon inscribed inside of a circle
+has a perimeter smaller than the circumference of that circle, while
+a similar 'n' sided plygon  inscribed  outside  of that circle has a
+perimeter larger than the circumference  of  that  circle.   Working
+through  some  fairly  tricky  math  gave  him  the first method for
+calculation pi to any accuracy  desired.   Of course, the bounds (of
+the inner : outer polygons) were not extremely accurate and it  took
+a 'fairly large value of n' polygon to get even a couple of  digits.
+For  example,  using  a 96 sided polygon and extracting square roots
+four  times  over  yielded  only  2  decimal places.  He was able to
+determin that it was  somewhere  between  223/71  and 22/7.  And the
+fact that he was working in roman numerals, rather than a positional
+numbering system (like the modern Arabic system) didn't  help.   But
+it worked, and that's what counts.
+
+Archimedes polygons remained fairly much  state  of  the  art  until
+1593,  when  ViŠte  published  his  infinite  sequence  of algebraic
+operations.  In practice, his formula  is  useless, but it is fairly
+significant historically, since his method was the first to be given
+as an analytical expression of an  infinite  sequence  of  algebraic
+operations.  In otherwords, it was the first real 'formula' for  pi.
+Achimedes technique was an  'algorithm',  where there was a sequence
+of steps you followed, but there was no actual formula that could be
+written down.  ViŠte's was still based on the  Archimedian  polygon,
+but it did point a new direction.
+
+                       2
+pi  =  -------------------------------------
+       û« * û(« + «û«) * û(« + «û(«+«û«))...
+
+
+In 1655, John Wallis came up with:
+
+         2*2*4*4*6*6*8*8....
+pi = 2 * -------------------
+         1*3*3*5*5*7*7*9....
+
+
+This is a fairly significant  formula.   Its  convergence  is  still
+fairly  slow,  but  it  requires only simple numbers, unlike Viete's
+which required multiple square roots.
+
+(Actually,  one  of my references says that this _isn't_ the formula
+that Wallis came up with.  What  he  came up with was a 4/pi formula
+that is equivelant to the above formula.)
+
+
+And Brouncker transformed that into a continued fraction
+
+4/pi = 1 + 1ý
+           ---
+            2  + 3ý
+                 ---
+                  2 + 5ý
+                      ---
+                       2 + 7ý
+                           ---
+                            2 + .......
+
+
+(And later, Leonard Euler  showed  that  this  was equivalent to the
+Gregory arctangent series, discovered a few years later.)
+
+
+Chapter 2:  Breakthrough
+========================
+
+In 1671, Gregory discovered his famous arctangent formula:
+
+arctan (x) = x - (x^3)/3 + (x^5)/5 - (x^7)/7 + .....
+
+And it was this discovery that opened up 'modern'  pi  calculations.
+If you evaluate '1' in it, you get pi/4.
+
+pi=4*(1-1/3+1/5-1/7+....)
+
+However,  the formula has extremely slow convergence.  If you want 6
+digits of precision, you'll have to do a half million terms.  If you
+want 100 digits, you'll  have  to  go  up to 10^50!  Even Archimedes
+polygon method was better than this.  Even going out and  drawing  a
+circle and measuring it, is better than this!  But, there is hope!
+
+Newton used the same concept and came up with an arcsin formula:
+
+                 1 * x^3    1*3*x^5
+arcsin (x) = x + -------- + --------- + .....
+                 2 *  3     2*4*5
+
+And  if  you  evaluate  arcsin  (1/2) with it, you get pi/6.  And it
+converges much, much faster than arctan(1) with Gregory's series.
+
+(I should point out  that  this  isn't  _exactly_ the formula Newton
+came up with, but it is what the history books  say.   According  to
+Beckmann, Newton actually used:
+
+     3*û3        1     1        1        1
+pi = ----- + 24( - - ----- - ------ - ------ ....)
+      4          2   5*2^5   28*2^7   72*2^9
+
+
+I  don't really know, but it doesn't make too much difference, other
+than supplying an additional formula.)
+
+
+The digit hunters then  went  back  to  the Gregory series.  Abraham
+Sharp realized that you didn't actually have to use arctan(1).   You
+could use a number, such as û(1/3).
+
+pi       1         1      1       1
+--  =   ---*( 1 - --- + ----- - ----- ... )
+ 6      û3        3*3   3^2*5   3^3*7
+
+
+As you can see, those extra numbers in the denominator makes it much
+faster than if you had just done arctan(1).
+
+
+In 1706, John Machin had an incredible idea.  He used tan B=1/5 and
+
+         2tanB       5
+tan 2B=---------  = --
+       1-taný  B    12
+
+         2tan2B     120
+tan 4B=---------- = ---
+       1-taný 2B    119
+
+               tan 4B -1    1
+tan(4B-pi/4) = --------- = ---
+               1+tan 4B    239
+
+
+and  came  up  with  pi/4=4arctan(1/5)-arctan(1/239).   This formula
+converges much, much more  quickly  than  just arctan(1) does.  This
+was the formula that started it all!  You'll find  this  pi  formula
+quoted  and  mentioned  more  often than any other.  Machin used his
+formula and calculated  100  digits  easier  and faster than anybody
+else had ever done.
+
+Later that same year, William Jones, introduced the 'pi' symbol.  It
+appears that he used it as an abreviation for  'periphery'.   Nobody
+really  paid  any  attention  to  it  though,  since  he  was fairly
+insignificant in the world of mathematics.
+
+
+Leonard Euler came up with quite a few pi related items:
+
+1/1ý + 1/2ý + 1/3ý + ... = piý/6
+1/1ý + 1/3ý + 1/5ý + ... = piý/8
+1/1ý - 1/2ý + 1/3ý - ... = piý/12
+
+He also liked the idea that Machin had and developed:
+
+arctan 1/p = arctan 1/(p+q) + arctan q/(pý + pq + 1)
+
+and
+
+arctan x/y = arctan (ax-y) / (ay+x) + arctan (b-a) / (ab+1) +
+             arctan (c-b) / (cb+1) + .....
+
+And these methods give rise to  an  infinite  number  of  arctangent
+relationships!   What Machin had done that was so stupendous was now
+mearly common and mundane.
+
+He also found a faster converging arctangent formula
+
+                      2    2*4      2*4*6
+arctan x = (y/x) (1 + -y + ---y^2 + -----y^3 + .....)
+                      3    3*5      3*5*7
+
+where y = (xý)/(1+xý)
+
+This one converges faster, but also requires more effort for many of
+the  numbers.   Using  pi/4=5arctan(1/7)+2arctan(3/79)  and  his own
+arctangent formula, he was able to calculate 20 digits in less  than
+an hour.
+
+He also used and popularized Jones' abreviation symbol for pi.   The
+same symbol we all now know and love.
+
+And at this point, we've truly reached the start of Digit Hunting...
+
+
+Chapter 3:  Digit hunting
+=========================
+
+With  the  Gregory  and  Euler  arctangents,  and  Eulers method for
+arctangent relationship,  calculating  digits  of  pi  became almost
+fashionable!  It was no longer  the  province  of  a  few  dedicated
+mathematicians  who  didn't have a life and couldn't get a date, but
+something that you and a few friends could do on a rainy evening.
+
+There were other methods  besides  the arctangent relationships, but
+not too many.  And most of those that were used were of  little  use
+or historical significance.
+
+I'm going to give a few of the more common arctangent relationships,
+plus  their  'measure'  of  effort  required for them.  (More on the
+'measure'  later.)  There  are  of  course,  an  infinite  number of
+relationships, although only a few are actually useful, and  only  a
+few of those are presented.
+
+pi/4=  arctan(1)                                      (infinite)
+pi/4=  arctan(1/2)  +  arctan(1/3)                    (5.4)
+pi/4=  arctan(1/2)  +  arctan(1/5)   +  arctan(1/8)   (5.8)
+pi/4= 2arctan(1/3)  +  arctan(1/7)                    (3.27)
+pi/4= 4arctan(1/5)  -  arctan(1/239)                  (1.85)
+pi/4= 4arctan(1/5)  -  arctan(1/70)  +  arctan(1/99)  (2.47)
+pi/4= 5arctan(1/7)  + 2arctan(3/79)                   (1.88)
+pi/4= 6arctan(1/8)  + 2arctan(1/57)  +  arctan(1/239) (2.09)
+pi/4= 8arctan(1/10) -  arctan(1/239) - 4arctan(1/515) (1.28)
+pi/4=12arctan(1/18) + 8arctan(1/57)  - 5arctan(1/239) (1.78) (1.21)
+
+The  'measure' is just the sum of the reciprocal's of the Log of the
+numbers.  For example,  Machin's 4arctan(1/5)-arctan(1/239) would be
+1/Log(5) + 1/Log(239) = 1.85.  It's just a  quick  estimate  of  how
+much work you'd have to do to use that formula.
+
+There are many, many things that can influence the actual amount  of
+work that is done by the calculator.   For example, some numbers are
+easier to deal  with  than  others.   Such  as  '10'  in our base 10
+system.  If you were using a computer, some power of '2' (such as 8)
+would be better.  Some numbers also have a pattern  that  can  help,
+such as the '99' in one of the formula's above.
+
+It is  also influenced by the arctan formula used.  In some cases it
+may actually be better to use Euler's than Gregory's.
+
+For  example,   in  the  12arctan(1/18)+8arctan(1/57)-5arctan(1/239)
+formula, if you look at the arctan(1/18) and arctan(1/57) term using
+Euler's arctangent, you see a very interesting coincidence.
+
+                  1       2         2*4
+arctan(1/18)= 18(--- + ------- + --------- + ... )
+                 325   3*325^2   3*5*325^3
+
+                  1        2          2*4
+arctan(1/57)= 57(---- + -------- + ---------- + ... )
+                 3250   3*3250^2   3*5*3250^3
+
+
+As you can see, each term is just divided by extra  0s.   You  don't
+even  have  to  copy  them,  you can add them and mentally shift the
+decimal point  the  required  number  of  places.   This effectively
+removes the arctan(1/57) term from the measure, and  reduces  it  to
+only (1.21)
+
+There  used  to  be a lot of discussion as to which method was best,
+and even that varied  depending  on the circumstances.  Probably the
+'best' of the ones I've listed would  be  the  (1/18)  formula,  and
+using  the  (1/8)  as  a  check.  The (1/10) one would also be worth
+considering.   Doing  (1/18)  with   Euler's   has  the  benefit  of
+automatically calculating the (1/57), which can also be used in  the
+(1/8)  formula.  And the (1/239) is also used in both.  So the (1/8)
+formula really only has a measure  of  0.90.  So, it can be computed
+and checked for only slightly more work than  Machin's  formula  can
+just compute it.
+
+pi/4= 6arctan(1/8) + 2arctan(1/57)  +  arctan(1/239) (0.90)
+pi/4= 8arctan(1/10)-  arctan(1/239) - 4arctan(1/515) (1.31)
+pi/4=12arctan(1/18)+ 8arctan(1/57)  - 5arctan(1/239) (1.21)
+
+
+And with these tools, pi calculations exploded!
+
+Euler  calculated  20  digits.   Baron Georg Von Vega calculated 140
+digits.  Rutherford calculated 208  places.   Lehmann made it to 261
+digits.  Tseng Chi-hung did 100 digits in a month.  Clausen went  to
+248 digits.  And on, and on, and on....
+
+There are only two notable digit hunters of this period.
+
+Strassnitzky  had  Johann Dase, a calculating prodigy, calculate 200
+digits using pi/4=arctan(1/2)+arctan(1/5)+arctang(1/8).  He did most
+of those calculations in  his  head  and  in under two months!  Dase
+then started calculating the first milion natural  logarithms  to  7
+digits,  a table of hyperbolic functions, and all the factors of the
+numbers from 7 million to  10  million.  Gauss urged Hamburg Academy
+of Sciences to financially support Dase during his factoring.   This
+is  the  first known incident of paying for 'computer' time.  (Prior
+to the electronic  calculator/computer,  humans  such  as Dase, were
+known as computers.)
+
+And the other, was the infamous  William  Shanks!   You've  probably
+heard the story of how he calculated 707 digits but screwed up after
+507  digits...   Well, as Paul Harvey would say, this is the Rest of
+the Story.
+
+In 1853, Shanks published  530  digits  of  pi.   It agreed with his
+mentor's calculation of 441 digits.  It is now known that 527 of the
+530  digits  he  calculated were correct.  The last few digits being
+incorrect is a normal  round  off  /  truncation  error and is to be
+expected.  It may also have been a genuine error.  I don't have  his
+original work, so I can't say anything for sure except  that  it  is
+normal  for the last few digits to be wrong because of round off and
+truncation errors.
+
+Later than same year, he published his result  to  607  digits.   He
+also  gave  all the details of his 530 digit effort.  But, somewhere
+during the editing, he  introduces  some  errors  in the 460-462 and
+513-515 places.  It also  appears  that  he  does  not  correct  his
+previous error at 527 digits, so it is quite likely it was a genuine
+error rather than a truncation error.
+
+These errors persist in his first paper of 1873, where he  gave  707
+digits.  His second paper that year finally  corrects  his  previous
+errors,  but  there  ends up being a _single_ typographical error in
+the 326th digit!
+
+Most stories have it that Shanks first published in 1873,  and  that
+he  did  all  707  digits at once, and that he spent 30 years of his
+life doing it, and  that  there  were  errors  in it but nobody knew
+about it, and all sorts of things.  Well, much of it isn't true.  He
+only did 530 digits first, and that was verified  to  at  least  441
+digits.   It  took  him  less than a year to continue to 607 digits.
+And although there were 20  years between his first two publications
+and his  last  two,  he  certainly  didn't  spend  the  entire  time
+calculating just 100 digits more.  And he was aware of the errors in
+the first three publishings and did correct all of them in the final
+one,  but  was foiled by a single, simple typographical error during
+the printing process itself.   And  it's  fairly likely he even knew
+about that but didn't want to go to the trouble of republishing  the
+whole thing.
+
+Unfortunately though, his bad fortune  was the rule, rather than the
+exception!  Hand calculations were notoriously  unreliable,  and  it
+was  never  considered official until the results were independantly
+checked.  Depending on how he did  his  work,  he may have had to do
+more than 3 million individual digit operations.  There is a lot  of
+opportunity  for  error.   (It's  extrememly  difficult  to estimate
+exactly how many operations it  took, because there are several ways
+he could have done this.  And you have to  consider  the  divisions,
+multiplications, additions,  subtractions, carry/borrow propogation,
+etc.  Regardless though, it was a lot.)
+
+Shanks' error has  gotten  all  the  bad  publicity, but errors have
+occured at almost  every  attempt  at  breaking  the  digit  record.
+That's why no calculation was considered an official record until it
+was independantly verified.
+
+Shanks record stood until the early 1940s for the simple reason that
+nobody  else  wanted  to  spend  that much time doing all those hand
+calculations.  Part of the  reason  is that the transcadentalism and
+irrationality of pi had been proven, and there  was  no  longer  any
+reason  to  compute  large quantities of digits in an effort to find
+out more about the nature of  pi.  It even appears that the hobbiest
+calculations slowed, because most references  mention  only  200-400
+digit  calculations for that time period.  Almost like everybody was
+unconsciously waiting for the next breakthrough....
+
+In 1945, Ferguson used a desk calculator and reached 620 digits.  It
+was when trying to verify his results against Shanks that the errors
+finally became widely known.   Even  though  he was unable to verify
+his work, he continued calculating, eventually reaching 808  places.
+(808  was  chosen  to  provide  comparable precision to what 'e' was
+known at.)  You  could  suggest  that  Ferguson  simply compare  his
+calculations to two parts of Shanks' that were correct, but that  is
+somewhat  dishonest,  because  you  simply  don't know for _certain_
+about his calculations.
+
+Since it was not possible  to verify Ferguson's work against Shanks,
+J. W. Wrench and Levi  B.  Smith  undertook  a  calculation  to  808
+digits.  They were able to verify 710 digits with Ferguson's value.
+
+Upon  further  work  by  both  parties,  an error at the 723rd place
+showed up in Wrench's work.   By 1948, after performing corrections,
+they were able to verify all 808 digits and this became the official
+record for the time.
+
+Apparently Wrench had enjoyed the work,  because  he  continued  and
+eventually  reached 1,120 digits and was in the process of verifying
+it,  when...   the 'computer' ENIAC managed to calculate 2,037 in 70
+hours.  Contrary to  popular  belief,  it  wasn't Shanks record that
+fell, but Smith's and J. W. Wrench's of 808 confirmed digits (or  of
+Wrench's 1,120 unverified digits, depending on which you consider to
+be the record.)
+
+And  then  of  course,  arctangents were used in all of the computer
+calculations for the next 35 years.  See the pi time line at the end
+of the document for a brief  run  down of who did what.  There isn't
+really anything too interesting, except that I should point out that
+even with electronic computers, errors were still quite common,  and
+as  usual,  it  wasn't official until it was independantly verified.
+In the case of Gosper in  1985,  and Bailey in 1986, they both found
+faults in the hardware itself that had to be fixed or worked around,
+or  in the case of transient failures, calculations reran.  I myself
+found cache problems  with  my  old  486  system.   And somebody who
+computed 256m digits with my program discovered a problem  with  his
+brand new Pentium-II mainboard, even though it appeared to work fine
+with everything else.  Errors _do_ happen.
+
+
+Chapter 4:  Modern Breakthrough: Eugene Salamin
+===============================================
+
+In 1972, Eugene Salamin came up with an algorithm that  doubles  the
+number  of  correct digits at each iteration.  This was a phenomenal
+improvement.  Previous  methods  required  hundreds  of  millions of
+operations, but Salamin's AGM (Arithmetic Geometric Mean) would only
+require a few hundred.
+
+Let A[0]=1, B[0]=1/û2
+
+Then iterate from 1 to 'n'.
+
+A[n]=(A[n-1] + B[n-1])/2
+B[n]=û(A[n-1]*B[n-1])
+C[n]ý=A[n]ý - B[n]ý
+
+                      n
+PI[n]=4A[n+1]ý / (1-( ä (2^(j+1))*C[j]ý))
+                     j=1
+
+There is an actual error calculation, but it comes out  to  slightly
+more  than double on each iteration.  I think it results in about 17
+million  correct  digits,  instead  of  16  million  if  it actually
+doubled.  PI16 generates 178,000 digits.  PI19 to  over  a  million.
+PI22 is 10 million, and PI26 to 200 million.
+
+This  results  in  a  vast  reduction  in  the  number of operations
+required.  The  old pi/4=12arctan(1/18)+8arctan(1/57)-5arctan(1/239)
+would require about 105,000 full precision  operations  for  100,000
+digits.  This would only require 112 full precision operations!  (Of
+course, the AGM's full precision operations are more complex, but it
+still has a major, major advantage.)
+
+Although this method was discoverd by  Salamin in 1972, and was item
+143 in the famous MIT Hakmem  memo,  it  wasn't  formally  published
+until  1976.   At  that  time, it was discovered that Brent had also
+discovered it at about the same  time, and they both discovered that
+they had rediscovered a method given by Gauss 150 years previously.
+
+And by using Strassen's discovery of just a few years previous,  you
+could multiply extremely large numbers is O(n log n log log n) time.
+This  is of course vastly better  than the O(ný) time of traditional
+methods.  By having  fast  multiplication,  you  can  also easily do
+division, by computing its reciprocal, and square roots, by Newton's
+method.
+
+Even though this formula was published in 1976, it appears it wasn't
+used  in  a  serious  calculation until 1982, when Tamura and Kanada
+used it to calculate 4 million decimals.
+
+Although  there  are  newer iterations, such as the Borwein formulas
+below, the AGM is still the fastest, the easiest to  implement,  and
+all around best iteration.
+
+
+
+Chapter 5:  The Borweins
+========================
+
+Jonathan  and  Peter  Borwein  found  Salamin's  method  to be quite
+interesting.  After  several  years  work,  they  derived  a general
+method for higher order equations.  (See their book: Pi and the  AGM
+-  A  study  in Analytic Number Theory and Computational Complexity,
+Wiley, N.Y., 1987).
+
+Where as Salamin's  only  doubled,  they  derived formulas where the
+correct number of digits increased by 4 and by  5  times!   Thirteen
+iterations would have been enough for more than 1,000,000,000 digits
+of  pi.   However,  some  of their formulas were only mathematically
+interesting, meaning that they  actually  required too much work for
+each iteration.
+
+Also, based on work by Ramanujan (1887-1920),  and  their  own  work
+with  modular  equations, they derived a number of series where each
+iteration added 'x' number  of  digits  at  each  time.  One of them
+generates 25 more digits with each term,  although  that  particular
+one isn't really practical.
+
+
+A)
+Let a[0]=6-4û2 and y[0]=û2-1.
+
+         1-(1-y[n]^4)^¬
+y[n+1] = --------------
+         1+(1-y[n]^4)^¬
+
+a[n+1] = (1+y[n+1])^4 * a[n] - (2^(2n+3)) * y[n+1] * (1+y[n+1]+y[n+1]ý)
+
+Then: 0  <  a[n]  -  1/pi  <  16*4ü*e^(-2*4ü*pi),  which  means a[n]
+converges to 1/pi quartically (4 times.)
+
+B)
+Let s[0]=5*(û5-2) and a[0]=1/2.
+
+                 25
+s[n+1] = --------------------
+         (z + x/z +1)ý * s[n]
+
+x=5/s[n]
+
+y=(x-1)ý+7
+
+z=(«(y+û(yý-4*x^3)))^(1/5)
+
+                          s[n]ý-5
+a[n+1]=s[n]ý*a[n] - 5ü * (------- + û(s[n]*(s[n]ý-2*s[n]+5)))
+                             2
+
+then 0 < a[n] - 1/pi < 16*5ü*e^(-5ü*pi), which means a[n]  converges
+to 1/pi quintically (5 times.)
+
+
+They also  mention,  and  independantly  derive,  an  old  Ramanujan
+formula:
+
+C)
+
+ 1   ì   2n 3   42n+5
+ - = ä  (  )  ---------
+pi  n=0   n   2^(12n+4)
+
+
+The also found a series that adds 25 digits for each iteration:
+
+D)
+
+        ì
+        __   (-1)ü(6n)![212,175,710,912û61+1,657145,277,365+
+ 1     <  \             n(13,773,980,892,672û61+107578,229,802,750)]
+-- = 12 >   ---------------------------------------------------------
+pi     <__/     (n)!^3(3n)![5,280(236,674+30,303û61)]^(3n+3/2)                 
+       n=0
+
+
+Although this one really isn't practical for an actual computation.
+
+
+Chapter 6:  Bill Gosper
+=======================
+
+While the Borwein's  were  working  on  the Ramanujan formulas, Bill
+Gosper,  one  of  the  original  hackers,  converted  the  Ramanujan
+formula:
+
+                ì
+                __
+  1      û8    <  \  (4n)! (1103 +26390n)
+ --- = -------  >   ---------------------
+  pi    9801   <__/   (n!)^4 396^(4n)
+               n=0
+
+into a continued fraction and generated 17 million digits on a small
+work station, running LISP.  At the time, it was a record.  I should
+further  mention that his tiny workstation had only a small fraction
+of the  power  of  the  super  computers  that  the calculations had
+previously been done on.  It was far less powerful  than  what  most
+people have at home and play games on!
+
+(Even though this isn't related  to  pi,  I  should  point  out  the
+difference between a classic Hacker, and today's cracker, which many
+idiots  and newbies call 'hackers'.  A classic Hacker was a computer
+on legs.  They almost 'thought' in binary.   They were the ones that
+could code for 24 hours straight.  They were the ones who drank Jolt
+cola.  (Not that there was actually Jolt back then,  but....)  These
+guys  were  the  source of phrases like: "It's a real hack" (meaning
+it's a real beaut of a piece of code) and "It's a kludge" (meaning a
+disgustingly ugly piece of code  that works, but isn't 'elegant', it
+just simply works for all the wrong  reasons),  and  "It's  a  quick
+hack"  (meaning  a  piece of code that works but was thrown together
+very quickly.) They were the  ones that were the 'midnight Hackers',
+back  in  the  70's  when  doors  to  mainframe  computer  rooms  at
+universities  were  left  unlocked  and  some  students   took   the
+opportunity  to  literally spend all night exploring what a computer
+was and  how  to  do  things.   These  were  the  guys who developed
+networking, BBSs, virtual reality, and many of the things taken  for
+granted  today.   They  learned  for  the  sheer joy of learning and
+pushing the  boundaries  of  what  was  and  was  not possible.  The
+Hackers _were_ the computer revolution.
+
+A cracker is somebody who has the goal of doing  deliberate  damage.
+They  may  have  similar  skills,  but a Hacker would generally only
+cause  damage  by accident.  Hackers weren't interested in bothering
+anybody, where as a  cracker  lives  for that sole reason.  Crackers
+are scum, and it irks me immensely to hear them called 'hackers'.)
+
+There  were  a  few  interesting  things about Gosper's computation.
+First, when he decided to use  that particular formula, there was no
+proof that it actually converged to pi!  Ramanujan  never  gave  the
+math  behind  his  work,  and  the Borweins had not yet been able to
+prove it, because there was some  very  heavy math that needed to be
+worked through.  It  appears  that  Ramanujan  simply  observed  the
+equations  were  converging  to  the  1103  in the formula, and then
+_assumed_ it must actually be 1103.  (Ramanujan was _not_ known  for
+rigor  in his math, or for providing any proofs or intermediate math
+in his formulas.) The  math  of  the  Borwein's  proof was such that
+after he had computed 10 million digits, and verified them against a
+known  calculation,  his  computation  became  part  of  the  proof.
+Basically it was like, if you have two integers  differing  by  less
+than one, then they have to be the same integer.
+
+The second intersting  thing  is  that  he  chose  to  use continued
+fractions to do his  calculations.   Most  calculations  before  and
+since  were  done  by  direct  calculation to the disired precision.
+Before you did any calculations,  you  had to decide how many digits
+you wanted, and later if you wanted more, you had to start over from
+the beginning.  By using continued fractions,  and  a  novel  coding
+style,  he was able to make his resumable.  He could add more digits
+any time he felt like it and had the spare time.  This was  a  major
+breakthrough  at  the  time,  because  all previous efforts required
+starting over from the beginning if you wanted more.
+
+The  third  interesting  thing  about his calculations was the other
+reason he chose to use infinite simple continued fractions.   It  is
+still  not  known  whether pi has any 'structure' or patterns to it.
+It is known that  it's  irrational  and  transcedental, but it still
+might have some pattern to  it  that  would  allow  us  more  easily
+calculate  its  digits.   We  just don't know.  And patterns show up
+more readily as a continued  fraction  rather than in some arbitrary
+base that we humans call 'base 10'.  As  an  example,  'e'  and  the
+square  root of two both have very simple, obvious patterns in their
+continued fractions, even though they  appear to be non-repeating in
+base 10.
+
+
+Chapter 7:  The Chudnovskys
+===========================
+
+In the late 80's,  the  Chudnovsky's  were  using  a  symbolic  math
+package and derived a series that had some stunning benefits.
+
+
+   inf
+   ___
+  <   \               (6n)!   (-1)^n           (640320)^1.5
+   >    {c1+n} * ------------------------   = --------------
+  <___/          (3n)! (n!)^3 (640320)^3n      6541681608*pi
+   n=0
+
+
+With c1 = 13591409 / 545140134
+
+
+It also includes a certain amount of self checking.  If you truncate
+the left half of the formula  at  'N',  then: For all primes P > 29,
+the formula is evenly divisible by P (congruent to 0, modulo P)  for
+all N, with N < P <= 6N .
+
+The advantages of this formula are:
+
+First, it was resumable, like Gosper's was.  You  could  add  a  few
+more  digits  any  time  you had the spare computing time and power.
+Although you did have to redo  the calculations on the right side of
+the formula.
+
+Second, it was partionable.  The calculations between each term were
+independant  enough  that  the  work  could  be  divided  among many
+computers and then combined into  the final, whole, 'work' when they
+all got done.  So, instead of requiring a super computer, you  could
+just  use  some spare time on a LAN, which might have a few, or even
+dozens of idle computers.  You  could  even do it over the internet.
+Assign a fixed range to compute among a thousand computers, and in a
+few days (or whenever) when the results came in, just combine  them,
+and presto....
+
+Third, the algorithm had  a  method  of  checking itself for errors.
+This was the first method to have a way built into the  calculations
+to detect any errors  made  by  the  programming  or  the  hardware.
+Previously,  the  calculations  had  to be performed twice, with two
+different programs  and  algorithms.   That  took considerable time.
+This algorithm could be checked 'on the fly'.  This self checking is
+of  critical importance, since both Gosper and Baily found errors in
+their calculations that were caused by their computer hardware.
+
+The  disadvantages  are:  The intermediate numbers get fairly large.
+The saved state takes up quite  a  bit of room.  It takes about five
+times as much intermediate working space than  you  get  pi.   After
+you've "finished", you still have to do a division of a square root,
+and  a reciprocation, both of which have to be redone every time you
+add more digits.
+
+It's about the best you could  want.  About the only thing you might
+want more would be: faster convergence (ie.   more  digits  on  each
+iteration),  a  bit  simpler math, smaller intermediate numbers, and
+the  ability  to  calculate  the Nth decimal digit without having to
+calculate all the preceeding ones first.  (Although that last one is
+possible with  another  formula,  its  speed  is  so  slow  as to be
+impractical.)
+
+
+Chapter 8:  Other methods
+=========================
+
+There are a vast number  of  formulas  for pi.  Some are an infinite
+number of square roots.  Some involve reciprocals of squares.   Some
+are  based on various trigonometric identities.  Others are based on
+modular  equations.   Some  are  infinite series.  Some are infinite
+products.  Some are infinite continued fractions.
+
+There are even two based on the Fibonacci series!  Yuri Matiyasevich
+showed that:
+
+
+                6 log fcm(F[1]F[2]F[3]F[4]...F[n])
+pi =  lim    û( ----------------------------------  )
+      n->ì        log lcm(F[1]F[2]F[3]F[4]...F[n])
+
+
+fcm is Formal Common Multiple, or  simply the product of F[1], F[2],
+etc.
+
+lcm is Least Common Multiple.
+
+F[1], F[2], F[3], etc.  are the Fibonacci series.   F[0]=0,  F[1]=1,
+F[2]=1, F[3]=2, F[4]=3, F[5]=5, F[6]=7, F[7]=12, etc.
+
+The other formula is:
+
+     ì
+pi=4 ä arctan(1/F[2n+1])
+    n=1
+
+Again,  this  uses  the  Fibonacci  numbers, and as n went from 1 to
+infinity, you'd use the  2n+1'th  Fibonacci  number.   Or, 2, 5, 12,
+etc.
+
+Of course, that formula is just a sophisticated way of saying:
+
+arctan(1/F[2n+1])=arctan(1/F[2n])-arctan(1/F[2n+2])
+
+and that of course is just another way of saying: pi/4=arctan(1/F2).
+And  since  F[2]  (the second Fibonacci number) is 1....  You end up
+with pi/4=arctan(1).
+
+
+And of course, since the 'Golden  Mean/Ratio'  is  involved  in  the
+Fibonacci numbers, it's also involved  in pi!  Each Fibonacci number
+is integer part of the GM/R times the previous Fibonacci number.
+
+
+You can also evaluate pi  statistically,  by  randomlly  dropping  a
+'needle' onto a ruled sheet of paper.
+
+
+The formula:
+
+    inf
+    __
+   <  \   1    /  4     2      1      1   \
+pi= >   ----  | ---- - ---- - ---- - ---- |
+   <__/ 16^i   \8i+1   8i+4   8i+5   8i+6 /
+   i=0
+
+is actually capable of  computing  the  i'th hexadecimal digit of pi
+_without_ computing all of the previous digits.  The total run  time
+for  computing 0..i digits though is N^2, the same as the old Machin
+/ Gregory series, so it isn't really practical.   (A  slightly  more
+complex formula can compute other constants too.)
+
+There is also a formula to compute the n'th digit of pi in any base,
+including base 10, and not  just hexadecimal like the formula above.
+This was published in a paper by Mr. Bailey, Mr. P. Borwein, and Mr.
+Plouffe in the april  1997  issue  of  Mathematics  of  Computation.
+Fabrice Bellard has an improved  version  on  his web page, but it's
+still a bit too complex to show.  At best, it's still O(N^2) with  a
+fairly    large    O().     (http://www-stud.enst.fr/~bellard/   and
+http://www.lacim.uqam.ca/plouffe/Simon/articlepi.html)         Still
+interesting though.
+
+You can use the distribution of  bright  stars  across  the  sky  to
+approximate pi.
+
+
+
+Chapter 9: Other related stuff.
+===============================
+
+If you graph y=1/x with the range of 1 to infinite, you get a fairly
+typical curve.  Its length is infinite, and the area under the curve
+is infinite.  If  you  rotate  the  curve  through three dimensions,
+getting a funnel, its surface area is still infinite, but its volume
+is exactly pi cubic units!  That means you can't paint the inside of
+the funnel, because its area is infinite, but you can FILL IT!
+
+Mathematics ought not  be  contridictory  and  I've  often  wondered
+whether   mathematicians   should   go  back  to  the  beginning  of
+mathematics and take a close look at everything.
+
+
+There are many mnemonic phrases for remembering pi.  Two common ones
+are:
+
+"How  I  want a drink, alcoholic of course, after the heavy leactures
+involving quantum mechanics!"
+
+"May I have a large container of coffee?  Cream and sugar?"
+
+There is also a poem  modeled  after  Poe's The Raven that gives 740
+digits.
+
+Pi has been memorized to 42,000 digits.
+
+Of course, the natural log,  the trigonometric functions, and pi are
+all intimatly linked together by:
+
+     e^(i*pi) = -1     and     e^(ix) = cos x + i sin x
+
+
+It is unknown whether pi is 'normal' in base  10.   Normality  means
+that all the digits appear equally often.
+
+Pi is an irrational  number.   This  was  proven by Lambert in 1771,
+although even the somewhat dim witted Aristotle was vaguely aware of
+the proof.
+
+Although  pi is not a rational number, it is not known whether it is
+a near  rational  number.   A  rational  number  is  a  ratio of two
+integers.  With 'near rational' numbers, the numbers don't  have  to
+be integers.
+
+Although pi is a transcendental number, meaning it's not the root of
+an   algebraic   equation  with  integer  coefficients  and  postive
+exponents, it's not  known  whether  it  is  a  root of an algebraic
+equation with  non  integer  coefficients  and  /  or  non  positive
+exponents.
+
+We do not know whether pi+e or pi/e, or log  pi  are  irrational  or
+transcendental.
+
+We  know  little  about its continued fraction, other the first 17.5
+million terms computed by Bill Gosper.
+
+It  is  not  known  whether  pi  eventually  settles  down into some
+particular pattern of digits  in  any particular base.  For example,
+it's possible, although very unlikely, that it would fall  into  the
+pattern:  3.1415926...010010001000010000010000001....  In this case,
+it would not be  a  normal  number,  would  still be irrational, and
+still be a transcendental number, although it would  be  trivial  to
+calculate  any particular digit desired without computing any of the
+previous digits.
+
+It is not known whether the regular continued fraction of pi has any
+particular pattern.  If there is,  that  would indicate a pattern in
+the number  itself  rather  than  in  some  particular  base,  since
+continued fractions are base independant.
+
+The first six digits of pi itself  show up six times in the first 10
+million digits.  The first six digits of 'e' show up 9  times.   The
+first  eight  digits  of  the  square  root  of  two shows up at the
+52,638th decimal.  Is any  of  this  relevant?  Nobody knows.  It is
+statistically likely that things like this happen,  but  nobody  can
+prove that it is only pure chance.
+
+There  are  four  known  'pi  forward'  primes:  3,  31, 314159, and
+31415926535897932384626433832795028841.
+
+There are 7 known 'pi  back'  primes:  3, 13 51413, 951413, 2951413,
+53562951413, and 97853562951413.  There  are  no  more  through  the
+432nd decimal.
+
+It is not known where there are any PiFor square numbers.
+
+355/113 is the 'best' ratio for pi, because of the small size of the
+numbers, and it is accurate  to  6 decimals.  (That rational is from
+pi's regular continued fraction, and isn't something that was simply
+'created'.) If you write it backwards and add one to the denominator
+so you get 553/312, you get the square root of pi  correct  to  four
+decimals.
+
+The square root of 10  is  accurate  to one decimal.  Square root of
+two  plus the square root of three is accurate to two decimals.  The
+cube root of 31 is correct  to  3 decimals.  The square root of 9.87
+is correct to a rounded four decimals.  The square root of 146 times
+13/50 is correct to a rounded six decimals.
+
+Divide 2,143 (the first four counting  numbers) by 22, then take the
+square root twice.  You get pi correct to eight decimals.
+
+The first 144 decimals of pi add up to  666.   And  144=(6+6)*(6+6).
+And  the  three  digits starting at the 666th position is 343, which
+happens to be 7*7*7.
+
+The Great Pyramid of Egypt has a circumference to  height  ratio  of
+2pi.   Of course, this is to be expected since it's likely they used
+a wheel to make their  horizontal measurements.  Why a wheel?  Well,
+you've got to make measurements some how.  A rope will stretch quite
+a bit over that  great  of  distance.   Even  a  modern  rope  would
+probably  stretch  half  a  meter.  A steel tape measure can stretch
+several centimeters.  The papyrus rope that was used back then might
+have stretched as much as  5-10  meters!   A wheel on the other hand
+will  give  you  very similar measurements (within a rotation or so)
+regardless of how many times it's  measured, or what the weather is,
+or how hot it is at that time of day.  Even today a calibrated wheel
+is used to measure  tracks  and  courses,  and  even  after  several
+kilometers, two different size  wheel  measurements will often agree
+within half a meter or so.
+
+The  height is 146.599m.  One Egyptian cubit is 0.5235m.  That means
+the height is 146.599/0.5235m=280.03 cubits high.  A very convenient
+number (ie: a whole number).  The width is 230.364m, which is 440.04
+cubits wide.  Not a very  convenient  number.   But if you make your
+width measurments with a wheel that is one  cubit  in  diameter,  it
+will  have  a  circumference  of  1.6446m.   And  a  width of 140.07
+revolutions of a  cubit  diameter  wheel.   And  the number 140 just
+happens to be half the height of the pyrmaid is in cubits.
+
+In spite of some  people  prefering  mysticism, super science on the
+Egyptians part, Atlantis, aliens from space, etc., the  numbers  fit
+and  the  process  is possible, and simple.  And since it solves the
+problem, and is practical,  and  implementable,  and is simpler than
+other explanations, Science requires it to be accepted until further
+notice.
+
+There is  some  variation  in  the  measurements.   There  are  many
+measurements for the four widths, and the height has to be estimated
+because  it's  missing  the  apex,  and all four sides are different
+sizes anyway.  But, if you use an Egyptian cubit, the numbers fit so
+incredibly close that it simply can't be dismissed.
+
+
+Everybody has heard about 'squaring  the  circle'.  As many can tell
+you, it's not too hard to square the circle, but under the 'rules of
+the game', it had to be done under Euclidean  geometry,  which  only
+allowed  a  straight  edge, a compass, and a finite number of steps.
+Basically, what it all boiled down to, was they were trying to prove
+whether pi was transcendental!  In  other words, whether it could be
+a root  of  an  equation  with  integer  coefficients  and  positive
+exponents.   And  of  course,  it  was  proved  in  1882  that pi is
+transcendental, and therefore that you can't square the circle under
+Euclidean geometry.
+
+(I know that some of the above  is  more than a little odd, and well
+into mysticism, but I figured I'd throw in a little of everything.)
+
+
+Apendix A:  Pi time line
+=========================
+
+
+~2000 BC
+Babylonians use pi=3 1/8
+Egyptians use pi=(16/9)ý=3.16
+
+~1200 BC
+Chinese use pi=3.
+
+~440 BC
+Hippocrates of Chios squares the lune.
+
+~434 BC
+Anaxagoras attempts to square the circle.
+
+~420 BC
+Hippias discovers the quadratix.
+
+~335 BC
+Dinostratos uses the quadratix to square the circle.
+
+~300 BC
+Archimedes established 3 10/71 < pi < 3 1/7 and
+pi=211875:67441= 3.1416.  He also uses the archimedean spiral
+to rectify (ie: square) the circle.
+
+~225 BC
+Appolonius improves the Archimedean value.  Unknown to what
+extent.
+
+~200 AD
+Ptolemy uses pi=377/120=3.14166..
+
+~250 AD
+Chung Hing uses pi=û10=3.16..
+Wang Fau uses pi=142/45=3.1555.
+
+263
+Liu Hui uses pi=157/50=3.14.
+
+450
+Tsu Chung-Chi establishes 3.1415926 < pi < 3.1415927.
+
+~500
+Aryabhatta uses pi=62832/2000=3.1416.
+
+~550
+Brahmagupta uses pi=û10=3.16..
+
+1220
+Leonardo of Pisa (Fibonacci) finds pi=3.141818.
+
+<1436
+Al-Kashi of Samarkand calculates pi to 14 places.
+
+1573
+Valentinus Otho finds pi=355/133=3.1415929.
+
+1583
+Simon Duchesne finds pi=(39/22)ý=3.14256.
+
+1593
+Francois Viete finds pi  as  an infinite irrational product composed
+of an infinite series of square roots.
+
+Adriaen van Roomen finds pi to 15 decimal places.
+
+1596
+Ludolph van Ceulen calculates pi to 32 places, later to
+35 places.
+
+1621
+Snellius refines the Archimdedean  method and calculates Ludolph Van
+Ceulen's digits with far less effort.
+
+1654
+Huygens proves the validity of Snellius' refinement.
+
+1655
+Wallis finds the first infinite rational product for pi.
+
+Brouncker converts Wallis' product into a continued fraction.
+
+1665-1666
+Newton discovers calculus and calculates pi to at least 16 decimal
+places.  Wasn't published until 1737 (posthumously).
+
+1671
+Gregory discovers his now classic arctangent series.
+
+1674
+Leibniz 'discovers' that arctangent(1) is  pi/4  and  is  calculable
+with the then new Gregory sieres.
+
+1705
+Sharp calculates pi to 72 decimal places
+
+1706
+Machin calculates pi to 100 places using:
+    pi/4=4arctan(1/5)-arctan(1/239)
+His relationship  is  the  first  ever  of  this  kind.   It greatly
+accelerates the convergence of the arctangent series, and it was the
+slow convergence that made calculating arctan(1) impractical.
+
+William Jones uses the now common pi symbol, as an  abreviation  for
+'periphery' for the first time.
+
+1719
+De Lagny calculates pi to 127 places.
+
+1747
+Euler uses Jones' 'pi' symbol for  the first time.  His prestige and
+'weight' in the mathematics world make it the standard symbol fo pi.
+
+1748
+Euler  publishes  the   "Introductio   in   analysis   infinitorum",
+containing  Euler's  Theorem  and many series for pi.
+
+1755
+Euler derives a very rapidly converging arctangent series.
+
+Uses  pi/4=5arctan(1/7)+2arctan(3/79)  and his own arctangent series
+and calculates 20 digits in less than an hour.
+
+Develops the arctangent relationships, allowing an  many  arctangent
+relationships  to be developed.  What Machin did that was so special
+and revolutionary had now become  mundane  and  trivial.   (For  the
+reader's  sake,  I  will  omit  many,  many  minor  calculations and
+formulas that resulted from Euler's discovery.)
+
+1766 (1761?)
+Lambert proves the irrationality of pi.   This means that pi can not
+be the ratio  of  two  whole  numbers  (ie.   a rational number with
+integers.)
+
+1775
+Euler  suggests  that pi is transcendental.  A transcendental number
+is one that can not be  the  solution of an algebraic equation where
+the coefficients  are  integers,  and  the  exponents  are  positive
+integers.
+
+1794
+Legendre proves the irrationality of pi and piý.
+
+Vega calculates pi to 140 decimal places.
+
+1840
+Liouville proves the existence of transcendental numbers.
+
+1844
+Strassnitzky and Dase calculate  pi  to  200  places.   Dase  was  a
+calculating  prodigy  and  did  the  calculations _in_his_head_!  At
+Gauss' suggestion, Dase was actually  paid  for his time and effort,
+making this the first time that money was paid for 'computer' time.
+
+1853
+Shanks publishes his calculation to 530 digits.  Verifies it to at
+least 441 digits.
+
+Shanks publishes  his  calculation  to  607  digits,  and giving the
+details of all the calculations to 530 places.   Due  to  an  error,
+only 527 digits were correct.
+
+1855
+Richter calculates pi to 500 decimal places.
+
+1873
+Hermite proves the transcendence of e (natrual log).
+
+1873
+Shanks publishes a paper containing 707 digits.  He also attempts to
+correct  his  errors  from  his  1853  book but blunders again, with
+several digits in error starting at the 460th place.
+
+His second paper that  same  year  gives  his final calculation, and
+corrects all the previous errors, but a  typographical  error  makes
+the 326th digit incorrect.
+
+1882
+Lindemann proves the transcendence of pi.  This also proves that you
+can  not square the circle using standard Euclidean geometry (ie.  a
+straight edge and compass and a finite number of steps.)
+
+1897
+Indiana  (U.S.) state legislature almost passes a law declaring that
+pi is equal to 16/5  (the  value varies depending on the reference.)
+They do it because the author of the 'discovery' offers to let  them
+use  it for free, while other states would have had to pay royalties
+on it.  This may also be the  source of a rumor about the government
+doing it for religious reasons.
+
+1945
+Ferguson  finds  Shanks'  calculation  wrong  starting  at the 527th
+place.
+
+1946
+Ferguson publishes 620 decimal places.
+
+1947
+Ferguson calculates 808 places using a desk calculator.
+
+Wrench  and  Smith calculate 818 places.  710 places were officially
+verified between Wrench / Smith and Ferguson.
+
+1948
+Wrench and  Ferguson  resolve  descrepancy  starting  with the 723rd
+digit, and finally produce a published value of  808  digits  of  pi
+with guaranteed accruacty.
+
+1949
+Smith  and Wrench resume their calculations and obtain 1,120 digits.
+Before checking could be completed,....
+
+ENIAC is programmed to compute 2,037 decimals.  Takes 70 hours.
+
+(And since ENIAC didn't do a verification run, that  actually  makes
+the 1,120 digits the verified record.)
+
+1954
+Smith and Wrench continue to  1160  digits, of which 1157 agree with
+ENIAC.  And according to modern 'rules', this becomes  the  official
+record.
+
+1954-1955
+NORC is programmed to compute 3,089  decimals  and  does  it  in  13
+minutes.
+
+1957
+A  Pegasus  computer  computed 10,021 digits in 33 hours.  Due to an
+error, only 7480 were correct.
+
+1958
+An IBM 704 in  Paris  calculated  10,000  in  1 hour and 40 minutes.
+(Only 40 seconds were required to reach Shanks' 707 digits.)
+
+1959
+Pegasus in England computes 10,000 digits.
+
+IBM 704 in Paris computes 16,167 decimal places in 4.3 hours.
+
+1961
+IBM 7090 calculates 20,000 digits in 39 minutes.
+
+Shanks  and  Wrench  use  an IBM 7090 calculates 100,265 digits in 8
+hours, 16 (or 43) minutes
+
+1966
+Gilloud  and  Fillatoire,  using  an  IBM  7030  (STRETCH)  in Paris
+compute, and checks 250,000 decimal places in a total  of  45  hours
+and 20 minutes.
+
+1967
+Gilloud and Dichampt use a CDC  6600  and  compute  500,000  decimal
+places in 44 hours and 45 minutes.
+
+1968
+Strassen discovers that multiplication of  very large numbers can be
+done using a Fast Fourier Transform.
+
+1970
+Strassen discovers how to speed up his  method,  avoiding  'complex'
+numbers.  More complicated than regular FFT though.
+
+1972
+Eugene Salamin discovers a faster, more efficient way  to  calculate
+pi,  using  an Arithmetic-Geometric Mean.  Actually rediscovers work
+done by Gauss.  Paper  not  formally  published  until  1976.   This
+method,  and  all  later  ones, depend on the multiplication of very
+large numbers, and  normally  uses  Strassen's  FFT  method.  It was
+mentioned in MIT's famous 'hakmem' memo of 1972.
+
+1973
+Guilloud and Bouyer use a  CDC-7600  and compute 1,000,000 digits in
+23 hours and 18 minutes.
+
+1981
+Miyoshi and Nakayama use a FACOM M-200 to reach 2,000,038 digits.
+
+1982
+
+Jean Guilloud reaches 2,000,050 digits.
+
+Tamura and Kanada use a HITAC  M-280H to reach 4,194,293 digits in 2
+hours and 53 minutes.  This is  the  first real use of Salamin's AGM
+formula.
+
+1983
+Kanada used a Hitachi S-810  and calculated 16 million digits, with
+10 million verified, in less than 30 hours.
+
+1984
+Chudnovsky's   develop   a  new  formula  for  pi.   It  has  slower
+convergence than other methods,  and  overall  takes more effort for
+the  same  number  of  digits,  but  their  method   is   resumable,
+partionable, and self checking.
+
+1985
+Yuri   Matiyasevich  discovers  a  connection  between  pi  and  the
+Fibonacci numbers.
+
+Bill  Gosper  uses  a  small  workstation  to calculate 17.5 million
+digits using a continued fraction.  He verifies 10 million digits of
+it against Kanada's value.  He strongly points out the need for some
+way to automatically verify  the  calculations, since the history of
+pi calculations is littered with errors.  He  also  points  out  the
+need  for resumability in the calculations, since starting over from
+the beginning so  you  can  calculate  more  digits is somewhat self
+defeating.
+
+1986
+David Bailey calculates and  verifies  29  million digits, using the
+first delivered Cray-2.   He  uses  two  formulas  discovered by the
+Borweins.
+
+1987
+Kanada calculated 134,217,000 on a NEC SX-2.
+
+1989
+Chudnovskys  use  a  Cray  2  and an IBM 3090 and reach 480 million
+digits.
+
+Chudnovskys reach 525,229,270 digits.
+
+Kanada and Tamura reach 536,870,898 digits.
+
+Chudnovskys use an IBM-3090 and reach 1,011,196,691 verified  digits
+of pi.
+
+Kanada and Tamura reach 1,073,741,799 digits.
+
+1991
+Chudnovskys reach 2,260,000,000 digits
+
+1994
+Chudnovskys reach 4,044,000,000 digits
+
+1995
+Kanada and Takahashi compute 3,221,225,466 digits
+
+Kanada and Takahashi compute 4,294,967,286 digits
+
+Kanada  computes 6,442,450,944 (3*2^31) digits.  Upon checking, only
+the last 6  digits  are  different,  meaning  an  official record of
+6,442,450,938 digits.
+
+Bailey,  Borwein,  and  Plouffe  comput the 40,000,000,000'th binary
+digit of pi
+
+1996
+Fabrice Bellard computes the 200,000,000,000'th binary digit of pi.
+
+Fabrice Bellard computes the 400,000,000,000'th binary digit of pi.
+
+1997
+Kanada and Takahashi compute 51,539,607,552 digits of pi.
+
+Fabrice Bellard computes the 1,000,000,000,000'th binary digit of pi.
+
+1999
+Kanada  and  Takahashi   computes   68,719,470,000  decimal  digits.
+Computer used was a (parallel) HITACHI SR8000.  32.9 hours.  296g of
+main memory used.
+
+Dominique Delande computes 1,073,741,824 digits (1,073,741,686  were
+correct)  on a desktop computer.  A world record for a desktop.  The
+program was  v2.3  of Carey Bloodworth's pi-agm program.  ~520m main
+memory used, with 8g of disk.  Pentium-II @450mhz.
+
+
+
+Bibliography
+============
+
+Baily, David: private communications, 1987
+  Brief discussion of his prime modulus transform, and obtained two
+  copies of his paper.
+
+Baily, David: The  Computation  of  pi  to 29,360,000 decimal digits
+using Borwein's Quartically convergent algorith.  1987.  Obtained my
+copy from  author,  it  probably  ended  up  in  something  such  as
+Mathamatics of Computation.
+  Gives  a general overview of how he used a Cray-2 to calculate pi,
+  and a brief  overview  of  statistical  analysis.   Might be worth
+  hunting for.
+
+Ballantine, J. P.: The Best  (?)  Formula  for  computing  pi  to  a
+thousand  places.   American  Mathematical  Monthly,  October, 1939,
+pages 499-501
+  Builds a bit on Lehmer's previous paper, and points out a few ways
+  to improve the time of the hand calculations.  If you intend to do
+  any arctangent calculations (by hand or computer), might be  worth
+  getting.
+
+Beckmann, Petr: A History of pi.  1974.  St.  Martin's press / Golem
+Press.
+  An excellent general overview of the history of pi and mathematics
+  in  general.  The definative, most complete record of pi.  It is a
+  little opinionated in places, and  shows  its age with the limited
+  computer references, mentions of the Soviet  Union,  and  lack  of
+  modern  formula techniques, but well worth reading for the history
+  and entertainment.  FIND IT!   Gives  quite  a few references, but
+  you aren't likely to find them anymore.
+
+Borwein, J. M. and  P.  B.:  The  Arithmetic-Geometric Mean and fast
+computation of elementary functions.  SIAM Review, Vol 26,  No.   3,
+July 1984.  Pages 351-366
+  Talks  a bit about the AGM and pi, etc.  Gives 21 references.  Not
+  really worth hunting down.
+
+Borwein, J. M. and P. B.: An explicit Cubic Iteration for  pi.   BIT
+26, 1986.
+  Gives a algorithm for pi that triples the number of correct digits
+  at  each  iteration.  No real big deal.  Copy it if you stumble on
+  it, but not worth worrying about.
+
+Borwein, J. M. and P. B.: Pi and the AGM: A study in Analytic Number
+theory and Computational Complexity.  John Wiley, 1986.
+  A  very  mathematical presentation of pi, the arithmetic geometric
+  mean, Ramanujan, and a whole bunch of other stuff.  Very deep math
+  in  places!   Obviously, it has a large number of references.  Get
+  your library to get it via the interlibrary loan!
+
+Borwein,  J.  M.  and P. B.: Ramanujan And Pi.  Scientific American.
+Date unknown.  Probably mid to late 80s.
+  Talks about Ramanujan, his methods for pi, gives a  few  formulas,
+  both his and theirs.  If your library has back issues of SciAm, go
+  ahead and photocopy it!
+
+Borwein,  J.  M.  and  P.  B., and Bailey, David: Ramanujan, Modular
+equations, and approximations to pi,  OR, How to compute one billion
+digits of pi.   Date  unknown.   Probably  1986  or  1987.   Source:
+unknown.   I  obtained my copy directly from the Borwein's and don't
+know where their paper finally appeared.
+  A very interesting  paper!   Basically  a  very simplified part of
+  the Borwein's  book..   Gives  several  usefull  formulas,  has  a
+  discussion   about   the   math  behind  them.   Talks  about  the
+  implementation issues.  Gives 39 references, many of which are for
+  their mathematical work, rather than pi itself.
+
+Chudnovsky, David and Gregory: Largest  Supercomputers  Battle  Over
+pi.   Date  and  origin  are  unknown.   I  think  mine is a partial
+photocopy of a preliminary paper.
+  Talks about their new formula  that is resumable, partionable, and
+  has built in self-checking ability.  Also briefly mentions  Gosper
+  and Bailey.  If you can  find  anything  about  their  method,  it
+  almost certainly will be worth copying.
+
+Gosper, Bill: private communications
+  Very brief discussion of his continued fraction method.
+
+Knuth,   Donald:    Art   of   Computer   Programming,   Volume   2:
+Semi-numerical algorithms.
+  A   decent  reference  on  various  fast  multiplication  methods,
+  although FFTs are highly system tunable.
+
+Kurosaka, Robert T: pi, e, and all that.  Byte  Magazine,  September
+1985.  Pages 409-414.
+  Talks  about  pi,  e,  and  related  stuff.   Shows how to make an
+  infinite funnel that has 'pi' cubit units of volume, but  infinite
+  surface  area.   Talks  about  the  'Monte  Carlo'  method  of  pi
+  calculation.  Points out the relationship between the Golden Mean,
+  and the Fibonacci series.
+
+Lehmer,  D.  H.:  On   Arccotangent   relations  for  pi.   American
+Mathematical Monthly, December 1938, pages 657-664
+  Gives  an  interesting  overview  of  how  to select the 'perfect'
+  arccotangent formula for hand  calculation of pi.  (Arccotan(x) is
+  the same as arctan(1/x).) Also introduces  the  'measure'  of  the
+  formula's     'goodness'.     Includes    numerous    arccotangent
+  relationships.  If you plan  on  doing any arctangent calculations
+  (by hand or computer), it might be worth getting.
+
+Matiyasevich,  Yuri:  A  new  formula  for  pi.  1986.  my photocopy
+doesn't say where it came from.
+  Mentions the two pi formulas involving the Fibonacci numbers.
+
+Miel, George: An algorithm for  the  calculation  of  pi.   American
+Mathematical Montly, October, 1979, pages 694-697
+  Shows how to use the arctangent relationships to come up with your
+  own, custom,  arctangent  formula.   If  you  plan  on  doing  any
+  arctangent  calculations  (by hand or computer), it might be worth
+  getting.
+
+Salamin,  Eugene: Computation of pi using Arithmetic-Geometric Mean.
+Mathematics of  Computation,  Vol  30,  Num  135.   July 1976, pages
+565-570
+  Gives  a  very  mathematical  (naturally)  presentation of his AGM
+  method, which was later found to have been  discovered  150  years
+  previously by Gauss.  It's been referenced so many times it's  not
+  really 'new' anymore or worth hunting for, but if your library has
+  MathComp,  you might as well photocopy it, and everything else you
+  can find.
+
+Science News: Occasionally, this  weekly science newspaper will have
+bits about the latest pi happenings.
+
+Wagon,  Stan: Is pi Normal.  The Mathematical Intellingencer, vol 7,
+Num 3.  Pages 65-67.
+  Briefly  talks  about  pi's  'normality',  transcendentalism, etc.
+  Gives Salamin's AGM formula.  Worth copying if you stumble on  it,
+  but not worth hunting for.
+
+Wozniak, Stephen: The  Impossible  Dream:  Computing  'e' to 116,000
+places with a personal computer.  Byte  magainze,  June  1981.
+  Discusses his effort to  calculate  116,000  digits  of  'e'  (the
+  natural logarithm) on a 48k byte Apple II.  Not really relevant to
+  pi, but interesting for his continued fraction method, and general
+  technique.
+
+Wrench  Jr., J. W.: The evolution of extended decimal approximations
+to pi.  The Mathematics Teacher, December 1960, pages 644-650.
+  Gives an interesting  overview  of  the  history of the arctangent
+  calculations.  Gives numerous arctangent formulas, and talks about
+  his  own  personal experience in the calculation of 808, then 1120
+  places  with  a  desk  calculator  before  ENIAC.   Also  gives 55
+  references to the history of pi hunting.  Unfortunately,  most  of
+  those  are  so  old  that you'll never find them, or they'll be in
+  some  other  language  that   you  can't  read.   Definetly  worth
+  photocopying if you can find it,  and  have  an  interest  in  the
+  history  of  pi  calculations.   Wrench  later  had  a  paper   in
+  Mathematics of Computation.
+
+

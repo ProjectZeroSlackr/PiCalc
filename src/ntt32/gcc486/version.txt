@@ -1,0 +1,7 @@
+This version is the 32  bit  NTT  that  is  specific  to  the  DJGPP
+compiler and is optimized for the 386 and 486 processors.
+
+It uses a few  hand  coded  inline  assembly  routines  to  maximize
+performance.
+
+

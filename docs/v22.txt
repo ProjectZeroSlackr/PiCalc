@@ -1,0 +1,492 @@
+
+=======================
+Exceprts from v2.2 docs
+=======================
+
+This file contains some excerpts  from  the v2.2 docs that I thought
+added a certain  amount  of  'flavor'  to  the  package.   It's  not
+actually  anything important, just something that gave the v2.2 docs
+some of its personality.
+
+These are excerpted directly from  the v2.2 docs, rather than having
+been rewritten.
+
+
+=============================
+Chapter  7: AGM Self-Checking
+=============================
+
+I thought I should say a few words about my program's ability to run
+some self checks on the computation.
+
+The normal AGM formula has next to no error checking ability.  About
+all you can do is  make  sure  that the variables don't go negative,
+that 'B' is less than 'A', and so on.  Just simple  sanity  checking
+that isn't likely to catch any problems.
+
+My  program,  on  the other hand, has the ability to actually detect
+whether the computations and  storage/retrieval of the variables has
+occured without errors.  
+
+It's not going to catch all errors, though.  There are  three  areas
+where  errors  can  slip through.  1) The accumulation of the 'Sum'.
+2) The final  division.   3)  Any  situation  where multiple massive
+errors have occured but the variables are still self consistant (for
+example, all zero's would still pass the self check.)
+
+To do this self checking, I take advantage of the fact that I'm  not
+doing  the  AGM like normal people.  (I don't claim to be normal...)
+Most people do it somewhat like:
+
+               A[0]=1 B[0]=1/sqrt(2) Sum=1
+
+               n=1..inf
+               A[n]     = (A[n-1] + B[n-1])/2
+               B[n]     = Sqrt(A[n-1]*B[n-1])
+               C[n]     = (A[n-1]-B[n-1])/2    or:
+               Sum      = Sum - C[n]^2*(2^(n+1))
+               PI[n]    = 4A[n+1]^2 / Sum
+          
+
+That's the normal way.  But, if  you  look at my agm.c, you'll see I
+do it quite differently.  (I'll show the normal  pass  here.   I  do
+pass 1 differently.)
+
+               C[n]     = (A[n-1]-B[n-1])/2
+               A[n]     = A[n-1] - C[n]
+               C[n]^2   = C[n]*C[n]
+               B[n]^2   = (A[n-1]^2+B[n-1]^2-4C[n]^2)/2
+               A[n]^2   = C[n]^2 + B[n]^2
+               B[n]     = sqrt(B[n]^2)
+               Sum      = Sum - C[n]^2*(2^(n+1))
+               PI[n]    = ((B[n]^2 + A[n]^2)/2) / Sum
+
+This  is  definetly  unusual!  It does however, reduce the number of
+multiplications.  The normal  version  requires  a  square and a two
+value multiply.  Even  more  advanced  versions  of the usual method
+still require  a  two  value  multiply.   The  bottom  version  only
+requires a square.  That's quite a bit faster.
+
+The self checking comes about because I have several representations
+of  the  variables.   For  example,  A[n]^2  had  sure  better equal
+A[n]*A[n] if I multiplied it out.  And so on.  I can take  advantage
+of the redundancy inherent in the multiple representations.
+
+It can be done a bit simpler, though.
+
+          Test_A[n]     = (A[n-1] + B[n-1])/2
+          Test_A[n]^2   = (A[n-1]^2 + 2B[n]^2 + B[n-1]^2)/4
+
+The first two formulas are fairly easy to compute.  And they involve
+most of the  variables  and  operations  already  performed for that
+iteration.  All I have to do is compute  Test_A[n]  and  Test_A[n]^2
+using  those formulas and compare it to the regular variables.  They
+should be close (allowing for round-off errors, etc.)
+
+I'm sure that  while  looking  at  these  formulas, you are probably
+thinking "Of course they'll match!  It's the same stuff"....   Well,
+that's  sort  of  the  point.   They  _should_  match.   We are just
+arriving at the same  variables  by  a  different route.  As long as
+they match, then we can be  fairly  sure  that  things  are  working
+correctly.  We aren't trying to detect errors in the formula itself.
+We are trying to detect errors in our program and hardware.
+
+These  two  formulas  do  consume a little extra time.  Tolerable, I
+guess.  Perhaps a few percent.  But it does slow the program down.
+
+There  is  a  problem, though.  The two simple formulas I list above
+don't cover the B[n] variable!   If  an  error occured in it, during
+the square root, then those two checks probably  are  not  going  to
+catch it.
+
+We can solve this by using one of two other formulas.
+
+               A[n]^2   = A[n]*A[n]
+               B[n]^2   = B[n]*B[n]
+
+Both of these will involve the B[n] variable.  (A[n] does it through
+the  relationship of how you compute A[n].)  By computing either (or
+both) of these and comparing  the  results, you can find out whether
+that variable is accurate.  In  other  words, you can make sure that
+the square root was done without error.
+
+Actually, the computation of A[n]^2 is even better.  All  by  itself
+it  checks  all  of the other variables and calculations!  B[n] just
+checks itself.
+
+Unfortunately, the use  of  either  of  those formulas increases the
+runtime.  Quite a bit.  Using  both  of  those will increase it even
+more.  But, on the other hand, it should catch  the  errors  in  the
+square root routine, which is the most likely place to fail!
+
+
+But, as I said at the top of this section, it's still not  going  to
+be 100% accurate.
+
+I  could  check  the accumulation of the Sum. It'd be a little ugly,
+but I could do it without too much extra time.
+
+And I could check part of the final calculation.  It'd take a little
+more time (like the  use  of  the  last  two formulas would), but it
+could be done.
+
+However, there is no good way to check  the  division  part  of  the
+final  calculation.   At  least   not  without  doing  another  full
+division.
+
+So  no  matter  what  I do, it will still not be 100% accurate.  And
+because of that, I don't actually use  any  of  those  self-checks!!
+For  my own 32m runs, I already have a 32m value that I can check it
+against, so I want the best possible run time.
+
+So, if it's not 100% accurate, and  I don't care to use it, then why
+I do bother even having it?  Basically because it does allow you  to
+use if it you want to.  A 'can' is better than a 'can not'.
+
+And, by adding these checks, I  'one up' every other pi program that
+I know of.  I don't even know of another pi program  that  does  the
+simple checks I do  in  my  v2.1,  much  less these kinds of checks!
+Nobody else does.
+
+The best check of all is to simply do a calculation using some other
+pi program, preferably with some other formula.  My inclusion of the
+Borwein formula in my pi  v2.2  satisfies this 'full' self checking.
+Of course, this will  certainly  increase  the  total  cost  of  the
+verified  pi  run.  Considering the Borwein formula runs slower than
+the AGM, the final cost will be about 2.5 times the cost of just the
+AGM alone.
+
+
+If anybody can improve on  this  self  checking,  be sure and let me
+know.  I'd really like to have some cheap way of doing 100% accurate
+pi runs, without having to suffer the Borwein formula.
+
+
+
+========================================
+Chapter  8: A note about the competition
+========================================
+
+Some of you may be aware  of  a  program written by Takuya Ooura.  I
+mentioned him in my v2.1 docs.
+
+He  has  recently  made  considerable  improvements  to his program.
+(Oddly enough, many of his changes are very similar to what I did in
+v1.4  & v1.5 and describe in my v1.5-v2.1 docs.  And when I improved
+my AGM, he improved his  slightly.   Gee, what a coincidence.<g>) In
+Stuart Lyster's 1m pi tests, my previous  program  was  only  a  few
+seconds  slower  than  his  latest.   Which, I think is pretty good,
+considering v2.x  isn't  designed  for  something  as  trivial as 1m
+digits and I don't even have a Pentium system to  tune  my  program!
+(If  Takuya  wants  to  get  into  a  Cx486 tuning competition, I'll
+certainly oblige him!   Fair  warning,  though...  I'm already about
+30% ahead.  But tuning a program designed  for  32m+  digits  and  a
+Cx486 processor to run well at just 1m digits on a processor I don't
+have is a competition I can only lose.)
+
+On  my  486  system,  of  course, his program runs quite slowly.  My
+program runs about 30% faster than  his latest one.  (And his latest
+one is only about 1% faster than his previous version.)  Pi programs
+and FFTs/NTTs are extremely system sensitive.
+
+As I said in the v2.1 docs, his programs do have many  good  points.
+This is still true with his updated versions.  I do like the way  he
+did some things.  He has  done  some  things that I didn't think of.
+He has done some things that I did think of but couldn't get  it  to
+work better than without.
+
+They still have some bad points too.  Poor variable names, extremely
+limited comments, an awkward interface, and documentation that isn't
+worth  the  disk  space  it takes up are all big problems.  An utter
+lack of text describing the why's and how's of his program is also a
+major detraction.  Major variables with names  like  a, b, c, e, i1,
+i2, d1, d2, d3,  ip,  in,  n,  out,  inout,  etc.  are  inexscusably
+obscure.   (I  admit I have a habit of using single letter variables
+for loop indexes etc.,  but  those  aren't key variables.  And 'i1',
+'i2',  'd1',  'd2',  'd3'???   That's  a bad Fortran habit.)  I also
+don't like the  way  he  formatted  his  code.   Of  course, that is
+DEFINETLY stylistic and personal opinion and I'm  sure  many  people
+don't  like  the  way  I  format my programs.  I also don't like him
+prototyping all  those  functions  inside  each  and every function.
+That's very bad C  programming,  and  due  to  the  way  ANSI/ISO  C
+incorrectly  interprets  certain  things,  is  strongly discouraged.
+Functions should be prototyped _outside_ of functions, never inside.
+(Yes, it is  an  acknowledged  problem  with  the  1989  ANSI/ISO  C
+standard.   After  they  finalized  it, they found out it didn't say
+what they thought they were  writing.)   But,  I too have my quirks.
+Some of which aren't good ANSI/ISO C either.  (The point I'm  trying
+to  make  is  that  some  of  the 'bad points' about his program are
+genuine, others are personal views.)
+
+
+If  you  have  seen  his  source to his 'disk' version, you might be
+wondering why his is so small  compared to mine.  Simple, because in
+spite of his being 'disk' based, it still has major limitations  for
+a typical desktop system.  And because he wrote his to  a  different
+specification than I did mine.
+
+First, it still depends upon virtual memory for at least some stuff.
+Including the acceptance of some relatively  'mild'  thrashing  when
+the  program  first starts the FFT as the OS brings that memory back
+into the system from when it  was  saved while being loaded.  I felt
+that virtual memory was eratic enough to be avoided.   Based  on  my
+experience  with  it, I felt it was best to avoid disk head movement
+as  much  as possible.  Between v1.5 and v2.0, I did experiment with
+explicitly saving and loading some  stuff,  and even locking the FFT
+memory into phys memory, but after some experimenting, I  felt  that
+my  v2.x approach was more consistant, reliable, and better overall.
+This way, I was not dependant upon the vagaries of what ever virtual
+memory system might be used.
+
+Second,  his  FFT  takes  a  considerable amount of physical memory.
+(You _DON'T_ want to do a regular FFT  using  virtual  memory.   And
+his  FFT doesn't seem to be any friendlier to virtual memory than an
+antique Numerical Recipes style  FFT.)   Based  on  a few tests I've
+run, it works out to needing about 'digits*2' bytes of  memory.   If
+you  want,  for  example,  8  million  digits  of pi, you'll need 16
+megabytes to hold the FFT.  (Normally it'd be 32m, but he splits all
+the muls into multiple half-sized  one.   This  lets you go a little
+higher.)
+
+On the other hand, my  NTTs  can  be  done  is as little as Digits/4
+bytes of memory.  Meaning that if you want 8m digits, you can manage
+with as little as 2 megabytes of physical memory for the NTT.
+
+Third,  as  the  FFT gets larger, he puts fewer digits into the FFT,
+making it larger still.  On the  other hand, my NTT uses a consitent
+amount  of memory because it puts a consistent number of digits into
+each NTT element.
+
+So on typical desktop systems,  with  memories  of 32m and 64m being
+common, his program is going to be more limited in how  many  digits
+it can compute.  If you are using a workstation (such as at work  or
+college,  etc.),  then memory consumption isn't nearly as important.
+But most of us don't have workstations.
+
+Also, with his setup, the number storage will  always  consume  less
+memory  than  what  you  have.   On  my system, the NTT is so memory
+frugal that  the  raw  number  can  be  larger  than  the  amount of
+available physical memory.  So  I  have  to  handle things in blocks
+which complicates the program.  (He depends upon virtual memory.  As
+I said above, I found it to be too erratic.  And I  didn't  want  to
+depend  upon  a possibly limited amount of virtual memory that an OS
+might arbitrarily chose to  give  me.   In  the v2.0 docs, I mention
+Windows 3.x, but most virtual memory systems will have a  limit  far
+short of the amount of disk available.  The  latest  CWSDPMI  server
+only provides for a max of 512m virtual memory, and then only if you
+have 256m of physical to  give  it.   Earlier versions topped out at
+256m virtual if you had 128m physical.  And by using explicit  disk,
+I  can  put  the  numbers  any where I want, not just on the default
+drive that holds the virtual memory system.)
+
+
+It's different choices based on different desires and needs.
+
+I  wanted  32m digits of pi on a limited computer.  On a system that
+was a 'typical low end' desktop computer.  Like my 486.  (Or even  a
+more powerful Pentium 120 with 32m.)
+
+He has a  Pentium  II  at  450mhz  with  a  massive  512m of memory!
+Frankly, that's not even close to  being  an  even  vaguely  typical
+desktop  system.   He  never had to face the memory limitations that
+the  rest  of  us  deal with everyday.  He can waste memory and then
+waste some more and still  not  come  close  to using it all when he
+computes 32m digits of pi.
+
+I have a limited amount of disk space.  He has much more.
+
+He was able to use the same  simple caching scheme that I first used
+way back in my neve released v1.3 program.
+
+I had  to  use  a  much  more  complicated  scheme  due  to  storage
+limitations.  If  the  FractalMul()  kicked  in  (because you didn't
+have enough memory to do the whole thing at once), then that  simple
+scheme is no longer adequate if  you  still want to get some benefit
+from FFT caching.  If you have to do the NTTs in groups, because you
+don't  have  enough  memory to do them all at once, then that simple
+scheme isn't going to work either.  I also wanted my caching  scheme
+to  be much more automatic, where all I had to do was set a variable
+saying whether to (try to) save  it  or  not,  and  another  to  say
+whether the number might be cached.
+
+I wanted a pi program that could go beyond memory limitations.
+
+With 512m, he  was  quite  happy  to  pretend that memory limiations
+didn't exist.
+
+I wanted 'this and that'.
+
+He wanted 'that and this'.
+
+etc.
+
+Frankly, if I had a  system  such  as  his, I probably wouldn't have
+writen my program the way I did.  If you'll remember the v2.0  docs,
+the  disk  based numbers came about due to the virtual memory system
+being overloaded because I didn't  have enough physical memory.  The
+NTTs came about because I didn't have enough physical memory  to  do
+the FFT in memory, and using disk wasn't possible because I'm low on
+disk space.  I faced limitations that  he  didn't, so I had to write
+my program differently.  If I had his system, I wouldn't  have  been
+facing  those  limitations  either, and it's quite likely I wouldn't
+have allowed for them either.
+
+I had to be more creative.  Even before I ever heard of  T.  Ooura's
+pi  program,  I  had  told  several  people that writing a decent pi
+program when you had  enough  memory  and  computer power was nearly
+trivial.  That if you had enough memory, then doing large FFTs  etc.
+were very straight forward.  That a  lot  of the problems I faced in
+my ('just'/'soon to be' released) v2.0 program would  disappear  and
+the program could have been vastly simpler.  That what seperated the
+amateurs   from  the  serious  players  was  facing  major  computer
+limitations and overcomming them to end  up with a decent pi program
+on hardware that was far more limited, rather than writing a program
+that would not run well, if at all, or giving  up  and  letting  the
+limitation beat you.
+
+He could be 'sloppy'.  He didn't have to worry about memory  or  how
+his  program  would  perform  on  a  typical  computer.   His latest
+non-disk version is nothing more than a refined v1.5 of mine.  Maybe
+a v1.6. (I started on a v1.6,  but  it ended up being v2.0.) And his
+disk version isn't anything more than that with a little bit of disk
+swapping  hardwired  in.   The  same  kind of stuff that I tried and
+deliberately chose against and went onto v2.0
+
+Does that make my program better?  I think so because my program  is
+capable  of  decent  performance  on  a  wider  range of systems and
+hardware.  It doesn't need the latest hardware with large amounts of
+memory  to  compute  just 32m digits.  It's capable of doing more on
+less.  (And if given hardware comparable to  what  T.  Ooura has, my
+program could theoretically go  to  1  billion  digits, where as his
+would still be limited by the size of the FFT  based  numbers.)   My
+preference  for  my  program  is  probably due to how much time I've
+spent on it, though.<g> (Did  you  _really_ expect me chose his over
+mine?  On Stuart's system, Takuya's program is a few seconds  faster
+than  my  previous  program at 1m digits.  But I don't have Stuart's
+system and Takuya's program  runs  poorly  on  the system I do have.
+And his program simply is  not  capable  of  practically  doing  32m
+digits  on  my system.  On my system, for 32m digits, his program is
+not even in the same  category  as  mine.  Mine can realistically do
+32m on my system.  (Even 64m, if I cleaned off my drive  a  little.)
+His can't realistically do 32m digits on my system.  Can vs.  Can't.
+There's no comparison.)
+
+But,  again,  I  do want to repeat that his program, in spite of the
+different choices he  made,  does  have  good  points.   Both in its
+general abilities (as long as you work within what your  system  can
+do and don't even think about going beyond physical memory) and  its
+performance (as long as its a Pentium-II).  And it is still the only
+competition my program has faced (for low to medium range of digits)
+since  I surpassed SuperPi and APFloat.  I still think my program is
+better, but I am willing to  admit  that  his program has a few good
+points.
+
+
+============================================
+Chapter  9: What's changed from v2.1 to v2.2
+============================================
+
+.....
+
+In the Fast AGM, I changed the FullMul() to a new FullSquare().  The
+Square can be done  very  slightly  faster  than a regular FullMul()
+squaring.  Not a heck  of  a  lot,  but  a  little.  Based on actual
+timings for the FFT, it'd be about 5% faster, but due to  the  extra
+overhead,  it's  nearly  invisible.   It  might show up at very high
+computations, but it would  still  be  very little.  The reason this
+was done wasn't speed.  Instead, by doing it this  way,  it  removes
+the one place in the FastAGM based pi computation  where  we  really
+did  do  a  full  sized  multiplication.   Removing that reduces the
+memory requirements for  the  multiplication, and essentially raises
+the limit of the FFT/NTT based multiplication.  (Meaning that as far
+as the, for example, FFT based  multiply is concerned, we can now do
+16 million digits of pi with 32m, rather than  only  8m.)   I  tried
+this  back in my experimental v1.5 days, but I removed it because it
+wasn't worth the effort.  There  was  no savings in time or increase
+in maximum range for the FFT multiplication.  However, with  my  new
+AGM  style, it's worthwhile because now, in the entire program, I am
+only doing  one  FULL  sized  multiplication  per  iteration, and it
+happens to be a square.  Before, I was having  to  do  a  two  value
+multiply.   (Looking  through Ooura's program is what reminded me of
+it.  Of course, Ooura doesn't  use  it.   It's just dead code in his
+program.  He uses an old fashioned style AGM, so it wouldn't do  any
+good for him.)
+
+I added some self checking to  the Fast AGM formula.  If you'll look
+at the comments to the ComputeFastAGM() in agm.c,  you'll  see  that
+I'm  taking  advantage  of  the redundancy in the extra variables to
+detect when things don't  match  up.   The only reason they wouldn't
+match is if some operation has gone wrong, or something due  to  the
+storage  of the data.  The 'simple' checks don't take too much time,
+but miss  checking  the  AGM_B  variable.   Either  of  the two more
+complex checks will catch it.  If you are going to  do  the  checks,
+I'd  recommend  using  the  simple   plus  the  AGM_A2  check.   But
+personally I'm not going to use them.  However,  even  these  checks
+are  not  100%  accurate.   I'm  not checking the Sum, nor the final
+division.  So there  is  still  oportunity  for  things  to go wrong
+without your knowledge.  And since it does cost extra time and isn't
+100% accurate, I don't recomend it.  It's there if you want  to  use
+it, but I don't use it.  If I'm doing a run, then I want the fastest
+time  even  if  it might be wrong.  I'll find that out latter when I
+check it against a known  value  or  by  a calculation done with the
+slow Borwein formula.  It's interesting that the  AGM  can  be  made
+mostly  self-checking,  but  since  it  isn't 100% accurate, I don't
+think it's worth the extra run  time.  I added this for two reasons.
+First, if you want to use it, you can.  At  least  you  can  do  it.
+Second,  this  makes my AGM the only one I've even heard of that has
+some innate ability to catch errors!  I've never even seen any other
+AGM program  attempt  to  detect  errors.   Not  even the simplistic
+checking that I used in my v2.1 program.
+
+
+I  changed the disk based numbers from using one single file, to the
+use of a seperate  file  for  each  big  variable.  I wrote the v2.x
+program for my own use and to up to 'only' 32 million  digits.   And
+all the variables combined easily fit into one file.  However, there
+have  been  a few people semi-seriously talking about computing 256m
+digits and beyond with this  program!   Although the ntt586 tops out
+at 256m, the fractal mul could let that go higher.  And the basic 32
+bit eight 8 prime NTT can go all the way to 1 billion  digits.   And
+the  C language limits the fseek() offseting to only 31 bits.  Since
+there were 8 variables of  'Digits/2'  bytes  long, plus a few extra
+for overhead (or 10 'Digits/2' long plus overhead, if the FractalMul
+kicked in), the program was  limited  by C's file I/O ability.  (DOS
+has a file limit of 4gb-1, so that could be a problem, but C's  file
+limitation comes first.)  (You might  suggest  that I simply use C's
+'fpos_t' type which is guaranteed to  contain  all  the  information
+needed to access any position in  a  file.  The catch is that fpos_t
+can _still_ be a regular signed integer.  So it wouldn't help.)
+
+By changing the  program  to  use  seperate  files,  each file could
+easily hold 1 billion decimal  digits.  That would only consume 512m
+each.  If, by some chance, the FractalMul() kicked  in,  that  would
+only be at most Digits*2, or a max of 1gb.  Since each NTT works out
+to  be Digits/4 bytes, each part would only be 256m.  BUT, I put all
+8 into a single file, so  that  file will total 2gb!  That shouldn't
+cause a problem, though, because I won't be fseek()'ing the end, and
+based on my reading of the C standard, the fseek()'ing is  the  part
+that causes the problem.  Simply reading up to 2gb should be safe.
+
+So to allow for all those things, say just (did I say 'Just'??!)  1
+billion  digits.   That  should  certainly  be  enough for a while!
+After all, that will take a  minimum  of 256m of memory for the NTT.
+
+[Actually, I'm not sure  that  the  rest  of  the program would work
+properly!  Those ranges are so far beyond what I was expecting  when
+I  wrote  the  prorgram,  that  I'm  just not sure.  I might have to
+implement an entire  file  I/O  system  based  on multiple files and
+positions and lengths that are 'double'  instead  of  'size_t'.   It
+could  probably be done, but maaaaaan, it'd be better to just switch
+to a system dependant file  size  type,  or the new ANSI/ISO C which
+does 64 bits  for  the  file  sizes  and positions.  Those solutions
+would be fairly simple.  Just a matter  of  changing  the  file  I/O
+functions  and  the few places where they are called with a position
+or length that would be larger than old ANSI/ISO C limits.  Although
+I think it would work up to 1 billion digits,  without  encountering
+any  C  limitations,  I  can't guarantee it.  As I said, ranges like
+this are so far beyond  what  I  originally planed that I'm just not
+sure.]
+
+
+
+

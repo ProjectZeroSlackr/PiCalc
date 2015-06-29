@@ -1,0 +1,13 @@
+This version is  a  generic  32  bit  NTT  that  should  work on all
+processors.
+
+It is, however, EXTREMELY  SLOW  due  to  the  generic nature of the
+code.  There's no way to really speed this up as long as it  has  to
+be generic.
+
+I'd  recommend  writing  inline  assembly  code,  like I do with the
+gcc486 version.  You  can  use  this  and  the 'longlong' version as
+models for what's needed.
+
+
+

@@ -1,0 +1,21 @@
+This version is  the  32  bit  NTT  that  is  specific  to the DJGPP
+compiler and is optimized for the Pentium processor.
+
+It uses a few  hand  coded  inline  assembly  routines  to  maximize
+performance.
+
+It uses a MASSIVE,  very  complicated  hand  coded  assembly  vector
+routines  written  by Jason P. This uses the Pentium's FPU registers
+to more efficiently do the modular multiplication.
+
+On a Pentium, the speed up over the 486 version is substantial.
+
+It requires the FPU be in 'long  double' mode and to be in 'round to
+nearest' mode.
+
+Also, please be aware that  there  is  a chance that the JSP_stuff[]
+array might be misaligned.  The data type is 'double' (ie:  8 bytes)
+and some compilers only align things on a 4 byte boundary.  There is
+a check in the code to alert you if this happens.
+
+

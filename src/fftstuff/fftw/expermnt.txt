@@ -1,0 +1,5 @@
+This directory contains an  experiment  FFT  module using the 'FFTW'
+library.
+
+It works, but is not really finished.  Bit of a kludge.
+

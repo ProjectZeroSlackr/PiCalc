@@ -1,0 +1,86 @@
+
+============================
+Getting the best performance
+============================
+
+Boy is that a loaded statement!
+
+I'll  skip  the  basics of OS tuning, since those are covered in the
+file tuning.txt
+
+For the program itself, the best performance will depend on what you
+want and what you have to work with.
+
+If you have GNU  C,  then  the  ntt32/gcc486 or ntt32/gcc586 will be
+best.
+
+If you have a compiler with 64 bit 'long long', then  you  might  be
+able  to  get  the  ntt32/longlong  working  fairly  well.  For best
+performance, you'll need to write  a  few system / compiler specific
+asm routines (for crt.h and modmath.h), but at least you'll be  able
+to get started.
+
+If you are using a pentium, and have a compiler that can use the  80
+bit 'long double' data  type,  the  ntt32/c586  might be okay to get
+started.  For best performance though, you'll  need  to  write  some
+assembly  for  crt.h  and modmath.h.  (And ultimately, for vector.c,
+just like gcc586.)
+
+(Sorry  about  the asm.  I don't like it either.  But performance is
+critical in those areas, and C is too limited.)
+
+If you don't want to write any  asm (or can't), then the only choice
+you have is the FFT.  Although there  is  a  ntt32/generic  that  is
+portable  and  should run on any system, it's incredibly slow.  It's
+there just to allow you  to  get  started  porting the NTT32 to your
+system, not for actual use.
+
+Anyway,  back  to  the  FFT.   The  program does include a couple of
+versions of FFTs (which are  pure  C),  but  as to which will be the
+best will depend entirely upon your system.  I  get  better  results
+with  the  'Quad-2' FFT.  This is the same FFT I've used since v1.4.
+On the other hand, others might  get  better results with one of the
+others.  It's just going to depend upon the system and compiler.
+
+
+Configuring those versions aren't too hard.
+
+For the NTT32, the fastest basic settings  will  be  the  number  of
+primes  to use.  If you are wanting just a few digits, then 4 primes
+will be enough.  If you need  more,  you'll have to use the slightly
+slower 8 primes.  (4 primes is enough for the 586 version to compute
+4m digits of pi without the FractalMul() kicking in.)
+
+For the FFT, the best is likely to be to use the plain 'double'  and
+the wide fpu trig recurance.  (But how high that will go will depend
+upon your system & compiler.)
+
+And, of  course,  in  config.h,  the  setting  of  virtual vs. disk.
+Virtual is going to be a heck of a lot faster at smaller  ranges  (a
+few  million),  but for larger (whatever that might mean!) runs will
+need the disk version.
+
+A few extra words need to be mentioned about virtual memory.  If you
+have enough phys mem so that everything fits into it (see  the  file
+mem_req.txt),  then  virtual  memory  and virtual caches will be the
+best.  However, at some  point,  possibly  at  2m  or 4m digits, the
+virtual caches will cause too much thrashing and it will  be  better
+if you change those to use explicit disk cache files.  Then, at some
+point, even virtual memory will become overloaded and you'll need to
+switch to disk numbers.
+
+That  last  one  is  a  difficult  one to predict because it depends
+heavily upon how much  phys  mem  you  have,  and the quality of the
+virtual memory system.  (Not all VM systems are created equal.)  For
+me,  with  64m  and  using cwsdpmi v4, I can do 8m digits in virtual
+memory faster than  on  disk.   But  not  16m.   By  then, the VM is
+thrashing too much.  I've even tried reducing the memory setting  in
+pi.ini  (allowing the vm system to use more) and although it helped,
+it wasn't enough.
+
+
+And that's the basics of program options for best performance.
+
+Configuring pi.ini is fairly straight forward.  See pi_ini.txt
+
+

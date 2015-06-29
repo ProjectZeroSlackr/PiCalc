@@ -1,0 +1,100 @@
+
+=========================
+Limits, requirements etc.
+=========================
+
+Well, let's see.   First  and  foremost,  the  program has a maximum
+number of digits of 1 billion (1024m) digits.  Beyond that,  32  bit
+integers  start to overflow, C's disk I/O can fail, etc.  (And at 1g
+digits, the save file is too big for Dos or Linux!)
+
+All the sizes in pi.ini are 32  bit unsigned integers, so if you set
+them  too  high,  they can overflow.  That might be a problem if you
+have moby gigs, but I don't know of a good way around it.
+
+For the NTT32, you need a 'minimum' of Digits/4  bytes  of  physical
+memory to give to the NTT32.   Up  to Digits*4 is better, of course.
+(For the 4 prime, the minimum is Digits/2, and the prefered is still
+Digits*4.)  (The full NTT only takes Digits*2, but the extra  *2  is
+to allow both values of the NTT to be in memory.)
+
+For the FFT, you  need  a  minimum  of  Digits*4 bytes.  Digits*8 is
+better, because it allows for memory instead of disk to be used  for
+both numbers.  (If you only put  2  digits into the FFT, then double
+those numbers.)
+
+
+For an NTT32 calculation, you  need  about Digits*8 of storage (disk
+will work,  since  it'll  be  the  numbers,  FFT/NTT  caches,  etc.)
+Digits*4  of that are the 8 variables of the Fast AGM.  That doesn't
+include 3*Digits for saving the state between passes.
+
+The FFT's limit of 8m means it's not a useful multiplication.   But,
+if you want it, it'd take a little more than the NTT32.
+
+If the FractalMul() kicks in, you'll need Digits*2  bytes  more  for
+the  basic number storage, but the cache and NTT working space would
+be less.
+
+The  Borwein  formula has one fewer variable, but it has a couple of
+additional caches.  Expect a little more than with the Fast AGM.
+
+Plus you need extra for the OS, program itself, etc.
+
+
+The  32  bit  8 prime has a limit of 1 billion digits.  The 31 bit 8
+prime has a limit of 256 million.  The pentium GCC586 has a limit of
+256m because it requires 31 bit  primes.   The  FFT has a limit of 8
+million (depending on your choice of trig method.)  The NTT64 has  a
+set limit of 512m, but I really have no idea if that's accurate.  It
+might be less, it might be 1 billion.  You'd have to try and see.
+
+Having  said  all that, I should point out that the Fast AGM doesn't
+actually actually do  a  full  sized  multiplication.  It only needs
+'half sized' multiplications.  That means the  FFT  and  the  NTT586
+essentially  have  twice  their  posted  limit.  That raises the FFT
+limit to 16m digits (in  32megs)  and  the  NTT586 to 512m (in 64m).
+(More mem is better.)  The Borwein formula, though, does  have  that
+previous  limit  I  mentioned before.  It does do genuine full sized
+multiplications, so it  is  faced  by  the  actual  limit.  (And the
+program still has a limit of 1 billion, regardless  of  this  little
+side point.)
+
+And, then saying all that, I should point out that even if you don't
+have  enough  memory or you encounter the posted NTT/FFT limits, the
+FractalMul() will  kick  in  and  allow  you  to  compute beyond the
+physical memory that you have.  For  example,  if  you  were  really
+really  serious,  you could do the full 1 billion digits on a tiny 4
+megabyte computer.  (You'd be  crazy  to  try, but the program would
+deal with  the  limited  memory  and  keep  working.   Just  not  as
+efficiently.)
+
+The program was, of course,  developed under DOS using DJGPP 2.7.2.1
+and C.S.'s DPMI extender.  However, the  common  cwsdpmi.exe  has  a
+limit  of  256megs  of  physical memory plus 256megs of disk memory.
+The disk memory part isn't going  to  be a problem, since my program
+does its own 'virtual memory' using direct  disk  I/O.  However,  if
+you have more than 256m of physical memory, you wont be able to give
+it  that  much!  You'd have to limit that setting in pi.ini to 256m,
+or possibly just 128m since the program will need  some  for  itself
+and other purposes besides the NTT.
+
+If you try the 1 billion digit pi run, be aware that the  save  data
+file  format I'm currently using (common/bigint.c) would try to save
+the data as  a  3g  size  file.   That's  larger  than what Linux or
+Dos/Win can handle!  That means the pi run has to  be  done  without
+saving the data.  A continuous run.
+
+
+
+The  program  has  a designed goal of a maximum of 1 billion decimal
+digits.  You can't go beyond that.  The  problems  are  1)  it'd  be
+impractical,  2) you run into 31/32 bit integers overflowing, 3) C's
+file I/O fseek() only  allows  31  bit  offsets and that wouldn't be
+enough for 2g+.  (Not to mention that DOS has a  max  file  size  of
+4gb-1 bytes.)  4) by that point,  the  gcc586  31  bit  primes  have
+become too small and FractalMul() is starting to kick in.
+
+
+
+

@@ -1,0 +1,385 @@
+
+====================
+Pi program time line
+====================
+
+Here is a rough guide to my previous 'AGM' pi programs.
+
+Versions prior to 1.2 were  'alpha'  and 'beta' programs where I was
+still tinkering with the basic algorithms just trying to get them to
+work.  I wasn't overly  concerned with appearance, cleanliness, etc.
+And I was having to keep them simple enough to run under 16 bit  DOS
+because Turbo C++'s debugger was vastly better than DJGPP's pathetic
+GDB.  These early  ones  were  ugly,  to  put  it mildly.  They were
+written in response to the urge to replace the failing pi program in
+Bob Stout's C Snippets collection.
+
+Version 1.2 was essentially a complete pi program.  It was the first
+version  I was satisfied with enough to actually release it and call
+it 'done'.   It  was  geared  for  in-memory  computations,  but was
+capable of using virtual memory when it had to.  There  weren't  any
+real  optimizations  done,  though.   The  square  root  routine was
+particularly  niave.   Parts  of  it weren't as clean as they should
+have been, because I was racing to finish it by a certain time.  But
+it did work.
+
+Version 1.3 was basically a tune-up of v1.2.  I reworked a number of
+poorly  written  areas  and  made  a  number  of  relatively  simple
+improvements.   It  also  introduced  the idea of 'FFT caching' so I
+could occasionally  save  the  cost  of  a  full  FFT.   The caching
+couldn't be used when the numbers were too big to fit into  physical
+memory  because  to  save  space, I was using one of the FFTNum's to
+hold  the  cache.   This  version  was  never released.  In fact, it
+doesn't even really exist  as  an  actual 'version'.  When I started
+improving v1.2, I renumbered it to v1.3, and then one  day,  I  just
+decided to renumber it  again  to  v1.4.   There was never any point
+where I said "This is v1.3".
+
+Version 1.4 cleaned up a number  of areas and removed the ability to
+compute lengths that weren't power  of  two.  I discover my 'famous'
+Quad-2 FFT, which is  much  faster  than  the  FFT I had been using.
+This discovery was the main reason I changed the version number from
+v1.3 to v1.4.
+
+Version 1.5 continued the improvements a bit and added  the  Borwein
+quartic formula as  an  option.   I  also  gave  in  and  added  one
+additional, optional FFT cache.  It takes a lot of memory, so it was
+definetly  an option.  The FFT caching still didn't operate when the
+FractalMul() kicked in due to  the  size of the numbers.  Although I
+did tinker with  adding  it,  it  wasn't  added  because  of  memory
+limitations.   Again,  this  program was mostly geared for in memory
+computations.  Although it  worked  with  virtual  memory, it didn't
+work as well as it should.   As  long as everything fit into memory,
+it  was substantially faster than SuperPi and APFloat v1.4.  I never
+really 'finished' v1.5.  I reached a  point where I decided I had to
+switch to disk  based  numbers  rather  than  depending  on  virtual
+memory,  and  I  just  sort of left it at that point and changed the
+number  to v2.0 and started making the changes and improvements.  In
+other words, I just sort of abandoned  v1.5 the way it was, and went
+to  work on v2.0.  There were a number of improvements and clean-ups
+that I could have made, but didn't.
+
+With  version  2.0,  I  changed  my  goals.  I decided the in-memory
+approach  had gone about as far as it could (since most people don't
+have hundreds of megs of memory) and it was time to allow really big
+calculations without depending on virtual memory, which has a number
+of limitations.  It wasn't  really  designed for portability or high
+performance on other computers.  To put it simply, it  was  designed
+for my own use to reach 32m digits.
+
+Version 2.1 cleaned things up a heck of a lot, plus added a FFT  and
+NTT64 option.  I also improved the AGM to need only a single square,
+rather  than  a  square and a two value multiplication.  Since these
+were full sized multiplications, they  consumed quite a bit of time.
+The reformulation of the AGM was original to me.
+
+Version 2.2 continued cleaning and  such.   I  make  better  use  of
+Jason's  ntt586.   With  Dara  H.'s help, I try to make it much more
+portable.  I add the first code into the AGM to try and do some self
+checking to catch errors.  I also rework things to try and raise the
+total theoretical limit to one billion (1024m) digits.  I  added  an
+experimental FHT multiply.
+
+Version 2.3 again re-arranged stuff  to  improve  both  clarity  and
+portability.   Allowed for 'vector' style operations.  I upgraded to
+a Pentium, so the 586  version became the 'official' version, rather
+than the 486.  I changed from using  a  16 bit short int (and a base
+of 1e4) to a 32 bit int (and a base of 1e8).  I added code to  allow
+me to use the Pentium's performance monitoring counters.
+
+The rough time-line of my pi programing and important points were:
+
+1983->  : I use various arctangent formulas on an 8 bit Color
+          Computer running at 0.894mhz.  It's been way too long for
+          me to remember exactly what my best was, but it was
+          probably 10k digits in about 3.5 hours.
+
+Jun 1996: I decide to replace the failing arctan pi program in the
+          C 'snippets' collection.  My acrtan program is nice and
+          generic, and it works.  And it's slow.
+
+Jul 1996: I start work on v1.0 of my AGM, FFT pi program.
+
+Aug 1996: I release v1.0 to a couple of people.  This early version
+          only used a fractal / D&C multiply.  I hadn't yet added
+          the FFT.  It spreads further than intended.
+
+Aug 1996: I continue work on v1.0 (no number change, since it wasn't
+          finished yet, and I didn't know it had spread beyond just
+          a couple of people.)  I manage to compute 1m of pi in 16.5
+          hours on 486/66 with only 4m of memory.
+
+Aug 1996: I do v1.1.  I've changed the FFT (and a bunch of other
+          stuff) and can now compute 1m in about 3.7 hours with
+          20m of memory.  Much of the improvement was having
+          enough memory, but about 15% was improving the FFT from
+          a simple 'complex' to a 'real' FFT.
+
+Nov 1996: I do v1.11  Basically structural changes.
+
+Dec 1996: I release v1.2, which I consider to be my 'first' useful
+          pi program.  It takes under 3 hours for 1m digits.
+
+Dec 1996: I release v1.2.0.1.  I just make a few changes in the docs
+          and add a few more comments to answer questions etc. that
+          new pi computers might have.
+
+Jan-Mar 1997: I play around with the idea of doing a resumable Gosper
+          continued fraction and Chudnovsky series program, but
+          it fizzles when I can't find a decent bignum program
+          and I burn out on pi work.  Although the programs
+          worked, they were still quite crude.
+
+May 1998: I discover Jason P.'s web page with my old <v1.0
+          program.  This was the first I knew about it spreading
+          beyond what I had intended.  I send him v1.2.0.1.  I
+          see the reference to SuperPi and grab it.  I decide to
+          resume work and make beating it my next goal.
+
+Jun 1998: I develop v1.3  I clean up the square root, I start
+          examining the algorithms looking for ways to get rid
+          of full multiplications, or to do 'half' sized muls.
+          It ends up being about 40% faster than v1.2, and 15%
+          faster than SuperPi.
+
+Jul 1998: I released v1.4 of my program.  It now takes me just 74
+          minutes to compute 1m digits of pi.  It's 30%+ faster
+          than SuperPi.
+
+Aug 1998: I increase my goal from just 1m to 32m digits.
+
+Aug 1998: I improve it to v1.5.  This was going to be named v2.0,
+          until I discover how bad it works once virtual memory
+          becomes overloaded.  It does, however, work vastly
+          better than v1.2-v1.4.  It's about 20% faster than v1.4,
+          and for the first time, I can compute one million digits
+          in less than an hour on my 486/66.  It's ~42% faster
+          than SuperPi.  I can compute and verify 1m in only a
+          little more than what it takes SuperPi to just compute.
+          On a Pentium, it's more than twice as fast as SuperPi.
+
+Aug 1998: In an effort to overcome the virtual memory thrashing,
+          I decide to switch to a disk based bignum package and
+          can only find APFloat.
+
+Aug 1998: I start work on v2.0 by making v1.5 disk based.  I
+          discover that it helps, but FractalMul is still a killer.
+
+Aug-Sept 1998: I agonize over how to overcome my 8m FFT limit
+          and the memory and disk limitations that a 32m pi run
+          would cause.  I consider 'long double', various 'real'
+          value FFTs, disk based FFTs, etc. and nothing shows
+          promise for solving all three problems of time, FFT
+          limit, and memory/disk consumption.
+
+Oct 1998: I switch my FFT to a NTT, tweak the disk based stuff a bit
+          more, switch to a disk based NTT cache, etc.
+
+Oct 1998: I compute 32m digits of pi in 60.5 hours on a 486/66.
+          That's faster than SuperPi can do on a Pentium 90!
+
+Oct 1998: I have v2.0 tested on a couple of Pentiums and discover
+          how bad it runs.  Jason P. adds his 586 asm FPU code.
+
+Oct-Nov 1998: Alan Pittman does a lot of timings for my v1.5,
+          disk and virtmem v2.0, SuperPi, and APFloat v1.5.
+
+Nov 1998: I officially release v2.0 of my program.  Still a bit
+          dirty because I did the 32m run sooner than I should have,
+          but it works well enough to be the fastest pi program
+          this side of a Cray-2!  Better than SuperPi or APFloat
+          for sizes up to 32m.
+
+Jan 1999: I release v2.1.  Improved AGM.  massive clean up and re-
+          organization.
+
+Mar 1999: I release v2.2.  Self checking AGM.  More clean-up. Still
+          better use of ntt586.  Raise program limit to 1g (1024m)
+          digits.  This version also includes the first release of
+          my pi tutorial, which includes pi program v1.2.5, which is
+          a reworked v1.2.0.1.
+
+May 1999: I release v2.3.  More cleaning.  Added a second AGM.
+          Allow easy use of external FFTs.  Fixed DJGPP v2.8.1
+          problem.
+
+May 1999: Dominique Delande successfully computes 1 billion digits
+          of pi with v2.3!
+
+Jun 1999: I release a minor v2.3.1 update, containg changes to the
+          docs, and submit the program to the C/C++ User's Group
+          library collection.
+
+
+=====================
+Early pi calculations
+=====================
+
+I'd also like to say a few things  about  my  early  pi  calculation
+efforts.  I just felt you might like to know just how long I've been
+at this.
+
+Way back in 1982, I got a  Radio Shack Color Computer, with 16k.  It
+used the M6809E running at 0.894mhz.  I later  upgraded  it  to  64k
+(and  then  much later to the Color Computer 3 with 512k which could
+run at  1.79Mhz).   For  most  of  the  first  year,  all  I had was
+interpreted BASIC and casette tape.  I  got  hold  of  my  first  pi
+program  in  1983.   It was a BASIC program written for the C64.  It
+was a fairly standard  Machin  formula  with Gregory arctangent.  By
+this time, I had gotten the assembler ROM PAK and  converted  it  to
+assembly  (after  I  tought  myself assembly, of course).  And I got
+hold of Petr Beckmann's entertaining  book  "A History of Pi" around
+that same time.
+
+Over  the  next year or two, I wrote quite a few asm pi programs.  I
+didn't have a printer, so I  wrote  them all by hand, and then typed
+them in and saved them  to  tape.   (Of  course, back then most home
+computers used simple line oriented editors, rather than full screen
+ones, so editing a program wasn't very convenient.  Hence, I did all
+of my writing by  hand  on  paper  because  it  was  a lot easier to
+revise.)  And I did pages and pages of  cycle  counting,  trying  to
+find the best way to  do  each  routine.   And  I even wrote a BASIC
+program to discover new arctangent pi relations.
+
+My reference resources were quite limited, but I  experimented  with
+several  pi  formulas,  plus  both  the Gregory and Euler arctangent
+formulas.
+
+I even experiemented with a few non-arctangent programs.  I tried  a
+Ramanujan formula.  Out of sheer curosity  I  coded  Viete's  square
+root formula.  I  even  considered  doing  an AGM (using regular and
+Fractal multiplication, since the computer was far too  limited  for
+FFTs.)   And  of  course, all of this was in assembly.  (These early
+days of having to use assembly is why I don't like it today.)
+
+And during all this, I was  comparing  my results to the 70 hours it
+took ENIAC to compute 2,037 digits, and then  later,  to  the  3,089
+digits that NORC did in 13 minutes.
+
+Incidentally, the 6809 used in  the  CoCo  was a fairly advanced mpu
+for the day.  It even had an 8x8=16 bit  multiply  instruction.   It
+had  two  8  bit  accumulators  that  could  be  used  as  a  16 bit
+accumulator for  many  things.   And  it  had  two  16  bit indexing
+registers which could be used for a wide variety of things.  And two
+16 bit stack pointers (the user and system stack), which could serve
+as two additional 16 bit indexing  registers.   It  had  a  powerful
+range  of addressing and indexing modes that made accessing data far
+easier than  on  most  MPUs.  Pre  and  post  incrementing, indirect
+addressing,  both  8 and 16 bit offset indexing, relative addressing
+was a breeze, and  so  on.   Instruction  cycle  times  were  almost
+entirely  memory  access timings (ie:  a 16 bit access took 2 cycles
+for two 8 bit  bus  accesses),  unlike  other processors such as the
+8088.  It was designed for the power of  high  level  languages.   I
+still  have  a  warm  feeling  for  the  6809 and Motorola (not many
+companies would include a "SEX" instruction in a microprocessor!)  A
+0.894mhz CoCo was easily comparable to  a 4mhz 6502, or even an 8mhz
+8088 XT.
+
+I took a look through  my  old  archives,  and I'm not entirely sure
+which was the best from back then.  I'm not even sure I found all of
+those old programs.  I know I tried an arctan(1/8)  formula,  but  I
+don't  see  the  program  for it.  So there are some missing.  But I
+seem to  have  stayed  with  Machin  formula,  possibly  so  I could
+continue to compare my results with the NORC run,  which  did  3,089
+digits  in  13 minutes.  I don't think I ever beat that time with my
+old CoCo 1.
+
+Nor could I find anything  that  gave  accurate,  consistant  timing
+results for all of  them.   I  found  a  hand written page that gave
+timings for older versions, but not for the newer ones.   (Remember,
+these programs and papers are more than 10 years old (some almost 15
+years old), and most of the pi programs were saved to tape and  were
+copied to disk many years later.  It's surprising I found as much as
+I did.)
+
+So, since I didn't have any accurate timings, I  decided  to  re-run
+them  and find out.  Unfortunately, I couldn't find a 6809 simulator
+program to  run  them  on,  only  a  CoCo  emulator.   The  emulator
+wouldn't  have given even vaguely accurate timings.  So I had to dig
+out my old Color Computer  3  and  disk  drive, and run them.  (That
+also invloved in hunting for the docs for the assembler so  I  could
+know how to do all that...)
+
+The program that I finally decided was probably the best of the ones
+I could find was called "pi94fst.asm".  I have no idea what the '94'
+in it means.  Perhaps that was  my 94th version, or that was version
+9.4 or what ever.  It might have even been the date.  9th month  and
+4th  day,  or  something.  I don't know.  (And I'm not sure that was
+the best, either.)  (I wasn't in  the habit of including comments in
+the asm programs back then, because memory was  quite  limited,  and
+since  I  only  had  a  line editor, it was inconvenient.  I kept my
+general comments and notes on paper, which was far more  convenient.
+But after 10-15 years, I don't have those pages anymore.)
+
+It was a standard  Machin  formula  with  Gregory  arctangent.   The
+printing  of the digits was quite slow because I was only extracting
+a single digit at a time,  and  then calling the 'rom bios' to print
+it  out.  (Either I wasn't counting the conversion time, or I missed
+a later version that did it better.)   I  made a quick hack to do it
+by two digits (a multiplier of 100 instead  of  10),  and  skip  the
+actual printing (since  saving  the  results  to tape isn't normally
+considered to be part of the calculation time.)  Since I was running
+the tests on the Color Computer 3, which could  run  at  1.789772mhz
+(compared my earlier CoCo 1,  which  ran  at 0.894886mhz), I added a
+couple of lines to enable the double speed.
+
+For 200 bytes (481 digits), I could do the basic computation  in  11
+seconds,  the  radix  conversion and fake 'printing' took 3 seconds,
+for a total of 14 seconds.  (The slower base-10 radix conversion and
+actual printing took an additional 3 seconds, or 17 seconds total.)
+
+For  1,000  bytes  (2408  digits),  the  basic  computation  was 288
+seconds, and with the base-100 radix conversion and  fake  printing,
+the  total  was  367  seconds.   Base 10 and actual printing was 448
+seconds.
+
+For 2,000 bytes (4816 digits), the basic computation time  was 1,153
+seconds,  and  with the base-100 radix conversion and fake printing,
+the total was 1,468 seconds.
+
+For 4,154 bytes (10k digits),  the  basic computation time was 4,977
+seconds, and with the base-100 radix conversion and  fake  printing,
+the total was 6,407 seconds.
+
+I don't know exactly how high  I  went  before.  I see the data file
+that I saved when I did 10 thousand digits, but  I  don't  know  how
+long  it  took.  (Also, looking at the data file now, I can see that
+it's wrong.  I apparently  somehow  saved  the ROMs, rather than the
+data.   Or  maybe  that  occured when I copied it from tape to disk.
+Either  way,  that's  not  the   pi   I  computed.   (Unless  my  pi
+computations were some how copyrighted by Microsoft, the people  who
+did  the  CoCo  ROM..<g>  Billy  and  Microsoft  weren't  nearly  so
+arrogant back in 1982.)
+
+I do see one estimate I did on paper for computing 20k digits of pi,
+with  an  earlier  version, and it's estimating 15 hours.  20k would
+have been near the limit of the program and computer memory.
+
+For this version, based on  the  data  I  timed above, the growth is
+pure  N^2.  (Which is what you'd expect, of course.)  So, 20k digits
+would be 25628 seconds, or just a little over 7 hours.
+
+Of course, this was with the double  speed CoCo 3.  The older CoCo 1
+I  was using back then would have taken twice as long.  And if I had
+saved the results back  then,  it  would  have  been  to  casette...
+(Which  at  an  avg of 1500bps was faster than some floppy drives of
+the same time, but it was still slow.)
+
+
+People talk about "The good old days" of computing, but I  can  tell
+you  first  hand,....  it  sucked!   Programs  were smaller and more
+efficient etc. out  of  sheer  necesity,  but  the  amount of effort
+required to  do  them  was  staggering.   Programs  were  also  more
+limited.   Would  you  be  willing to go back to a line editor?  The
+tools available made everything  more difficult.  The computers were
+slow enough you could get up and eat supper while a large compile or
+assembly  was  taking  place.   (And it wasn't too many years before
+that, when a  micro-computer  could  literally  take  _days_ just to
+assemble a program from paper tape.  Although I wasn't involved back
+then.)
+
+I eventually burned out on pi, and didn't regain any  real  interest
+until  1996,  when I wrote an arctan program in C to replace the one
+in Bob Stout's Snippets.
+
+

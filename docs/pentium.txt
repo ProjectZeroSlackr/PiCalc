@@ -1,0 +1,42 @@
+Well..  I guess a lot can be said about the Pentium, although I will
+try to keep it brief.
+
+First, by 'Pentium' I mean the original Pentium and the Pentium MMX.
+Not  the Pentium Pro, the Pentium-II or the Pentium-III.  Nor any of
+the 586/686 class clones.
+
+The reason for the distinction  is  that  although they all have the
+word 'Pentium' in them, the reality is that  there  are  differences
+nearly  as  great  between  them as if you were comparing a 486 to a
+Classic Pentium!  (Even the original  Pentium  and  the  Pentium/MMX
+behave differently, although it's not as great.   For  example,  the
+branch prediction is  different,  and  they  have different L1 cache
+sizes.)
+
+This difference is important because the 586 version of the  NTT  is
+optimized  for  for  the 'regular' Pentium.  On the regular Pentium,
+doing integer division and  multiplication are slow.  Therefor, they
+have been replaced by rather complicated floating point  code.   And
+on  a  regular  Pentium, the improvement is substaintal.  It doubles
+the speed over the 486 code.
+
+But  on  a  'Super' Pentium, (or clone, since they'll have different
+FPUs) that may not be true.   It's  actually possible for you to get
+slightly better performance  with  the  486  code!   (Or  perhaps  a
+modified version.)
+
+
+It's rather ironic, in a way!
+
+I did all the development through v2.2 on a  486/66,  and  now  that
+I've  ugpraded to a Pentium/MMX, I'm discovering that those types of
+optimizations  may  be  counter  productive  for  the  more advanced
+processors that some pi-fan's have!
+
+As I've said in my docs, though...  Whatever processor I  happen  to
+have  will  become  the  main  code  version  of the program, simply
+because that is what I have.
+
+
+
+

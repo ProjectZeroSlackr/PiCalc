@@ -1,0 +1,316 @@
+
+=======
+Timings
+=======
+
+Here are just a few timings  of  the various pi programs that I have
+done, run on various systems.  These are not complete!  This is just
+a sampling.  I also didn't want to waste the  impressive  number  of
+timings  that  Alan  Pittman  did  for  me!   They  really  show the
+difference between my v2.0 and my two competitors of the time.   (My
+program has gotten better.  Theirs haven't.)
+
+There are a number of comments that I could say about them, but most
+of  it's no longer really relevant.  If you are interested, grab the
+v2.0, v2.1, (or whatever) package and read them.
+
+
+
+
+The Classics
+------------
+
+            128k   256k   512k    1m
+==========================================
+v1.0        1421   3153   6980 ~15452 59394*
+v1.1        1067   2381   5282  13261
+v1.2         957   2134   4796  10576
+v1.3         472   1047   2317   5096
+v1.4         384    872   1966   4399
+v1.5         330    740   1602   3563
+
+(Versions v1.11 and v1.2.0.1 were the same as the previous one, just
+cleaned up a bit.)
+
+* v1.0 was originally done on  a  4meg 486/66 and took 59394 seconds
+but depended upon virtual memory and the FractalMul. Without that it
+would have been an estimated 15452 seconds.  It's  estimated  simply
+because  I never felt like spending 4 and a half uninterrupted hours
+running it.  And of course, I no longer have the 486/66 installed.
+
+
+Version 2.0
+-----------
+
+
+            512k    1m      2m      4m      8m      16m    32m
+=================================================================
+** Official Pentium 90 SuperPi run  40m, w95 & win3.1/win32s
+[1] SuperPi  918   2132    4671   10955   26629    80867  UnAvail
+[2] SuperPi  851   2042    5565   12410   33788   108682  290267
+** Carey Bloodworth. Cyrix 486/66.  36m.  DOS
+[3] v1.4    1996   4399
+[4] v1.5    1602   3563    8031
+[5] SuperPi 2769   6073
+[6] v2.0VA  1526   3460    7701   17299
+[7] v2.0DA  1649   3870    8840   19732   43079    98191  218016
+[8] v2.0VB  1773   3991    9024
+[9] v2.0DB  2021   4547   10562
+** Jason Papadopoulos.  Pentium 200/MMX 512k/L2 W95 32m
+[10]v1.4     289
+[11]v2.0VA   427   ~861   ~1904
+[12]v2.0VA   278   ~612   ~1329
+[13]v2.0DA   494  ~1128   ~2495
+[14]v2.0DA   293   ~640   ~1509   ~3559
+** Alan Pittman.  Pentium 200 W95/DOS 64m
+[15]v1.4            612
+[16]v1.5            455    1057    2444   13041
+[17]apf1.4          717                                    70788
+[18]apf1.5          717    1647    6407   17207    29370   70701
+[19]SuperPi  400    923    2001    4425   10283    28602   73223
+[20]v2.0VA          711    1577                    28581
+[21]v2.0DA                                         21095   47416
+** Dara Hazeghi.
+[22]v1.5          13951
+[23]v1.5            919
+[24]v1.5            478
+[25]v1.5            406
+[26]v1.5            233
+
+~ Estimate based on the avg. of the two time estimation formulas.
+
+** Kanada et al. Pentium 90
+(1) Official SuperPi v1.1e on Pentium 90, 40m Win 95
+(2) Official SuperPi v1.1e on Pentium 90, 40m Win3.1+Win32s
+** My Cyrix 486/66.  36m.  DOS
+(3) Previously released v1.4 of my program.
+(4) Current v1.5 of my 'in-memory' pi program.
+(5) SuperPi on my computer.  WfWg 3.11/Win32s
+(6) Virtual memory AGM of my v2.0
+(7) Disk based AGM of my v2.0
+(8) Virtual memory Borwein of my v2.0
+(9) Disk based Borwein of my v2.0
+** Jason Papadopoulos.  Pentium 200/MMX 512k/L2 W95 32m
+(10) older v1.4, for comparasion against #3 and #4
+(11) Virtual memory.   8k pi.ini.  C version of NTT.
+(12) Virtual memory. 128k pi.ini.  NTT586
+(13) Disk memory AGM.  8k pi.ini.  C version of NTT.
+(14) Disk memory AGM.  128k pi.ini NTT586.
+** Alan Pittman.  Pentium 200.  64m  W95/DOS6.2
+(15) older v1.4, for comparasion against #3 and #4.
+(16) current 'in memory' v1.5.  Note big jump at 8m
+     due to overloaded virtual memory thrashing.
+(17) APFloat v1.40.  Pentium version.
+(18) APFloat v1.50.  Pentium version.
+(19) SuperPi
+(20) Virtual mem based AGM of my v2.0 program.  For the 16m run,
+     he reduced the phys mem (pi.ini) to only 4m, using the rest
+     of his 64m phys mem for the virtual mem.  Other sizes had
+     even worse run time.
+(21) Disk based AGM of my v2.0 program.  32m phys mem, 4k cache.
+** Dara Hazeghi.
+(22) Apple macintosh Quadra 700/50.  Mc68040. 50Mhz. 20mb
+(23) Apple PowerBook 5300ce/117.  PPC 603e.  117Mhz.  32mb
+(24) Apple Power Macintosh 8500/120 PPC 604. 120Mhz. 48mb
+     Apple compiler: Merowerks CodeWarrior Pro 4.0. Full Optiz.
+(25) Hewlett Packard Vectra XA. P-Pro. 200Mhz.  96mb.
+(26) Hewlett Packard Kayak XU. Pentium-II.  333Mhz.  64mb.
+
+Also, M. Lee reported using v2.0  to compute 64m digits in 24 hours,
+18 minutes, 50 seconds on a 64m Pentium 233.  67,108,784 digits were
+correct.
+
+
+Version 2.1
+-----------
+              512k    1m    32m
+===============================
+[1]  SuperPi: 2769   6073
+[2]  v1.5   : 1602   3563
+[3]  v2.0VA : 1526   3460
+[4]  v2.0DA : 1649   3870  218016
+[5]  v2.1VA :        2736
+[6]  v2.1VA :        1910
+[7]  v2.1DA :              131299
+[8]  v2.1VA :        7459
+[9]  v2.1VB :       10772
+
+
+[1] SuperPi.  WfWG 3.11/Win32s
+[2] v1.5
+[3] v2.0, virtual memory.  AGM.
+[4] v2.0.  Disk number.  AGM.
+[5] v2.1.  Virtual memory.  Virtual caches. Fast AGM.
+    FFT with fast wide FPU trig.
+[6] v2.1.  Virtual memory.  Virtual caches. Fast AGM.
+    NTT32/DJGPP486. 4 primes
+[7] v2.1.  Disk num.  Fast AGM.  NTT32/djgpp486.  4 primes.
+[8] v2.1.  Virtual memory and caches.  Fast AGM.
+    NTT32/Generic
+[9] v2.1.  Virtual memory and caches.  Borwein formula.
+    NTT32/Generic
+
+
+v2.2 on Pentium-II, 400mhz, 256m, Win98  (By MLee.)
+===================================================
+Linux quadratic: 283,353 seconds
+Dos/Win quartic: 373,104 seconds
+
+(Please note that there were both optimization  and  data  alignment
+problems.   He  was using GCC v2.8.1, which as you may remember from
+my v2.2 docs, can't properly compile it!  At the time, I didn't have
+GCC281, so I couldn't fix it.  The  only  way he could get it to run
+was to compile it with optimizations off!  Naturally this  caused  a
+massive  performance  penalty.   Also,  I suspect that the JSP_stuff
+array was  misaligned,  further  causing  performance problems.  The
+times are NOT representative of what my program can do.)
+
+
+v2.2 on Pentium-II, Xeon, 450mhz, 1g, Linux (By Dominique)
+===========================================================
+  1m     86s full virt-mem.  Hartley version
+  1m    118s full virt-mem.  586 version (egcs 2.91.60)
+ 32m  6,600s Full Virt-mem.  586 version
+ 32m  7,180s disk.  586 version
+ 32m 10,900s Disk.  486 version
+128m 38,000s Virt-mem.  (No virt caches.) 586 version.
+
+It's worth pointing out that  the  32m  fully in memory run of 6,600
+seconds was 15 times faster than David Bailey's 1986 Cray-2!
+
+
+1m digits with v1.5 through v2.2 on a Pentium/MMX @166mhz
+=========================================================
+v1.5         517
+v2.0 ntt586  701
+v2.1 ntt586  474
+v2.1 fft     348
+v2.2 ntt586  316
+v2.2 fft     339
+v2.2 fht     345
+v2.3 ntt586  285
+v2.3 fft     334
+
+
+v2.3 on Pentium/MMX 166mhz. 1m digits. Virt mem & caches.
+=========================================================
+ntt32.  8 primes.
+-----------------
+c586      557
+gcc486    634
+gcc586    340
+generic  1338
+longlong 1081
+
+ntt32.  4 primes.
+-----------------
+gcc586    273
+
+fft.  Compiled with DJGPP v2.7.2.1
+----------------------------------
+Quad2     334
+Hartley   343
+FFTW      330  (fftw v2.0.1)
+Ooura     394
+Ooura2    399
+NRC       680
+
+gcc586, 4 primes
+----------------
+Classic AGM : 718
+Fast Salamin: 273
+Slow Salamin: 309
+Fast sqrt(3): 288
+Slow sqrt(3): 377
+Borwein     : 433
+
+
+Ooura's pi_fftca.  March 1999.  DJGPP v2.7.2.1.  1m digits
+----------------------------------------------------------
+pi_fftca  331
+
+
+Tutorial v1.2.5, compiled with DJGPP v2.7.2.1
+gcc -O3 -m486 -ffast-math
+---------------------------------------------
+1m            1746s
+
+
+v2.3.  Pentium/MMX 166.  64m.  gcc586.  Best times
+--------------------------------------------------
+  1m digits    274s (virt-mem, virt caches, 4 primes)
+  2m digits    636s (virt-mem, virt caches, 4 primes)
+  4m digits  1,447s (virt-mem, virt caches, 4 primes)
+  8m digits  4,821s (virt-mem, 8 primes)
+ 16m digits 12,524s (disk, 8 primes)
+
+
+
+v2.3beta on Pentium-II, 400mhz, 384m, Win98  (By MLee)
+======================================================
+  1m     109
+ 16m   3,428
+ 32m   8,289 (virt mem, no virt caches)
+ 32m   8,861 (virt mem, no virt caches. Sqrt(3) formula)
+ 32m  11,909 (disk)
+ 64m  23,764
+512m 431,424 (disk.  And lots of it!  This was verified with
+              the sqrt(3) AGM.  536,870,776 digits correct.)
+
+
+v2.3 on Pentium-II, 400mhz, 384m. (By MLee)
+Red Hat Linux 6.0 with egcs compiler  Virt Mem
+(Talk about a lot of timings!  Suffice to say,
+ he's hooked on computing pi!<G>)
+==============================================
+         hartley      NTT 586 4p    OOura 2     NTT 586 8p
+128k         9             9           10           13    
+256k        20            22           24           27    
+512k        49            52           61           60    
+1m         112           115          150          135    
+2m         258           266          331          311    
+4m         582           598          739          717    
+8m       1,307         1,835(F)     1,600        1,614    
+16m      2,916         6,086(2F)    3,475        3,594    
+32m      8,810(F)     18,970(3F)   11,401(F)     7,903    
+                    
+                    
+         Quad 2       NTT C586 4p   NTT 486 4p  NTT 486 8p   
+128k        14            16           16           18       
+256k        33            35           37           41       
+512k        71            80           84           94       
+1m         160           177          193          212       
+2m         360           401          431          478       
+4m         802           912          970        1,058       
+8m       1,769         2,762(F)     2,165        2,359       
+16m      3,863         8,727(2F)    4,813        5,236       
+32m     11,578(F)     27,794(3F)   10,627       11,466       
+                  
+                  
+      NTT C586 8p        NRC      NTT Gen 4p    NTT Gen 8p  
+128k       24             15           52           64      
+256k       52             34          120          143      
+512k      114            118          268          318
+1m        251            304          598          704
+2m        547            731        1,336        1,558
+4m      1,214          1,691        3,001        3,405
+8m      2,712          3,620        8,931(F)     7,551
+16m     5,905          8,459       28,103(2F)   16,707
+32m    12,998         24,839(F)    89,390(3F)   36,764
+
+(F), (2F) and (3F) are the levels of Fractmuls involved.
+
+
+v2.3 on Pentium-II, 300mhz.  128m.  Win98 (Stuart Lyster)
+=========================================================
+256m  203,211.  gcc586, 8 primes, disk numbers.
+
+v2.3 on Pentium-II, Xeon, 450mhz, 1g, Linux (By Dominique)
+===========================================================
+1g   758,058.  gcc586, 8 primes, disk numbers.  One level
+               of fractal mul was required.  The sqrt(2)
+               Salamin AGM was used. 421,633 seconds were
+               spent in actual computation.  Rest was
+               OS and disk.  1,073,741,686 correct.
+
+

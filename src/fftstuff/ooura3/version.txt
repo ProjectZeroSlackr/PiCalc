@@ -1,0 +1,35 @@
+This version is for the floating point FFT.
+
+This directory contains the code to link into T. Ooura's FFT code.
+
+It was taken from T. Ooura's '#82' pi program, dated March 1999.  It
+is copyrighted by him, but free for use.
+
+These are table based FFTs, so they does consume more memory.
+
+(T.  Ooura has  a  made  a  number  of  tweaks  to  his fft/pi pair.
+Namely, he's merged the 'real<->complex' wrapper directly  into  the
+pi  program,  rather  than  being  a wrapper for the FFT, like I do.
+This means the results may not be entirely comparable.)
+
+Under optimal conditions, the FFT  has  a maximum limit of 8 million
+digits.  Beyond that, the program has to use the fractal multiply to
+break large chunks  into  small  enough  blocks.   (At 8m digits, it
+consumes 32megs of memory.)
+
+Depending upon the quality  of  your  trig,  and  whether you have a
+'long double' FPU, the limit may be as low as 1m digits.
+
+Although my own Quad-2 FFT has several trig options,  to  make  sure
+that you can go as high as 8m, this one does not.
+
+I don't know for sure what the limit of the 2 digit version will be.
+I  suspect  it  would  be able to go to 1g digits of pi, but I can't
+check, of course.  Also, if  you  use  an external FFT library, this
+limit will depend upon it.  TEST it!  Use  the  testing  routine  to
+check  the multiplication by giving the program a negative number of
+digits to  compute:   pi  -512m  would  test  the  multiply for 512m
+decimal digits.  If you need to, you can  reduce  the  MaxFFTLen  in
+fft.h.
+
+

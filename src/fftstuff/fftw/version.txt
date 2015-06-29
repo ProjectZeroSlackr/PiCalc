@@ -1,0 +1,60 @@
+This version  is  for  the  floating  point  FFT.
+
+This version is a *HIGHLY* experimental version.  It  seems  to  run
+slightly  faster  than  my  own Quad-2, but not by much.  Of course,
+that will depend heavily upon the compiler used, and the processor.
+
+This requires  an  externally  compiled  FFTW  library.   That means
+you'll have to get FFTW v2.x and compile it yourself, so it  can  be
+linked into the this fft module.
+
+FFTW home page:  http://theory.lcs.mit.edu/~fftw
+
+
+The reason this module even exists  is because I think fftw v2.x can
+use threads.  And those threads could  be  on  other  shared  memory
+processors.  In other words, it could let you do a parallel FFT.
+
+Under optimal conditions, the 4 digit FFT has a maximum limit  of  8
+million  digits.   Beyond  that,  the program has to use the fractal
+multiply to break large  chunks  into  small  enough blocks.  (At 8m
+digits, it consumes 32megs of memory.)
+
+I don't know for sure what the limit of the 2 digit version will be.
+I  suspect  it  would  be able to go to 1g digits of pi, but I can't
+check, of course.  Also, if  you  use  an external FFT library, this
+limit will depend upon it.  TEST it!  Use  the  testing  routine  to
+check  the multiplication by giving the program a negative number of
+digits to  compute:   pi  -512m  would  test  the  multiply for 512m
+decimal digits.  If you need to, you can  reduce  the  MaxFFTLen  in
+fft.h.
+
+There is also an  option  to  compile  for 'long double' data.  This
+increases the maximum multiplication limit, at the expense  of  more
+memory  and  runtime.   (Depending upon the compiler and system, any
+where from 25% more to 100% more.)  I'm not quite sure how  high  it
+could go.  It'd probably  depend  upon  your trig method, anyway.  I
+have it set fairly high.  I can NOT  guarantee  it  will  work  that
+high.  Based on the 'trig bits' formula I used to estimate where the
+regular  'double'  method  would fail, this should be around where I
+set it.  But I can't guarantee it.  It will depend on the quality of
+the trig, too.
+
+I'm including several options  for  different style trig generation.
+This is _not_ related to how FFTW does its own trig.   This  is  for
+the  real<->complex  wrapper  that  I put around FFTW's complex FFT.
+(It appears that FFTW doesn't have a full real fft.)
+
+I don't think the FFTW package  is  capable of actually doing an 'in
+place' FFT.  I think it allocates some memory,  does  the  transform
+into  it,  and  then  copies the data back.  Stupid.  That means the
+FFTW version will consume twice as much memory as what you expect!
+
+I guess  it  never  occured  to  them  that  somebody  might want to
+actually do a large transform  and  they  don't  have  the  physical
+memory  to  hold  both.  (That really makes you wonder why they even
+bothered to put a  'fftw_in_place'  flag  for the options?  Since it
+can't do it, you really should make  the  user  allocate  their  own
+memory, so they wont forget about this severe limitation.)
+
+

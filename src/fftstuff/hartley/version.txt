@@ -1,0 +1,53 @@
+This version is for the floating point FFT.
+
+It uses the Fast Hartley Transform that I wrote.  The FHT is sort of
+like an inherently real value FFT.
+
+Under  optimal  conditions, the FHT has a maximum limit of 8 million
+digits (when putting 4 digits  into each FHT element).  Beyond that,
+the program has to use the fractal multiply to  break  large  chunks
+into  small  enough  blocks.   (At  8m digits, it consumes 32megs of
+memory.)  (Swithing to 'long double' will improve that.)
+
+Depending upon the quality  of  your  trig,  and  whether you have a
+'long double' FPU, the limit may be as low as 1m digits.
+
+The  FHT  has  similar  trig  generation options that the Quad-2 FFT
+does.  Go see  those  docs,  although  the  sys_cfg.h file should be
+fairly self explanatory.
+
+I don't know for sure what the limit of the 2 digit version will be.
+I suspect it would be able to go to 1g digits of  pi,  but  I  can't
+check,  of  course.   TEST it!  Use the testing routine to check the
+multiplication by giving the program  a negative number of digits to
+compute:  pi -512m would test the multiply for 512m decimal  digits.
+If you need to, you can reduce the MaxFFTLen in fft.h.
+
+There is also an  option  to  compile  for 'long double' data.  This
+increases the maximum multiplication limit, at the expense  of  more
+memory  and  runtime.   (Depending upon the compiler and system, any
+where from 25% more to 100% more.)  I'm not quite sure how  high  it
+could go.  It'd probably  depend  upon  your trig method, anyway.  I
+have it set fairly high.  I can NOT  guarantee  it  will  work  that
+high.  Based on the 'trig bits' formula I used to estimate where the
+regular  'double'  method  would fail, this should be around where I
+set it.  But I can't guarantee it.  It will depend on the quality of
+the trig, too.
+
+I'm  not  sure  how  well  the  FHT  will run on your system.  On my
+Pentium/166, with DJGPP, the Quad-2 FFT (with a cache setting of 8k)
+runs better than the FHT  does.   On ther other hand, several people
+have told me that the FHT runs better on their  system.   Dara  even
+told  me repeatedly that it works better on numerous systems.  (Dara
+was the one who finally talked me into tolerating the FHT patent and
+including it anyway.)   So...   <shrug>  I  don't  know what kind of
+performance you'll get.
+
+Just to satisfy people, I have gone ahead and coded the FHT to  work
+with disk fft caching.  The code is a bit of a kludge, but it works.
+
+
+Also note that  the  FHT  doesn't  care  about  the cache setting in
+pi.ini.
+
+

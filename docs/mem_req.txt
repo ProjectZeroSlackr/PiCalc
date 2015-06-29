@@ -1,0 +1,198 @@
+
+===================
+Memory requirements
+===================
+
+Well,  the  program  is a storage hog.  In spite of that, though, it
+still uses less than many other programs.
+
+It's a little  hard  to  determine  _exactly_  how much storage (ie:
+memory and/or disk) will be needed because it will depend  upon  how
+much  memory you have, what version you are using, and several other
+factors.
+
+When  I say 'storage' I am meaning physical / virtual / disk memory.
+Which ever is approprate for how it was compiled.
+
+When I say  'physical'  memory,  I  mean  just  that.  The amount of
+memory SIMMs, DIMMs, etc. that you have available.
+
+When I say 'disk', I mean precisely that.
+
+Basic storage
+-------------
+
+The Fast-AGM takes 8 variables.  Since I put two  digits  into  each
+byte, that would be Digits*4 bytes of storage.
+
+The Slow-AGM takes 6.  That would be Digits*3 bytes of storage.
+
+The Borwein takes  6  variables.   That  would  be Digits*3 bytes of
+storage.
+
+The Classic-AGM takes 5  variables.   That would be Digits*2.5 bytes
+of storage.
+
+The  program  also  requires  additional  physical  memory that will
+depend upon the FixedBuffer size  setting  in pi.ini, and if you are
+using the ntt32/586, with the pre-computed trig tables, as  much  as
+16*cache_size extra.  For 'typical' settings, expect another 2.5m of
+memory (physical or virtual) to be used.
+
+
+Saving storage
+--------------
+
+The Fast-AGM saves 6 vars.  That would be Digits*3 bytes of disk.
+
+The Slow-AGM saves 4.  That would be Digits*2 bytes of disk.
+
+The Borwein saves 3.  That would be Digits*1.5 bytes of disk.
+
+The Classic AGM saves 3 variables.  That would be  Digits*1.5  bytes
+of disk.
+
+Plus an extra 200 bytes of disk for additional data.
+
+This data  doesn't  have  to  exist  while  the  program is running.
+That's up to you.  The only other data it has to co-exist  with  are
+the variables above.
+
+
+Multiplies
+----------
+
+The  FFT takes 4 times as many bytes as digits desired.  To multiply
+two 8m digits, getting a 16m  answer,  would take 32m bytes.  On the
+other hand, depending on the compiler and system, the 'long  double'
+version  make  take  25%-100% more.  If you only put two digits into
+the FFT, instead of  4,  that  doubles  the memory consumed.  So for
+the regular double, it would be Digits*4.  For the long  double,  it
+could  be  Digits*5  to  Digits*8.   For  the  two  decimals per FFT
+element, that  would  double  it.   This  must  be  physical memory.
+(Suffice to say that the FFT is one heck of a memory / storage  hog,
+which is one of the reasons why I don't use it!)
+
+The NTT32 can be done using 4  or 8 primes.  Using 4 primes requires
+a minimum of Digits/2 bytes of physical memory for each part.  The 8
+prime requires Digits/4 bytes.   This  has  a  special ability to do
+only part of the transform in memory.  If there isn't enough  memory
+to  hold  the  entire thing (all 4 or 8 parts), the rest will be put
+onto disk.  This will total Digits*2 of  storage.   This  can  be  a
+combination of physical and/or disk memory.
+
+[The FFT and NTT64 require all physical memory for their transforms.
+The  NTT32  is  special  in that it can efficiently page much of the
+data to disk.  So even though  it requires less physical memory, for
+the sake of storage consumption, I'll take about the whole.]
+
+To do a two value multiply will double that, of  course,  since  you
+have two numbers.  (Actually,  with  the  NTT32  it won't be double.
+It'll depend on how much memory you have and how many parts  of  the
+NTT32  you  can  do in memory at once.  But it's a lot easier to say
+'double'.)
+
+
+Having said that, I now need to tell you about two caveats.
+
+First,  if  you  are  doing  the Fast AGM, the way it is written, it
+never actually does a full sized multiply!  This actually halves the
+amount of storage that  those  versions  require.  (Or allows you to
+compute twice as long of a transform as you otherwise  would.)   The
+Slow AGM and Borwein do require a full sized multiply.
+
+Second, each of those transforms  has  a maximum limit.  This may be
+due to inherent limitations or due to the amount of physical  memory
+that  you  have  available.  If you don't have enough phys mem to do
+the whole transform  (or  1/4th  or  1/8th  if  it's  the NTT32) the
+program will break the Too-Large numbers into parts (by  recursively
+using  the  FractalMul)  that the FFT/NTT multiply can handle.  This
+means that those data sizes above can actually be 1/2, 1/4th, 1/8th,
+1/16th, etc. of the stated  requirements above!  Doing this requires
+an extra Digits*2  bytes  of  storage  for  working  space  for  the
+FractalMul.  Although if only half sized muls are being done for the
+Fast-AGM, then that's only 'Digits' bytes.
+
+
+Caches
+------
+
+The program can cache the transforms  of numbers it will need again.
+Naturally this takes some storage.  Specifically, whatever size  the
+transform needs for that length.  (Just the transform, not both vars
+for a 2 value multiply.)
+
+The Fast-AGM will need, at most, 3 caches of half sized multiplies.
+
+The Slow AGM will need, at most, 3 caches of half sized multiplies.
+
+[However,  for  both  AGMs, that 3rd will only be needed at the end,
+and very little performance loss  will  occur if it's not available.
+Only 2 are needed for the vast majority of the program.  Normally, I
+personally say just 2, but I figured I'd be honest here and say 3.]
+
+The Borwein will need, at most, 2 full sized caches.
+
+The Classic-AGM doesn't use any.
+
+This means that, with the NTT32 as an example:
+
+The Fast-AGM will need 3*Digits bytes for caching.
+
+The Slow-AGM will need 3*Digits bytes for caching.
+
+The Borwein will need 2*(Digits*2) bytes for caching.
+
+
+Now, having said that, there are three caveats.
+
+First,  the  program can indeed run without any caches at all.  Just
+not as quick, is all.  It'll print  out a message saying you ran out
+of disk/memory space and that it recomends you get more.   And  then
+it'll  go  on  with  the  program.   (You can either run out of disk
+space, or have them turned off in pi.ini.)
+
+Second, if the  FractalMul()  kicks  in,  it  becomes  a little more
+complicated.  Caching doesn't work with all parts of the FractalMul,
+so it turns it off during part, and then re-enables  it  later.   It
+should  work  out  to  wanting about the same amount of storage, but
+it'll be in smaller chunks at a time.
+
+Third, if you don't have enough memory to do all parts of the NTT at
+once, when it caches  them,  it  will  put  each one into a seperate
+cache.  The total size will be the same, though.
+
+
+Summary
+-------
+
+As  an  example,  I'll  use the NTT32 and say it has to use disk for
+parts of the data.  And that the FractalMul does _not_ kick in.  And
+that I'm doing the Fast-AGM.
+
+vars :  4*Digits
+Mul  :    Digits
+Cache:  3*Digits
+----------------
+        8*Digits bytes.
+
+So, if we were computing 32m digits of pi,  you'd  need  about  256m
+bytes  of storage.  (But since the AGM only really needs two, a more
+realistic number is 224m.)
+
+Plus, if we were saving  the  data  between passes, that would be an
+extra 3*Digits bytes of disk.  Or 96m of disk.
+
+When I tell people how much disk space will be needed, I  tell  them
+8*Digits_Wanted,  plus  3*Digits  if you want to save the state.  It
+can get by with a bit less, but it's a good estimate.
+
+Of course, that does assume that I haven't miscounted!  (Although if
+I have miscounted, it's  likely  to  no  more  than  the  amount  of
+physical memory actually used.)
+
+To  be  on  the safe side, allow for an extra 'Digits' bytes or even
+more.
+
+
+

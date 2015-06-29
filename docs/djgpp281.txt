@@ -1,0 +1,55 @@
+
+============================
+Warning against DJGPP v2.8.1
+============================
+
+I figure I just have to say something about DJGPP v2.8.1.
+
+It is, without a doubt, far far worse than DJGPP v2.7.2.1!!  To  put
+it colorfully, "It sucks dead bunnies."
+
+I don't know if  this  includes  GCC  2.8.1.   It  may or may not be
+specific to the DJGPP v2.8.1 port.
+
+The compiler  itself  doesn't  seem  to  be  too  bad,  but there is
+something wrong elsewhere, because it can result  in  a  pi  program
+that runs much much slower than djgpp2.7.2.1  does.   Anywhere  from
+15% slower or even more.
+
+I've  been  using djgpp281 for a month or so now, and I identified a
+number of problem areas, but it still bites me  occasionally.   Even
+small,  insignificant  changes  in  a  non-critical  section  of the
+program can result in the executable running much slower.  I  didn't
+encounter those problems with DJGPP2721.  DJ Delorie screwed up with
+the v2.8.1 release.
+
+It's unstable.  It's eratic.
+
+It  acts  sort of like alignment problems.  Like it doesn't properly
+align data that is greater  than  4  bytes.  The same sort of random
+chance.  However,  you  often  can't  fix  it  by  adding  alignment
+variables.   And  actually, very often alignment isn't that big of a
+problem since so much of the data would be in the L1 cache.  It goes
+beyond just alignment problems, though.  There also seems to be some
+sort of slow down  with  the  library.   It's difficult to describe.
+
+I'm using DJGPP v2.8.1 now  because  I  have  to, in order to ensure
+that the program does at least work with it.  But as soon as  I  get
+done, I'm planning on deleting it and going back to DJGPP v2.7.2.1!
+
+You might want to read the ALIGNMNT.TXT file to see just one problem
+that I've had with it.
+
+DJGPP  v2.8.1  has problems with both gcc586 and the FFT modules.  I
+was able to kludge a fix for  gcc586,  but I couldn't come up with a
+solution for the FFT version.
+
+When things are working well, djgpp  v2.8.1  can  produce  a  fairly
+decent executable.  Slightly  better  than  what  DJGPP 2.7.2.1 can.
+The problem is that you have to  fight  the  compiler  to  get  that
+decent  executable.  And even then, there's no guarantee that you'll
+win the fight.
+
+Avoid DJGPP v2.8.1.  It'll save you headaches later.
+
+

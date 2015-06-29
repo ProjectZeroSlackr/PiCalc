@@ -1,0 +1,81 @@
+Except where explicitly  noted  in  individual files, these programs
+and files are Copyright June 1999 by Carey Bloodworth.
+
+This includes, but is not limited to:
+
+  common/ini.c            By me.  Public domain.
+  common/malloc6.c        (mostly) By D.J. Delorie.  GNU Copyright.
+  gcc586/vector.c.        By Jason P. Public domain
+  c586/vector.c           By me.  Public domain
+  fftstuff/ooura/fft.c    By T. Ooura.  Copyright.
+  fftstuff/ooura2/fft.c   By T. Ooura.  Copyright
+  fftstuff/hartley/fft.c  Hartley transform is patented.
+                          (see docs for further information.)
+
+
+I retain all legal rights and ownership.  All files are provided "as
+is", without any warranty, suitability of use, etc.  These files and
+programs are being provided in  the  interest of sharing of a hobby.
+If you do not agree to these terms, then do not use them.
+
+I give you permission to use these as needed, without asking me  for
+permission,  informing me of your use, or any form of payment.  Feel
+free to use them if you need to.
+
+I do, however, have one restriction and one requirement.
+
+First,  you  must  not put the GNU license (often called 'Copyleft')
+onto this product or any code,  data, docs, etc. that you extract or
+develop directly from it.  You can, of course, do what you want with
+your own original code, docs, data,  etc.   Just as long as it's not
+mine.
+
+Second, you must include a  notice in your code and/or documentation
+that the ideas or code came from me.  I've put a lot  of  work  into
+these  and  it's  just  fair  that  my  name  is  included  in there
+somewhere.  You don't have  to  provide  a massive explanation, or a
+copy  of my original code, although you can if you wish to.  But you
+need to include some notice  that  I was involved somehow.  On major
+projects, I try to give credit where it's due, because it's fair.  I
+just  want  you  to  do  the  same.   Being  included  in  something
+comparable to my list of "thank you's" would sufice.
+
+Beyond those two things, you can do whatever you want.  You can even
+market it commercially, if  there  was  actually  a  market  for  pi
+programs.  (Baring any other licensing  restrictions  of  any  other
+code that might be included, of course.)
+
+
+April 29, 1999
+
+Carey Bloodworth
+cbloodworth@juno.com
+
+[Non-legal personal note:
+
+Just in case you are curious, the reason  this  entire  thing  isn't
+public  domain is because I have indeed put a lot of work into these
+programs (more than a thousand hours) and I just  want  to  be  sure
+that  if somebody does use these in their own stuff, that my name be
+included.  Perhaps  that's  ego.   Or  perhaps  that's  just 'fair'.
+Whichever it is, though, that's the main reason it's not all in  the
+Public Domain.
+
+As for the restriction...
+
+To be blunt, I don't like the GNU license.  The concept is good, but
+I don't like the actual license.  I think it's restrictive, and  far
+far  more  complex  and difficult to read than it needs to be.  I've
+tried several times to read  and  understand it, and there's so much
+legalesse  in  there  that  my  eyes  glaze  over.   Maybe   Richard
+Stallman's  brother  is  a lawyer or something, I don't know.  But a
+complicated, unreadable license like they  use goes against the very
+concept the Free Software Foundation claims to stand for.  In short,
+I don't approve of the GNU license  and I don't want any part of it.
+If they really believed the things they claimed, they would have  at
+least  attempted  to  make  the  license  readable  by  the  average
+programmer.
+
+]
+
+

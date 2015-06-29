@@ -1,0 +1,55 @@
+
+======================
+Features of CB pi v2.3
+======================
+
+1) A limit of a massive  1  billion  (1024m) digits of pi.  No other
+desktop program approaches that limit.  (This  _has_  been  computed
+and verified!)
+
+2) Fairly portable.  Although some versions use a bit  of  assembly,
+you  can  run  it  without  it  (accepting a performance penalty, of
+course.)
+
+3) Under DJGPP, has  the  ability  to  abort  the iteration when you
+press a key.  (This could be ported to other  systems  by  modifying
+the port.c file.)  Using this ability (or having the program  do  it
+automatically)  allows  you  to  compute at your convenience, rather
+than it running continuosly.
+
+4)  The  ability  to  do  large  pi  runs without any virtual memory
+support, only depending upon pure physical memory and disk.
+
+5) The ability to use an external  FFT that is already tuned for the
+target  system.   This  can  result  in  a  significant  performance
+improvement,  especially  if  that  FFT  takes advantage of multiple
+processors.
+
+6) Able to  run  with  limited  memory.   Theoretically,  you  could
+compute a billion digits with only 4m of physical memory.  (Although
+it much prefers at least Digits*2  bytes of memory.)  You'd be crazy
+to try, but the program could do it.
+
+7)  Can  use memory efficient 'NTT's that require as little as 1/4th
+the memory as the number of digits desired.  Can work with even less
+memory.  (More is better, of course.)
+
+8) Includes multiple pi formulas, allowing you to use two to  verify
+your  result,  rather  than  just assuming the numbers are accurate.
+(Hardware errors _do_ occur!   As  do the occasional latent software
+bug.  I've experienced both of those!)
+
+9) An easy to configure 'pi.ini' file to set the desired options.
+
+10) The ability to explicitly specify where  the  program  puts  the
+needed files, including on  multiple  disks.   (Although  each  file
+itself must fit entirely on the specified disk.)
+
+11) Can work on systems with or without a command line.
+
+12) Fast for both in memory 'benchmark'ing runs, and for larger disk
+based runs.
+
+
+
+

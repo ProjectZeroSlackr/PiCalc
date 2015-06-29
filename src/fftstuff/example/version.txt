@@ -1,0 +1,43 @@
+This version  is  for  the  floating  point  FFT.
+
+This is just  a  'wrapper'  for  you  to  use  your  own FFT, or FFT
+library.  It does not actually contain a FFT.
+
+Under optimal conditions, the FFT  has  a maximum limit of 8 million
+digits.  Beyond that, the program has to use the fractal multiply to
+break large chunks  into  small  enough  blocks.   (At 8m digits, it
+consumes 32megs of memory.)
+
+Depending upon the quality  of  your  trig,  and  whether you have a
+'long double' FPU, the limit may be as low as 1m digits.
+
+Although my own Quad-2 FFT has several trig options,  to  make  sure
+that you can go as high as 8m, this one does not.
+
+I don't know for sure what the limit of the 2 digit version will be.
+I  suspect  it  would  be able to go to 1g digits of pi, but I can't
+check, of course.  Also, if  you  use  an external FFT library, this
+limit will depend upon it.  TEST it!  Use  the  testing  routine  to
+check  the multiplication by giving the program a negative number of
+digits to  compute:   pi  -512m  would  test  the  multiply for 512m
+decimal digits.  If you need to, you can  reduce  the  MaxFFTLen  in
+fft.h.
+
+There is also an  option  to  compile  for 'long double' data.  This
+increases the maximum multiplication limit, at the expense  of  more
+memory  and  runtime.   (Depending upon the compiler and system, any
+where from 25% more to 100% more.)  I'm not quite sure how  high  it
+could go.  It'd probably  depend  upon  your trig method, anyway.  I
+have it set fairly high.  I can NOT  guarantee  it  will  work  that
+high.  Based on the 'trig bits' formula I used to estimate where the
+regular  'double'  method  would fail, this should be around where I
+set it.  But I can't guarantee it.  It will depend on the quality of
+the trig, too.
+
+
+If your FFT does its own 'normalization' when it does an inverse FFT
+(most don't, but a few do), then you will need to make  sure  that's
+defined in fft.h.
+
+
+

@@ -1,0 +1,114 @@
+
+==============
+Data Alignment
+==============
+
+I think I need to say a few words about data alignment!
+
+I've used the performance monitoring counters in the Pentium/MMX and
+I've discovered there are a few alignment problems.  Both in the FFT
+versions  and  in  the  NTT32/gcc586.   Both of those mix the use of
+integers and doubles, with  the  result  that  things are not always
+aligned properly.  This is especially troublesome  with  GCC  2.8.1,
+but  occurs to a small extent with GCC 2.7.2.1.  And, really, nearly
+every compiler.
+
+There are actually several problems.  And whether  they  even  cause
+you  any  problem  at  all  will  vary from compiler to compiler and
+system to system.  (For example,  it's  easier for a Pentium to have
+alignment problems than it is for a 486.  And DJGPP v2.7.2.1 doesn't
+seem to have any problems, while DJGPP v2.8.1 does.)
+
+--------
+vector.c
+--------
+
+In gcc586 and c586, the vector.c routine has  an  array  of  doubles
+that it needs to access within the vector moduluar multiplies.  This
+may  not  be  properly  aligned.  The result is that on the Pentium,
+with its 64 bit bus, the accesses will result in two bus cycles.
+
+And considering that happens  inside  the very carefully crafted asm
+code,  where  every  cycle  counts,  the  performance   penalty   is
+_significant_.
+
+I've currently put a warning into  vector.c,  so  if  the  array  is
+misaligned,  the  program  will sound a warning and you will need to
+uncomment the alignment variable  near  the top of vector.c.  That's
+not hardwired in because whether it will even be needed will  change
+depending upon the options you compile the program with!  Annoying.
+
+But, at least it's  solvable.   (Usually.   I have encountered times
+where djgpp v2.8.1 has fought me over alignment.)
+
+(I should also point out that  this  problem doesn't exist on a 486,
+since  its  bus  is only 32 bit wide.  I would have had considerably
+difficultly finding this problem on my old 486.)
+
+
+---
+FFT
+---
+
+In  the  FFT, in the loop where I release the carries, I get quite a
+few misaligned accesses.  (I get a few elsewhere, too.)
+
+I  put in an alignment check for the double variables, and sometimes
+it is mis-aligned.  Other  times,  it's  not.   It depends upon from
+where the routine is called, so you can't change variables around to
+ensure a fixed, aligned arrangment.
+
+I was looking through the  FFTW  package,  and  I  noticed  that  it
+offered  a  macro  to  fix  alignment  problems.   It called the GCC
+specific version of the non-ANSI  alloca(), which allocates space on
+the stack.  By using those macros,  I  was able to reduce the number
+of misaligned accesses.  However, the code was so  fragile that  the
+slighted code change or compiler optimization would break them!
+
+A  similar  situation  exists for parts of my FFT.  There aren't all
+that many, but it's enough to  be annoying.  Again, the code ends up
+being rather fragil.
+
+However, in this case, it doesn't really matter that  much!   The  C
+code  of  the FFT is lose enough that an extra memory cycle here and
+there is no big deal.  Remember,  many of those accesses will be due
+to misaligned data on the stack.  And that's almost certainly  going
+to be in  the  L1  cache.   So  the  read  penalty  (if  any at all,
+considering how wide the L1 cache is) is going to be small.  And the
+write penalty will be nearly non-existant,  since  CPUs  have  write
+buffers  that  let  the CPU core pretend the write was instantaneous
+and continue processing.
+
+Here are some numbers for the FFT.
+
+Without any concern for alignment, my standard FFT took 315 seconds,
+there  were  about  705  million total misaligned accesses, of which
+116m occured inside  the  FFT  and  567m  inside the release carries
+loop. 
+
+With considerable effort to align things, that  same  FFT  took  318
+seconds,  there were about 5.9 million total misaligned accesses, of
+which 2.6m were inside  the  FFT  and  142k  were inside the release
+carries loop.
+
+If you'll notice... the misaligned one took less time!   The  effort
+to  properly  align  things  actually cost more than what was saved!
+So, for the FFT, misaligned accesses  sound a lot more damaging than
+they actually are.  When you run a test to 1m digit and see that you
+are getting 700+ million of anything, you start  to  get  concerned.
+Unnecessarily, though.
+
+Of course, I should point out  that  this is for this FFT, compiler,
+and CPU.  You might get different performance results or  penalities
+on a different system.   (For  example,  with  DJGPP v2.8.1, the FFT
+performs a lot worse than with DJGPP v2.7.2.1....)
+
+
+
+The point is, the program does have a few alignment problems.  Not a
+lot,  but  a  few.   On a pentium, it works tolerably well.  On some
+other system, it might not work  out so well.  (Although it probably
+will.)
+
+
+

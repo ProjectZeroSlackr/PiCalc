@@ -1,0 +1,62 @@
+1) Add in some disk based NTTs/FFTs for just in case?  Don't know...
+It'd be a lot of work with very little return for me.
+
+27) Add some better  safety  checks  to the square root, reciprocal,
+and division routines.  Not sure how to  do  it,  but  it  certainly
+needs to be done.
+
+30) Do additional zero pad cuts.
+
+34) Keep hunting for tweaks to the AGM and square root!
+
+42) Look for a better  FFT/NTT style.  APFloat's hand coded six-step
+(with tables) is slightly faster than mine in C. (Of course, without
+the hand coding, it's a lot  slower than mine.)  Are there any other
+styles where I can get an improvement while still using just C?
+
+46) do  more  versions  of  the  modular  math.   Especially for the
+Pentium.  Perhaps provide custom Pentium NTTs?
+
+53) Somehow combine the virtual memory and disk version  so  it  can
+automatically chose which one is best.
+
+63) use a precomputed trig table for the  FFT  &  NTT?   Think  it'd
+cause to much L1 thrashing.
+
+66)   add   a  self  check  to  the  TestMath()  to  make  sure  the
+multiplication actually works corretly  with other values.  Also add
+checks for the reciprocal and the Borwein functions.
+
+68) I played around with  the  idea  of  adding 'holes' into the NTT
+data so the CRT wouldn't thrash.  However, at a 2m testjig size  (8m
+digits),  it  only  saved  1  second.   That's  0.5%.  Not worth the
+trouble to complicate the memory  allocation, the pi.ini setting not
+being a power of 2, etc.  (I tried this again with my pentium, and I
+didn't see any change at all.   Shame, because it sounds like a good
+idea.)
+
+70) Improve the AGM self checks.
+
+72) Do Montgomery version for the  686 & K6?  Allowing for the extra
+overhead, the integer multiply instruction would need to  be  faster
+than  the FPU multiply.  Preferably along the lines of 1 cycle.  The
+reason is that the  Montgomery modular multiplication is sequential,
+and with so few registers, we wouldn't be able  to  parallelize  it,
+like with the gcc586/vector.c, which uses the FPU.
+
+77) do a DiF vector NTT version.
+
+78) Try to autodetect the limit of  the  FFT  trig.   Sounds  risky.
+What if I get it wrong.
+
+79)  Redo  the  CRT.H  stuff.   I  don't  really  like  the seperate
+functions for things.
+
+80) When starting, print on  the  screen which version (disk or virt
+mem), which cache, which FFT/NTT.
+
+82) Allow the sqrt screen stuff  to  be done differently even if you
+don't use a mac
+
+
+

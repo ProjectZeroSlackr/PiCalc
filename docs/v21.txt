@@ -1,0 +1,351 @@
+
+=======================
+Exceprts from v2.1 docs
+=======================
+
+This file contains some excerpts  from  the v2.1 docs that I thought
+added a certain  amount  of  'flavor'  to  the  package.   It's  not
+actually  anything important, just something that gave the v2.1 docs
+some of its personality.
+
+These are excerpted directly from  the v2.1 docs, rather than having
+been rewritten.
+
+
+
+Chapter  9: 32m pi run
+======================
+
+Since version 2.0 was released, I've done two more 32m pi runs.  The
+second was used to test a number of things (including the use  of  4
+primes), so its run time varied  quite  a bit from pass to pass.  In
+spite of that, it was about 40 hours, with 7.7 hours of disk I/O, so
+I was certainly encouraged to do a third run.
+
+The  third  32m  run, though, was quite fast.  It took me only 36.47
+hours to compute 32m digits  of  pi.   This  is compared to the 60.5
+hours the first time.
+
+(One thing I did find curious, is that the third one took  about  40
+minutes  more  disk  I/O than the second one.  It took 8.43 hours of
+disk, and I was only expecting  about  7.7  or so.  At the moment, I
+can't explain it, but I'm not in the mood to do a 4th run trying  to
+track down just 40 extra minutes.)
+
+Below is the timings from my most recent 32m pi run.  Also, each one
+has the 6 CRC numbers that  were generated when the program finished
+a pass and saved the data.  I used the Fast AGM,  so  there  were  6
+CRCs, and those are NOT usable if you use the old AGM.
+
+
+Init     :   2456 cdf37163 cdf37167 fcc05924 7d03ca7c cdf37167 a47ca14a
+Pass    4:   4337 96ef131f d5f627fd 9fdac846 fcc05924 d3c45851 19a11813
+Pass    8:   5196 87ebeb50 8e3e3726 3dd35c76 a73fda08 cb7bf4d0 8b5bbebe
+Pass   16:   5199 c6ae6fad 63b99fe0 88be75d8 c61a674d 52a0ef43 ffa30073
+Pass   32:   5340 2cbb462c 04077108 2c082408 2986a1cd e6703ac3 95aa0cf9
+Pass   64:   5369 73a49736 ac6300f3 5f2f3672 c6c55797 49a33248 678cff12
+Pass  128:   5378 2195adbd 4a674841 9e853adb ff3fc424 dd64ac7a 80be9edb
+Pass  256:   5346 74b9d2a8 ada3c6c1 e9242df8 9a95691c 070ca517 91318618
+Pass  512:   5368 bd98683c 7022bb06 3c5e4411 11fce252 dea261bf 9f54bcab
+Pass   1k:   5294 f461b05e a5513b78 2ec0148c 28f11cc6 de8565f5 8a6244e4
+Pass   2k:   5277 6909713e 521f95ae 9c8e070a b892c331 a3dff072 3fe043f1
+Pass   4k:   5264 15ca85fa 414d240c e91d9a87 c5878e76 1e76da42 6ee90266
+Pass   8k:   5260 213ac840 98aa482f 75887c30 d3a35de3 e1ab955a cb93480f
+Pass  16k:   5248 973293fa eca74488 5ddcfaf1 10547b46 887faeef a7b71e6b
+Pass  32k:   5256 e48861ef b5f02083 d9bcc826 6c421483 9b3e30e6 6b2fa6b3
+Pass  64k:   5222 ea5af788 fbe9e427 a5553908 ba385572 b6d7a6c0 f2f19864
+Pass 128k:   5214 b693bca7 8623ccab 213b9b9f 7397d3d4 a4c1487f d07ba663
+Pass 256k:   5194 2d9d5ab2 51d7b1c4 45de499f f75ecb41 bbb09716 58b4eae7
+Pass 512k:   5186 211404af 10f55b5e 3cfc1607 90ea28cf 4dabf0ea ef998f60
+Pass   1m:   5174 d52a3f4e 9a443b05 47d25084 fa3b527f b1cfbc2d a3c2b916
+Pass   2m:   5148 d2d58a59 20789e40 ad3ade3d 3d4b5dfc b6aef449 d55cb118
+Pass   4m:   5080 6376e530 34f4ef38 cd52aea4 27866cc6 81f6b89f cac6ada6
+Pass   8m:   4814 14453d42 d79e2f3f c100c54e 5c9f2772 657daddb 651f5cca
+Pass  16m:   4578 fb7756fd 569b6183 821db28e 0145f5ff 04e19172 aba17992
+Pass  32m:   4043 -------- -------- -------- -------- -------- --------
+Final    :   5530 -------- -------- -------- -------- -------- --------
+Total    : 130773
+
+(I noticed something a little  surprising.   I had forgotten to save
+the CRC for the init and first two passes, so  I  had  to  run  them
+again, and run Pass 16 to  make sure the CRC meshed correctly.  This
+time, instead of 2488, 4494,  5360,  and  5372 seconds, it was 2456,
+4337, 5196 and 5199 seconds.   A  savings of 526 seconds.  A savings
+of  8.76  minutes  in  just  three  passes.    That's   about   2.8%
+improvement.  Although it might be just some random event due to the
+disk,  I  did,  however,  do  the  second  run  with the timers off.
+Considering that all I have to do to read the PC's timer under DJGPP
+is just read a memory  location,  I  have a little trouble believing
+that's the  cause.   However,  even  if  that  was  the  cause,  I'm
+certainly  not  going  to  redo the entire run for just 2.8%.  Still
+though, it's something worth rembering next time I do a pi run.)
+
+It took a total of 130773 seconds.  That's 36 hours, and 19 minutes.
+There  was  about  30378 seconds worth of disk I/O. Total compuation
+time was 100395 seconds, or about 27 hours and 53 minutes.
+
+It's worth noting that I *HAVE* beaten a Cray 2.
+
+In 1986, David Bailey used the first delivered Cray-2  and  computed
+29m  digits  in  28 hours, and then verified it in 40 hours.  My run
+was 36.3 hours, which is certainly  less than 40.  And, allowing for
+the disk I/O, I tied the 28 hours.
+
+Throw in the fact that the Cray-2 had enough memory to hold  it  all
+in memory, without using disk, and that it ran 3.5 times faster than
+my computer does, and it  was  a  vector computer (which alone could
+result in a 20* speed up for things such as FFTs), it's  quite  safe
+to say I did very well!  And a 486/66 isn't that much newer than the
+Cray-2.   The  486  came  out  in 1988 or so, the /66 came out a few
+years later, and my Cyrix 486/66  came  out in 1994.  (Of course, by
+1994, the 486 was already on the downside of performance.)  It's not
+like I'm comparing the Cray-2 with the  latest  Alpha  processor  or
+something.
+
+In fairness and honesty,  I  have  to  say I've certainly spent more
+time on my program than Dr. Bailey  did.   And  due  to  a  lack  of
+vectorization in one routine of his program, his actually took about
+25%  longer  than  it  should have.  And he used the first delivered
+Cray-2 and later ones ran faster.  And he did not use Salamin's AGM.
+He first pass was with the Borwein Quartic formula (taking 28 hours)
+and the verification pass used the Borwein Quadratic formula (taking
+40  hours).  The Borwein quadratic formula isn't as efficient as the
+Salamin AGM is,  although the Borwein Quartic formula is supposed to
+be comparable to the AGM  when  run on supercomputers.  But in spite
+of those things, I'm going to claim victory!<g>
+
+
+Chapter 10: Timings
+===================
+
+......
+
+Just a couple of days before I  released this, I was told about a pi
+program by Takuya OOURA.  From what I heard, it ran very close to my
+v1.5 speed.
+
+Naturally, I had to check out the new competition.
+
+So, I grabbed it.  And it does indeed run very close  to  what  v1.5
+did.   Although  I  am a bit annoyed that somebody matched me (<g>),
+I'm not too upset.   (Actually,  according  to the copyright date on
+his program, his came before mine, but why quibble?)
+
+First, the basic  algorithms  are  quite  common.   Even  the  'Karp
+tricks' are old stuff.  Up  through  v1.5,  I  wasn't  really  doing
+anything new in pi algorithms.  It was new to me, but once  I  found
+Karp's  paper,  (and  looked  closely  at  Bailey's MPFUN package) I
+discovered that all those tweaks  I  had struggled with were already
+well known.  I had wasted months reinventing something that I  could
+have  just implemented in a few days.  And I never bothered to clean
+up v1.5 to get rid of  my  way  of  doing things and switch fully to
+Karp.  (ie:  that means my complicated 'smartmul', etc.)  I did that
+with v2.0
+
+Second, his FFTs are indeed  quite  fast.   Comparable to my own.  I
+already knew  that,  though,  because  his  FFTs  are  in  the  FFTW
+benchmark and they did almost  match  mine.  In the benchmark list I
+was given, for 512k elements (like you were multiplying 1m  digits),
+I got a 25.453, and  he  got  a 22.275.  (Higher is better.)  Fairly
+close.  I can't say with any certainty how fast  they  actually  are
+compared  to  my own, on my own system because I haven't tested them
+seperately, and because  FFTs  are  notorious  for being very system
+dependant.  (At times it seems like their performance  even  depends
+on whether you brushed your teeth that morning!)  However, as you'll
+see in the testings later, his FFT is fast for smaller sizes, but it
+does have a growth problem.
+
+Third, v1.5 didn't take advantage of all the possible optimizations.
+In  fact,  there  were  some areas that consumed more time than they
+saved.  I never bothered to change  that  because I went on to v2.0.
+
+Fourth, at least for small  sizes,  Ooura's  seems to be able to get
+results comparable to mine with _out_  using  FFT  caching!   That's
+impressive.  (At least I don't think he does FFT caching.  I haven't
+examined  the code that well.)  Of course, at the sizes I'm testing,
+caching isn't that big.  The  Karp  tweaks  do more than the caching
+does.  But, I see one of the ways he does that.  He uses precomputed
+trig tables equal to the size of the FFT.  That consumes  a  lot  of
+memory.   For small sizes, it doesn't matter too much, but at larger
+sizes, it has  to  be  constantly  accessed  through virtual memory,
+where as my caches are a one time page.  I was never willing to  use
+trig tables that large.  Anyway, he's only managing about 5%  faster
+without  caching  than  I  do.   That  can be attributed to his FFTs
+before they blow the L2 cache.
+
+Fifth, his program,  like  most,  are  totally  ignorant  about  the
+effects  virtual memory would have on a computation.  Like v1.5 was,
+as long as everything fits into  memory,  then great, but as soon as
+stuff  starts  paging...<shudder> (Actually, v1.5 knew about virtual
+memory and knew enough not  to  do  a  FFT with it.  That's when the
+FractalMul() kicked in.)
+
+Sixth, his program and FFT would be limited to only 8m digits before
+round off error caused it to fail.   That's  inherent  in  the  data
+sizes,  and  everybody is governed by that.  Although he has code in
+there to cause  it  to  switch  to  putting  only  2 digits into it,
+instead of 4, doing that would double the memory usage from  32m  at
+the  failure  point  (8m digits) to 64m still at 8m digits, and then
+actually going to 16m digits  would  result  in 128m of memory being
+used in the FFT.  That memory usage is one of the reasons  I  didn't
+do that.
+
+His number storage format does make some things easier.
+
+His  coding  style  is  terrible,  though.   The  variable  names in
+particular are quite bad.  That makes it hard to follow exactly what
+he's doing.  Sure, he is Japanesse, and  his  english  is  infinetly
+better than my Japanesse, but he does write english well enough that
+he should have more descriptive variable  names.   For  the  record,
+though, the square root routine is the same as mine.  Standard Karp.
+
+
+There are things about it that I  don't  like.   I  don't  like  his
+variable  naming style and coding style.  Some parts are interesting
+because they are a different way to organize things etc.  Some parts
+are intersting because his  program  is  indeed comparable to my old
+v1.5.
+
+
+Although his program  has  good  points  and  bad  points,  overall,
+though, I have to give his a lower grade than mine.  One of the main
+reasons  is  its  lack  of  knowledge  about  the effects of virtual
+memory.  Ever try  and  do  a  FFT  in  virtual memory???  <SHUDDER>
+Another reason is that his program is, for all  practical  purposes,
+limited  to  8m  digits because of the FFT.  Going beyond that would
+consume far too much physical  memory.   At  least my v1.5 could use
+the  FractalMul()  to get around that.  Third, his FFT knows nothing
+about L1 or L2 memory caches.   Once  his FFT grows bigger than what
+they can deal with, his program slows down.
+
+If you consider only pure in-memory calculations, though, then I  do
+indeed have to give it high marks.  I  do  readily  admit  that  his
+program  is impressive.  It's the only one I've seen that even comes
+close  to  matching  mine.   But I can't give a '10' rating because,
+even with pure in-memory calculations, the higher it goes, the worse
+it becomes.
+
+Now, having said all of that....  Here are the timings comparing his
+program to my v1.5 and v2.1 with my FFT, and v2.1 with the  DJGPP486
+NTT (which, on my system, runs faster than the FFT.)
+
+      Ooura v1.5  N486  FFT1 FFT2
+-- 256k Level 2 cache turned off --
+ 32k   65     62    35    52   65
+ 64k  146    142    76   114  143
+128k  329    330   170        318
+256k  727    740   380   555  708
+512k 1614   1602             1573
+
+-- 256k Level 2 cache turned on --
+256k  751          370        688
+512k 1701                    1548
+
+v1.5=my old v1.5 program.
+N486=v2.1 with NTT32/DJGPP486, fast AGM
+FFT1=v2.1 with FFT and fast AGM
+FFT2=v2.1 with FFT and old, slow AGM.  Comparable to a mostly
+     cleaned up v1.5.  Only a few v2.x specific stuff.  Almost
+     the 'v1.6' I never wrote.
+
+Those timings were done with my L2 turned off.  (Remember, I seem to
+have some L2 problems.  Overheating,  I  think,  so I keep it turned
+off.)  When I turn my L2 on, Ooura's timings start  out  faster,  at
+only 59 seconds for 32k digits, but then grow to 326 seconds at 128k
+and  jump  to  751  at 256k digits.  On the other hand, my N486 went
+from  380  down  to 370 at 256k digits.  The FFT2 went down from 708
+to 688 seconds.  At 512k digits,  it's worse.  Ooura's took 1614 and
+went up to 1701 with the L2 on.  My FFT2, on the  other  hand,  went
+down from 1573 to 1548 with the L2 on.
+
+His  FFTs are obviously not cache friendly, and would only get worse
+at higher lengths.  (I'd guess that  it is about what you'd get from
+a typical tweaked  NRC  style  FFT  if  you  used  precomputed  trig
+tables.)
+
+
+With the tweaks that I make, he could improve his to about  what  my
+FFT  version can do, provided the L2 stays off.  If he wants to take
+advantage of the L2 (or at least  not  be hurt by it), he'll have to
+switch FFTs, too, because his  aren't  cache  friendly.   But  it'll
+still  be  vastly unsuitable for pi runs that don't fit into memory.
+That's where things get really interesting.
+
+His program is a good demonstration of his FFT, but it is not a good
+pi program overall.  It  uses  all  the  standard 'state of the art'
+algorithms, but it's not 'tweaked' and it's not geared  for  serious
+pi  computations.   (Can  I  use the words 'serious' and 'pi' in the
+same sentence?<g>)
+
+So, as you can see, I'm not exactly worried.  Throw in the fact that
+mine  can  go  much much higher than his....!  (<G> Just imagine his
+trying  to  do  32m  digits  of  pi  using  virtual  memory  for the
+FFTs...<ROFL> You'd get better results from an  acrtangent  program!
+I  may sound a bit callous, but that's because I've gone through all
+those things myself.  I've 'paid my dues' to reach the point where I
+am with my pi program.)
+
+
+Chapter 11: Changes from v2.0 to v2.1
+=====================================
+
+
+......
+
+[The four prime version is worth commenting on!  Way back when I was
+implementing  v2.0,  I  did some testing with 4 primes.  As the v2.0
+docs show, it ran a  little  faster,  but  not much.  Of course, the
+code I was using wasn't the best, but it did  run  faster.   When  I
+decided  to  try another 32m pi run, I took a look at the 4 prime to
+see how fast it did run.  It  ran fast enough that I decided to find
+out just where it failed at.  I was quite surprised when  it  worked
+all  the  way up to 16m digits.  I had expected less.  I did have  a
+few problems, though.  For some  reason,  I couldn't make the primes
+the four largest primes (ie:  32 bits primes totalling 127.xx bits).
+It had to be below 127 bits.  I traced that to the CRT I was  using,
+but there wasn't anything I could do about it at that time.  I still
+couldn't  figure  out why it worked up to 16m, until I realized that
+when I was estimating the  size  of  the mul pyramid, I was allowing
+for the full size of the FFT, when in fact it was zero padded and  I
+only  had data in half that size.  That increased the length I could
+do  by  *2.  Since there was still a little bit of space left in the
+CRT, and could *almost* go to 32m digits, I decided to take a gamble
+and go ahead try it.  I do my tests with 9999...9999, which generate
+the largest possible result  and  pyramid.  Computing pi isn't going
+to push it that  hard.   The  pyramid  will  actually  be  a  little
+smaller.  And maybe, just maybe, I could get away  with  it.   After
+all,  I was only doing one single full sized multiply per iteration,
+and it was getting  progessively  smaller.   (I was using the 'fast'
+AGM.)  The riskiest part was the first few iterations, and the final
+multiply before  we  did  the  division  and  printed  pi.   It  was
+definetly  cheating.   In  fact,  during development, I did the four
+prime version in a sub  directory  called  'cheat'.  I did the first
+three passes of the four prime version  and  compared  them  to  the
+regular  8  prime  version,  and  it  appeared  to  work!   Surprise
+surprise!  I actually planned on trying a 32m run with this, and did
+a  number  of  passes.   Although  it  was  cheating,  and certainly
+unsuitable for a regular multiply,  if  it  worked for this, then it
+was good enough!  However, I did change the  CRT  back  to  the  one
+Knuth  used.   This  allowed  me  to use the largest 4 primes I had,
+which resulted in  one  extra  bit  of  space  in the CRT.  (127.752
+bits.)  This _is_ enough to do a full 32m  digit  multiply  with  my
+test  value  of  9...9.   So by using the Knuth CRT, and the largest
+primes, it is safe for general use, not juse pi work.  I've only got
+about 0.4 of  a  bit  to  spare,  but  that's  enough.   It's also a
+performance win for me, since the four 32 bit primes and  the  Knuth
+CRT  are faster than the eight 31 bit primes and the other CRT I was
+using.]
+
+[Actually,  you  could use eight 32 bit primes.  That would increase
+the largest computation by a  sizeable amount.  The current eight 31
+bit primes can only go to 256m digits.   But  eight  32  bit  primes
+would go to well over 1g digits.  However, it wouldn't work with the
+NTT586,  which  requires 31 bit primes.  Only the 486 version or the
+'long long' version.  That's why I  didn't bother providing it as an
+option.]
+
+
+
+
+
+

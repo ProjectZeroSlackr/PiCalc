@@ -1,0 +1,53 @@
+
+=====================================================
+Testing to make sure the program is running correctly
+=====================================================
+
+Frankly, the best way to test  that the program is working correctly
+is to compute 32m digits and compare it to a known good value.
+
+However, that's not really practical.
+
+The biggest potential failure will be the multiplication.   So,  the
+program  has  the  ability to do a test multiplication and check the
+results.
+
+Compile the program with the desired options, set pi.ini to whatever
+settings you plan to use, and then when you run the program, give it
+a negative number of digits to compute. Ex: pi23 -32m
+
+That wont actually compute pi.  Instead, it will run a quick test to
+make sure the multiply is working correctly.
+
+Actually, the main purpose of this ability (in timings.c) is for  my
+own timing and debugging purposes.  I have it set up to call each of
+the major math functions and display how long it took.  It also does
+the  multiply  and checks the result.  It also does the square roots
+and division, but doesn't check those results.
+
+I probably should have  added  some  additional testing code, but my
+main concern  was  to  make  sure  the  multiplication  was  working
+correctly, and to see how long it took.  And that works well.
+
+This  also allows you to try and 'tune' the cache setting in pi.ini,
+without having to compute a lot of digits.
+
+
+I've noticed something remarkable  about my program.  Traditionally,
+a division costs about 5 times as much as a  multiplication,  and  a
+square root costs about 7 times as much as a  multiplication.   That
+of  course  raises  the  question  of  whether  the multiply you are
+comparing against is a two value multiply, or a simple square.
+
+However, I've noticed that my sqrt takes about 4.5 times the cost of
+a square, or 3  times  the  cost  of  a  two  value multiply.  And a
+division costs about 5.11 times the cost of a square, or 3.39  times
+the cost of a two value multiplication.
+
+Either  way  you  count it, I beat tradition by quite a bit.  Here's
+the interesting part.  The division  costs more than the square root
+does.  It's supposed to be the other way around!  Interesting.  It's
+rather nice, too, because in the  AGM, the square root is done every
+iteration, and the division is done only once.
+
+

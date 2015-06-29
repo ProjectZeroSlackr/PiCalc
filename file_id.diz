@@ -1,0 +1,23 @@
+
+Carey Bloodworth's super fast pi program, v2.3.1
+Fastest thing this side of a Cray-2!  Capable of
+one billion digits of pi.  Full C source.
+
+v2.3 times:
+   1m digits     274s on Pentium/MMX/166, 64m
+   1m digits     109s on Pentium-II/400, 256m
+   1m digits      86s on Pentium-II/Xenon/450, 1g
+   2m digits     636s on Pentium/MMX/166, 64m
+   4m digits   1,447s on Pentium/MMX/166, 64m
+   8m digits   4,821s on Pentium/MMX/166, 64m
+  16m digits   3,428s on Pentium-II/400, 256m
+  16m digits  12,524s on Pentium/MMX/166, 64m
+  32m digits    <36.5 hours on Cx486/66, 36m
+  32m digits   8,437s on Pentium-II/400, 256m
+  32m digits   6,600s on Pentium-II/Xenon/450, 1g
+  64m digits  23,764s on Pentium-II/400, 256m
+ 128m digits  38,000s on Pentium-II/Xenon/450, 1g
+1024m digits 758,058s on Pentium-II/Xeon/450.
+
+Unzip with create directories.  Has CR/LF line
+endings, so Linux users need to use unzip -a

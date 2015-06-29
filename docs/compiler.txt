@@ -1,0 +1,76 @@
+
+=========
+Compilers
+=========
+
+Except for the very early versions, my pi programs have been written
+with  DJGPP  v2.7.2.1.   It's  D.J.  Delorie's port of GNU C to DOS.
+(Although during the development of  v2.3,  I have switched to DJGPP
+v2.8.1.  Be  sure  and  read the file ALIGNMNT.TXT and DJGPP281.TXT,
+though.  After I release this  version,  I  do expect to _return_ to
+DJGPP v2.7.2.1!  It's much more dependable.)
+
+Other compilers can be used  (allowing  for  any  asm,  of  course.)
+However,  I  don't  happen to know of another compiler that works as
+well as GNU C does!
+
+I  should,  of  course,  point  out  that even when using GNU C, the
+performance you get can vary quite  a bit depending upon the options
+used to compile the program, which version of the compiler  you  are
+using, etc.  One person was able to speed up a 1m digit run by about
+a third by switching from an old version of GNU C, which didn't have
+any  optimizations  specific to his processor, to a new experimental
+version, which did have optimizations  specific to his processor.  I
+never saw gains like that, but....
+
+Also, some compilers deal with data  alignment  a  lot  better  than
+others.  That may or may not effect your run times.
+
+I have Watcom 10 and Borland C++  v4.52, and neither of them can get
+the FFT or FHT version of v2.2 to run as fast as the DJGPP  compiled
+version!   The  difference  in runtimes range from 53% more time, to
+even higher, such as around 70%!
+
+Somebody else has told me that they have seen very poor running code
+with Microsoft Visual C++.
+
+I guess the point of all this is that, surprisingly, GNU C is pretty
+good!  And that since  I  have  written  the  programs with it, it's
+quite possible (even likely,  in  some  places)  that I've tuned the
+programs for that compiler, without even realizing it.
+
+So,  if you don't get the performance you think you should, then get
+another compiler.  Such as GNU C.  It'll also help porting it!
+
+(I'd like to add  a  side  note  about portable compilers....  I was
+recently reading a programmer's magazine  and  an  author  commented
+that  it's  been  his  experience  that  compilers designed from the
+beginning to be re-targetable  to  other  processors tend to produce
+better code than those designed for a single  system.   He's  worked
+with computers and compilers since the days of vacuum tubes and drum
+memories,  all  the  way through the PC revolution and many embedded
+systems.  So  he's  had  some  experience  with  a  wide  variety of
+compilers, both then and now.  He admits he finds it a  little  odd,
+that  you'd  expect  it to be the other way around, but it isn't.  I
+guess that since GNU C is also a compiler designed to be targeted to
+multiple systems, it too fits into that category.)
+
+(A  side  note  about Watcom 10 and BC452....  I was given W10, so I
+got more than what paid for.   I  bought a 'bundled' BC452 because I
+thought  it  could  generate  DOS32  executables.    I   was   quite
+disappointed  when  I  learned  it couldn't.  (It's the Dos PowerPak
+that does that.   And  I  don't  have  any  interest  in using it to
+generate  Win95/98  stuff.    It   doesn't   have   TASM,   either.)
+Fortunately  I only spent $35.  I'll probably put it out at the next
+yard sale or something.  (Fairly fitting, since I bought it with the
+money I got from my  last  yard  sale.)   If I was doing Win 3/95/98
+apps that didn't care about absolute numeric performance, then BC452
+would be worth keeping.  But I'm not doing them.  The two  compilers
+did  indeed  come  in handy when I used them to check for additional
+warnings  and  ANSI/ISO  C   compiliance.   But  unfortunately,  the
+performance is such that neither are suitable for numerical work.  I
+don't mind having  W10,  because  I  can  use  it  for  a  secondary
+compiler.  But I certainly wasted my money with BC452, and that irks
+me.)
+
+

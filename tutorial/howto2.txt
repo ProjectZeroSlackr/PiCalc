@@ -1,0 +1,652 @@
+Guide to writing a pi program.  Part 2.
+
+This  tutorial is placed into the public domain by its author, Carey
+Bloodworth.
+
+
+
+********************************
+An improved in memory pi program
+********************************
+
+============
+Introduction
+============
+
+This is part 2 of my 'how to write an AGM pi program' series.
+
+It is focused on going from a basic working FFT based pi program and
+turning it into an efficient pi program for in memory computations.
+
+And the end, it will be roughly comparable to my v1.5 pi program.
+
+
+===========
+Better FFTs
+===========
+
+I guess I should talk about using better  FFTs  than  what  you  are
+probably  using.  It's a little more advanced than is needed at this
+point, but I need to talk about it somewhere.
+
+I'm definetly going to need to  be  brief, since there is a LOT that
+can be said.  You are going to need to do  a  lot  of  research  and
+experiementation on your own.
+
+There is a lot of 'lore' about doing FFTs. Many of the optimizations
+suggested in  the  80's  actually  de-optimize  the program.  Modern
+computers are a bit different from those back then.   The  FPUs  are
+faster,  and  in some case, faster than the integer part of the CPU.
+Memory is  slow,  so  it  can  be  better  to  reduce  the number of
+accesses, even at the expense of a little more code.
+
+And you need to be aware of the size of your caches,  and  how  they
+work,  so  you can know what will be cached, and what wont.  The FFT
+will certainly be larger than  your  cache,  and will thrash it, but
+your local variables and code should still be cached.
+
+Many people sugggest the use of pre-computed trig tables as a way to
+reduce the time (since you don't need to do trig  calls  or  a  trig
+recurance).   However,  it may take more time to retreive that value
+from main memory than it would to just compute it as needed.
+
+And you need to know a bit about the FPU you are using, such as  the
+80x87's  pathetic stack architecture.  People often talk about how a
+Radix-4 FFT is so much faster than a Radix-2, but that's not true on
+the x87.
+
+Also, traditionally, to do  a  complex number multiplication, it was
+better to do it with 3 normal floating point multiplications  and  5
+additions,  rather  the  direct  4 multiplication and two additions.
+But these days, it's usually a  lot  faster to just do it the simple
+4/2 way.
+
+As a side note, I should  point  out  that it's not so much how many
+floating  point  operations  that  you  perform,  but  whether  they
+pipeline, the access times for the data they are using, and  so  on.
+As  an  example,  the  classic NRC style FFT that I use in my v1.2.5
+demonstration program  performs  approximately  5.9 billion floating
+point operations while computing 1 million digits of pi.  (That's in
+my v2.3 pi program.)  This takes 669 seconds.  On the other hand, my
+recursive FFT (that I mention below) performs 5.7  billion  but  its
+run time is only 314 seconds!
+
+There  are  'integer' FFTs, although they are actually called Number
+Theoretic Transforms (NTTs).  They  don't  use floating point at all
+and there is no trig round-off error at all.  But that is  a  rather
+complex  subject,  and  I  don't think we should talk about it here.
+Suffice to say that they  can  be  done,  there are good points, and
+there are bad points.  One of the bad points is  that  they  can  be
+slower!
+
+
+You might have noticed that once  the FFT size gets beyond a certain
+size, its performance drops quite a bit.  There  will  be  a  growth
+jump of perhaps 2.5 or whatever, depending on the quality of the FFT
+and your system.
+
+That  is  caused  by  the  FFT.   The  normal  FFT style is not very
+friendly to  caches  or  modern  systems.   They  access  memory in,
+essentially, random order, and it seriously hurts performance.
+
+There are several ways to overcome this.   At  least  to  a  degree.
+I'll just mention a couple of the more common ones.
+
+You could use a FFT style called a '2 step', '4 step', or  '6  step'
+invented by Dr. David Bailey.
+
+You could use a recursive / iterative combination.
+
+I  personally use that last choice.  It was fairly easy to implement
+and works fairly well.  Unless  you  can find some public domain FFT
+code that is already cache friendly, this will likely be the easiest
+way  for  you  to  improve the FFT.  (If you want, you can borrow my
+code.  It is copyrighted by me, but  free for anybody to use for any
+reason.)
+
+There  are  a  wide  variety of FFT styles to chose from.  There are
+fairly  typical  FFTs,  there   are  '2-step',  '4-step',  '6-step',
+recursive  and  non-recursive,  Radix  2,  3,  4,  5,  and  8,  plus
+'split-radix' and so on.  They all work, but on higher  performaning
+computers, due to the L2 cache, one type might be far more efficient
+than another.  Also, due the the poor design of the x87 FPU, Radix-2
+FFTs are nearly always faster than Radix-4 FFTs because with  a  R2,
+everything fits into the 8 FPU register stack, where as a R4 can't.
+
+FFTs  are _extremely_ system sensitive.  One that works good on your
+system may work poorly on  a  different processor.  At times, it can
+seem like their performance depends  on  whether  you  brushed  your
+teeth that morning!
+
+A  good FFT is important to how your program will perform.  Sure, we
+can improve the other algorithms  and  do various tweaks, but it all
+comes down to the fact that most of the program time is going to  be
+spent  in  the FFT, so it might as well be fairly efficient.  (As an
+example, above I mentioned  the  NRC  style  FFT took 669 seconds to
+compute 1 million digits with my v2.3 program, but my RFFT took only
+314 seconds.)
+
+
+I'd also like to say a few words  about my own style of FFT.  It's a
+combination style.  At the top, I call a recursive FFT that recurses
+down until it reaches a chunk that will fit  into  your  cache.   It
+then  uses  a  regular  iterative  FFT on that part.  Fairly simple.
+There are a few other  recursive/iterative combos, but not too many.
+What really sets my "Quad-2" style apart is that I do the four  trig
+quadrants  at  once, with a single pair of trig values.  Perhaps not
+as clever as some FFTs, but  it  was  enough to come in very high on
+the 'FFTW' benchmarking page by the guys at MIT.  I'm  rather  proud
+of  it  because  it came about out of sheer curosity!  I started out
+just tinkering with recursive FFTs, and then I threw in an iterative
+part.  Then, one day I 'just happened' to realize that in a FFT, the
+trig values were cyclic and I could take advantage of that.
+
+In other words, a  fairly  good  FFT  and  FFT style came about from
+somebody who wasn't trying to write a high performance FFT.  It just
+sort of happened.  It's quite possible that  you  might  discover  a
+new,  fast  style  too.   (Of  course,  most  people aren't quite as
+obsessed with the pi competition, as I am.)
+
+
+
+===========
+FFT caching
+===========
+
+The next important thing to mention is that of FFT caching.
+
+If you look through the square root routine, you'll probably  notice
+that  in several places you are using the same number in a couple of
+different places.
+
+That means that when  you  fft  multiply, it gets transformed, used,
+and then that time consuming transform gets discarded.  Later,  when
+you  again  multiply by that exact same number, you transform it yet
+again.
+
+If you want to, you can  save that transform for use later.  Exactly
+how  you'll do this will vary quite a bit depending on how you wrote
+your program.
+
+You  should  be  aware,  however, that if the FractalMul() kicks in,
+then you may have a  bit  of  difficulty with the caching.  You have
+have trouble deciding just which number it is part of, etc.
+
+You can get by with just storing the pointer to the number, plus its
+length.  And then just disable fft caching if FractalMul() kicks in.
+Or you could store the entire number and then  if  the  pointer  and
+length  match,  actually  check  it.  Or maybe you can think of some
+better way.  As long as the FractalMul() doesn't kick in, caching is
+fairly easy.
+
+(If you've seen the FFT caching in my v2.x program, it's a heck of a
+lot more complicated than this because I try to allow for  a  number
+of possibilities.  But for the older programs, FFT caching is fairly
+easy except when the FractalMul kicks in.)
+
+The actual caching of the  FFTs  can  be done several ways.  You can
+set up an actual 'caching' manager that takes care of  the  details.
+Or you can have the caching explicitly done by your command.  Or, if
+you arrange the FFT multiplication right, and your caching needs are
+simple,  you can just leave the transformed number right there where
+it's at, because it wont be disturbed until you need in a short time
+later.
+
+That last one is the  most  elegant,  I  think.  It doesn't take any
+extra memory.  It doesn't take any copying of the data.  It  doesn't
+take any cache manager.  It does,  however,  have  a  problem.   The
+cache only lasts for as long as you don't need that fft data storage
+again!   That  means  that if any multiplication occurs between when
+you save it and when you need it, you loose the data.  That includes
+any regular multiply, or any that  may come about due to the Fractal
+multiply.  (A squaring doesn't count.  It only needs  one  fft  data
+array, so it wont disturb the cache.)
+
+
+===========
+Karp tricks
+===========
+
+I guess the next  important  thing  to  mention is what are commonly
+called 'Karp tricks', after the guy who documented them, Alan Karp.
+
+Basically,  in  the  square  root and division, we can sometimes get
+away with multiplying two half precision numbers (and using the full
+precision answer) instead of multiplying two full precision numbers.
+It also lets us do  the  final multiplication in the final iteration
+without any extra running cost.  This significantly reduces the  run
+time!   David  Bailey's MPFUN uses this technique.  You can read the
+original  HPL-93-42  tech   report  at  http://www.hpl.hp.com.   The
+techniques Karp talks about (and that David Bailey  uses  in  MPFUN)
+are  actually  for floating point numbers.  We, however, are dealing
+with fixed point numbers  (which  will  have  long strings of zeros,
+instead of retaing extra digits beyond what we need) and we'll  need
+to  skip  those  leading zeros.  A few places in the square root and
+reciprocal will  instead  call  'HalfMul',  instead  of  your normal
+'FFTMul' (or whatever.)  And there may be a  few  places  where  you
+need  to explicitly clear the last half of the number.  (Because the
+Karp tricks implicitly assume they will  be zero, so they indeed had
+better be zero.)
+
+Using the 'Karp tricks' can't  be  done  with any old version of the
+Newton routines.  They have to be used on a specific version.
+
+1/n   : r = r*(2-n*r)          and  r = r + r*(1-n*r)
+n^0.5 : r = r*(3-n*r^2)/2      and  r = r + r*(1-n*r^2)/2
+
+1/n   final iteration:              z=b*r; r=z+r*(b-n*z)
+n^0.5 final iteration:              z=n*r; r=z+r*(n-z^2)/2
+
+('n' is our number that we want the square root  or  reciprocal  of.
+'b' is the number we are dividing 'n' into.)
+
+The  ones  on  the  left  are what I told you to use.  Those are the
+normal versions that you'll see in many references.
+
+The versions on the right are  still the same essential formula, but
+they've been rearranged.
+
+The  rearrangment allows us to do only half sized multiplications in
+several places, plus  work  in  that  final full size multiplication
+into  the  formula.   (Remember  the  Newton  formulas  compute  the
+reciprocals.  To do the division or square root, we have to multiply
+that by the other number.)
+
+For the square root, the normal passes can do the r^2  and  r*()  as
+half*half=full multiplies.  (In other words, we skip all the leading
+zeros,  we then take only half of our length for that pass, multiply
+them together, and use that  full  size product.)  The last pass can
+do all of the multiplications half size.
+
+For  the  division,  the  r*()   can  be  done  in  half  precision.
+Unfortunately, the n*r has to be done in full precision.  (Or  as  a
+full*half=full).   For  the  last pass, the b*r, and the r*() can be
+half.  The n*z has to be full precision (or full*half=full.)
+
+The  reason  that  we  can  do  this is that the new versions of the
+Newton routines are only computing a  small adjustment to add to the
+already computed result.  (We may need to zero out the last half  of
+our  estimate,  to make sure that there is no extra garbage in there
+that might screw up this premise.)  This is also taking advantage of
+the fact that the  Newton  routines  are quadratic.  Their number of
+correct digits doubles at each step.
+
+Doing the Karp versions saves  quite  a  bit.   There can be quite a
+performance difference, especially because the square root is called
+so often.
+
+I should say a few  words  about  my mentioning of doing a full*half
+multiply.  Basically, you have a 'Length' number  and  a  'Length/2'
+number (half will be zeros) and you want to multiply them together.
+
+The simplest way is to do a regular full size multiply.  But, we can
+break  it  down  into  a  couple  of  half sized multiplies and then
+combine the results  to  form  the  full  answer.   This is a little
+complicated, and it doesn't save any time.  (In  fact,  without  the
+FFT caching I mention next, it takes longer.)  It's only  needed  in
+the division, which is only called once,  so even if it saved a lot,
+it wouldn't save us much overall.   But it might (or might not) come
+in handy later, so you might as well know about it.
+
+
+===============
+Non-Karp tricks
+===============
+
+Lest  you think those 'Karp tricks' are the only ones worth doing, I
+guess I better point out something.
+
+If you look at  the  Karp  formula,  you'll  see  that there will be
+multiplications between the FFT caching and the usage of that  data.
+That  means  the  simple  style  of  FFT  caching that I think is so
+'elegant' isn't going to work!
+
+When I was doing my early  pi  programs, I used that simple caching.
+And I came up with another formulation of the  square  root  formula
+that worked almost as well!
+
+What I did was take the original formula and rework it:
+
+   r = r*(3-n*r^2)/2                 FU FFU FFU
+   r = r*(3-n*r*r)/2                 FU FFU FFU
+
+   r = (3r-(r*n)*(r*r))/2            FU CFU FFU
+
+(The 'F' means  a  full  forward,  the  'U'  means  a full backwards
+transform.  The 'C' means it's cached.)
+
+This way we can cache 'r' (the old root).  We save a FFT.
+
+And  then  for  the last iteration, I was able to work in that final
+multiplication into the formula  itself,  so  it  didn't cost me any
+extra time.  (Just like with the Karp trick.)
+
+I could have done it like:
+   r*n = nr*(3-nrr)/2               FFU FCU CFU
+         nr     = FFU r->cache
+         (nr)*r = FCU nr->cache
+         (nr)*# = CFU
+
+Another way, is to convert the first formula into:
+
+   r = r + r*(1-n*r^2)/2
+
+and then fold the last multiplication by 'n' into it to get:
+
+   rn = nr + r*(n-(nr)^2)/2     (FFU)/2 FU FFU
+
+That 'n*r' could be done as a half sized number times a  half  sized
+number  and  using the full sized product.  This is the same type of
+'half mul' that Karp uses.  Yup, that's right.  I was well on my way
+to discovering the Karp tricks
+
+As a comparison, the Karp square root formula would work out like:
+
+     r = r + r*(1-n*r^2)/2
+         r^2    FU r->cache
+         n*#    FFU
+         r*()   CFU
+
+And the last iteration:
+
+     z=n*r; r=z+r*(n-z^2)/2
+
+        r*n   FFU r->cache
+        z^2   FU
+        r*()  CFU
+
+So, as you can see, the  last  iteration can use the simple caching.
+The regular iterations can't.
+
+The point is, there are indeed alternatives to the Karp formula.  It
+depends on what you want and need.
+
+I should also point out that  the reformulations I was doing was one
+of the reasons that v1.5 had that 'SmartMul()' that tried to  detect
+when I was multiplying by (or nearly by) 0.5, 1.0, 2.0,  etc.   (The
+other reasons was because that way I didn't have to optimize many of
+the  other  situations.   I could just do it and let the mul routine
+deal with it.)
+
+
+
+===========================
+The Borwein Quartic Formula
+===========================
+
+Now that you have  a  more  capable  pi program, and you've probably
+computed millions, you might  be  wondering  how  you  can  be  sure
+whether your results are accurate or not!
+
+The  best  way  is  to  compare  it against a known good precomputed
+value.  If you can't do that, though,  then you have to come up with
+your own result to check it against.  Simply running the  program  a
+second  time is not a good check, because there might be bugs in the
+program.
+
+Instead, we can use a different formula.  The most common  secondary
+formula  is  probably the Borwein-Borwein Quartic formula.  Where as
+the AGM doubles the  number  of  correct digits, the Quartic formula
+quadruples the number of correct digits with every iteration.   This
+lets  you  have  a way of verifying the results of your computation,
+instead of just trusting that they were generated correctly.
+
+Although it sounds wonderful that this formula takes  only  half  as
+many  iterations  as the AGM, the downside is that each iteration is
+twice as complicated and takes twice as long.
+
+The Borwein-Borwein-Bailey quartic formula is:
+
+Root() means the 4th root.  ie: sqrt(sqrt(x))
+
+a=6-4*sqrt(2)
+b=sqrt(2)-1
+
+   1-Root(1-b^4)
+b= -------------
+   1+Root(1-b^4)
+
+a=(1+b)^4*a-2^(2n+3)*b*(1+b+b^2)
+
+and 'a' converges to 1/pi
+
+Not too hard to understand.  It looks even simpler than the AGM.  As
+you  can see though, it is far more costly than the AGM.  We have to
+do a 4th root (or two square roots) and a division!  There are a few
+things we can do to speed it up, though.
+
+All  of  those powers can be done fairly efficiently by raising b to
+2, 3, and the 4th power.  Even the (1+b)^4 decomposes into powers of
+b, so we don't need to do a special 4th power.
+
+a=(1+b)^4*a-2^(2n+3)*b*(1+b+b*b)
+
+(1+b)^4     = (1+4b+6b^2+4b^3+b^4)
+b*(1+b+b^2) = (b+b^2+b^3)
+
+And we can FFT cache it so it takes only 5 transforms total, instead
+of 8.
+
+b^2 = b*b     FU   (b   -> cache)
+b^3 = b*b^2   CFU  (b^2 -> cache)
+b^4 = b^2*b^2 CCU
+
+The only other thing  is  the  4th  root  formula.  We could use two
+square roots, but we can do better than that.
+
+The general Nth  root  formula  is:   R  =  R  + ((X/R^N)-X)/N which
+converts to reciprocal form as:  R = R+R*(1-X*R^N)/N
+
+And, just like with the square root, it can be reworked to deal with
+the reciprocal instead.  And to get  the final root, you either take
+the reciprocal, or multiply the original number by the (N-1)th power
+of the reciprocal root.  For the square root, that's simply  by  the
+RRoot.  For the 4th root, you'd have to multiply the original number
+by RRoot^3.
+
+However,  we  can  get around that by just going ahead and returning
+the reciprocal  and  changing  the  'b'  formula  above.  Instead of
+b=(1-R)/(1+R), it works out to b=(R-1)/(R+1).  Not hard.  Just basic
+jr. High school math saves us an expensive reciprocal or cubing.
+
+Another  thing  about the Nth root routine is that we can't do quite
+so many "Karp" tricks.  So,  the  routine is more expensive than one
+call  to  the  square root.  But, we'll only be calling half as many
+times, too, so we can live with it.
+
+It works  out  that  the  whole  algorithm  is  slower  than the AGM
+routine.   (Well,  on  some  systems  (ie:   highly  parallel  super
+computers), it's slightly faster than the AGM, but for us, it's just
+slower.)  The FourthRoot is slightly slower  than  a  single  square
+root (or somewhat faster than two Sqrt() calls), but the division in
+every  iteration  eats  up the savings and a bit more.  So, although
+it's not going to  replace  the  AGM,  it  does  make a good 'check'
+formula.  The exact performance will depend  on  the  implementation
+and  how  advanced  the AGM is.  In my early days of pi programming,
+the Borwein cost only about 10% more than the  AGM.   But  my  later
+improvements  to  the  AGM  means  that now the Borwein can cost 50%
+longer, or more.
+
+Of course, if you don't want to add this formula to your pi program,
+it's certainly understandable.  I just  thought I should mention the
+possibility.
+
+===============================
+The AGM vs. the Borwein quartic
+===============================
+
+First, the AGM is  simply  more  efficient.  Although super computer
+people say they can make the Borwein quartic run faster, I  have  no
+idea how.
+
+Second, in spite of that (or perhaps 'fortutiously'), the AGM is the
+'standard'  formula that pi people use.  The Borwein formula (or any
+secondary formula) is only there to allow you to check your results.
+
+The  goal of all these calculations isn't to find out what the 'x'th
+digit of pi is.   Nobody  really  cares.  Instead, we pi programmers
+are testing our programming skills against  other  programmers,  and
+the  AGM  formula  is the formula we all use to compare our results.
+The AGM is the standard benchmark.   Just like some people still use
+the sieve or dhyrstones, or linpack, etc. to compare  computers  and
+compilers.   There  are better formulas, but most of us use the AGM.
+A few people use  variations,  such  as the Borwein quartic formula,
+which is really just two iterations of the AGM put together, but  no
+'hobbiest'  pi  programmer would consider using, say, the Chudnovsky
+formula or  Gosper's  continued  fraction  method,  and then compare
+their results to somebody else.  We might code  it,  but  we  aren't
+going  to  compare our results to somebody else using the AGM.  It's
+not where we end up (ie:  how  many digits we computed in how long),
+but how we got there and how quickly we did it.   (A  'professional'
+pi  hunter,  who  is going for the record is free to use any formula
+they want, but it still wouldn't  be  fair to compare their run time
+against everybody elses.)
+
+
+
+=================
+Additional tweaks
+=================
+
+It's possible to  do  a  DiF  style  FFT,  without  the  scrambling,
+followed  by  the convolution, followed by the DiT style FFT without
+its scrambling.  It saves the  cost of the scramble.  However, since
+DiT FFTs are usually more efficient than the DiF, you might not save
+much time.  If any.
+
+It's also possible to take advantage of the fact that we are putting
+zeros  into  the  upper half of the FFT.  You can do what are called
+'zero pad' cuts.  You'll need to examine how  the  FFT  operates  to
+understand what's going on, and why you can do it.
+
+You might want to take a close  look at how you did the AGM formula.
+It might just be that on the last iteration, you can skip the square
+root and that C[n]^2 would be zero.  That will save you some time.
+
+And on the first pass, A will be 1.0, so you can skip the B=A*B.
+
+And, depending on how you did  the  Newton routines and the AGM, you
+just might be multiplying by things like 1.0,  0.5,  2.0,  etc.   Or
+nearly  so.   Or they may have a bunch of leading or trailing zeros.
+You'll need to check.   (I  think  it's  worth mentioning that doing
+these sorts of things is what the 'SmartMul' in  my  v1.5  did.   My
+later  2.x line didn't need to do those things because I changed the
+to fully Karp routines and in  the few places left where things like
+that would occur, I explicitly did them.   Still  though,  something
+like a SmartMul does have a certain conceptual appeal.)
+
+You should probably provide a  custom  routine to do that reciprocal
+square root 1/sqrt(2.0) that's needed at initialization.  You aren't
+going to save a vast amount of time, but you might as well do it.
+
+There is also  one  rather  useful  tweak  I  should mention....  If
+you'll look at the newton routines, you'll see that the only genuine
+full sized multiply will be in the division.  And in the AGM,  there
+will  be  one  square and one two value full sized multiply.  In the
+division, one of the numbers will  be half zeros, and you can fairly
+easily break the number into a half*full=full.  If you further break
+that down, you can do a couple of half sized multiplies and  combine
+them  into the full result.  You can also do a similar change to the
+two AGM multiplies.  With FFT  caching,  there will be only a slight
+performance penalty.  The benefit from all this is that you can  now
+compute  twice as many digits before the FFT fails or you run out of
+memory for the  FFT.   So,  instead  of  computing  8m digits of pi,
+requiring an 8m digit multiply (taking  32m  of  phys  memory),  you
+could  compute  16m digits of pi, requring only an 8m digit multiply
+(taking 32m of phys memory).   If  you've  run out of phys memory or
+have run into the FFT limit, this change will double the max  number
+of digits you can compute.
+
+Other   improvements   are   more   along  the  lines  of  usability
+improvements.  Like adding the ability to  save the data to disk and
+resume the program later.
+
+
+I also think I need to talk about things such  as  portability.   In
+fact,  it's  probably past time I mentioned it.  I can tell you from
+experience that it's not easy to write a portable program.  And keep
+it portable.  AND keep it  free  of compiler warnings.  Nobody likes
+to see compiler warnings, especially somebody who has  just  grabbed
+your program and is trying it out for the first time.
+
+Unfortunately,  there  are  so many compilers with so many warnings,
+that it's doubtful you'll be  able  to  get rid of them all.  Simply
+turning on all warnings on your compiler (-Wall)  is  a  start,  but
+don't believe for a minute that it will actually catch or report all
+warnings.   You  should also try and write it so it compiles cleanly
+under the strictest ANSI/ISO  C  settings  your compiler has.  It'll
+avoid problems later.
+
+Just because it compiles cleanly on your system doesn't mean it will
+on  other's.   And  just  because  it  runs correctly on your system
+doesn't mean it will on other's.
+
+
+
+
+=====================================
+Getting your third pi program running
+=====================================
+
+At  this point, you should be able to compute 1 million digits of pi
+a heck of a lot quicker than you could before.
+
+You can probably go up to 2m with fairly decent runtime.  And if you
+have a lot of memory,  perhaps  4m  or even 8m digits.  Beyond that,
+you will have almost certainly reached the limits  of  your  memory.
+You'll probably start hearing a lot of virtual memory thrashing.
+
+At this point, the pi program is working  fairly  well  provided  it
+stays  mostly  in  memory.   Once it runs out of memory, though, the
+performance is going to drop significantly.
+
+This is roughly comparable to my v1.5 program.  Of course, if you've
+seen  my v1.5, you'll probably agree that it looks ugly, and find it
+hard to believe that it all adds up to about what I've said so far.
+
+The reason is fairly simple.   I  was learning all those Karp tricks
+and other things the hard way.  By myself.  I didn't know about Karp
+until I was well into the process  of learning them on my own.  So I
+was having to do a lot of experimentation, trial and error,  and  so
+on.   I  continued  to improve v1.5 up to this point, where both you
+and I started to encounter  the  limits  of physical memory, and run
+into virtual memory limitations.
+
+I knew then that v1.5 could be cleaned up a heck of a  lot.   But  I
+did  _NOT_  do  it.   Instead, I kept using it as an experimental pi
+program to try various ideas about overcomming  virtual  memory  and
+improving  performance.  And rather than clean it up and release it,
+I abandoned it.  I could have easily  cleaned it up, or made it into
+a nice clean v1.6, but I didn't.  I stopped and went on directly  to
+my v2.0 program.
+
+I  had  raised my goal from 1m to 32m, and due to my limited memory,
+v1.5 was not really suitable to do  it.  So I stopped work on it and
+went to work on v2.0, putting in all  those  improvements  and  such
+that I could have done to v1.5->v1.6.
+
+So, although v1.5  roughly  contains  most  of  the  ideas that I've
+described  to  you,  the  actual  implementation  is  another  story
+entirely!
+
+
+But,  anyway,  at  this point, you should have a pi program that can
+work to several million digits, and do so fairly quickly, as long as
+the FFT fits into memory (putting 4 digits into it, at max, it takes
+32mb), and virtual memory  for  the  other  stuff doesn't become too
+bad.
+
+
+
+If you need to contact me,  you  can  reach  me  at  my  Juno  email
+address.   Be  aware that Juno has limitations on size etc., so keep
+messages under 30k of content.  If you want to send me stuff, let me
+know  in  advance!   And  you'll have to send it uuencoded, cut into
+about 30k each.  No MIME, no  attachments, etc.  I try to answer all
+my mail within a week, so if  you  don't  get  a  response,  then  I
+probably didn't get it.
+
+Carey Bloodworth
+cbloodworth@juno.com
+
+

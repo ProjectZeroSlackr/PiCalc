@@ -1,0 +1,15 @@
+This is just a demonstration of a Fast Galois Transform.
+
+A FGT is  a  cross  between  a  'complex'  FFT  and  a NTT.  It uses
+'complex' arithmetic, but the numbers are modular rather than real.
+
+This is just a  simple  demo  of  a  FGT.   Although  it  works,  it
+certainly can't be called fast or 'complete'.
+
+This particular one  happens  to  be  semi-hardwired  for the 2^89-1
+mersenne prime.  The stuff in modmath, sys_cfg, etc. are only  three
+elements.   Most  of  the  stuff  in  bigmul.c and fgt.c themselves,
+though, is fairly generic.  (Exceptions  are putting the data into &
+extracting the data out of, the FGT.)
+
+

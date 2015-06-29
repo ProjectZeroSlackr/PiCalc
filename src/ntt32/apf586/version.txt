@@ -1,0 +1,10 @@
+This version is  the  31  bit  NTT  that  is  specific  to the DJGPP
+compiler and is optimized for the Pentium processor.
+
+It uses Mikko Tommila's APFloat six step table based transforms.
+
+On a Pentium, the speed up over the 486 version is substantial.
+
+It requires the FPU be in 'long  double' mode.
+
+

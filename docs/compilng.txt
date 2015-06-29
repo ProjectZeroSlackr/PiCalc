@@ -1,0 +1,181 @@
+
+=====================
+Compiling the Program
+=====================
+
+Preparing to compile it
+-----------------------
+
+The very first thing you need to decide is which version to compile!
+See the versions.txt
+
+Then from the 'main' directory, copy the 'common' files and whatever
+subdirectories you need.
+
+FFT: (floating point FFT)
+  common
+  fftstuff
+  fftstuff/<various-directories>
+    (At the time of this  writting,  I  don't  know  which  will  be
+     included.)
+
+NTT32 for GNU C/DJGPP and the 386/486 (32 bit NTT)
+  common
+  ntt32
+  ntt32/gcc486
+
+NTT32 for GNU C/DJGPP and the Pentium (32 bit NTT)
+  common
+  ntt32
+  ntt32/gcc586 (vector.c will overwrite previous vector.c)
+
+NTT32 for the Pentium (32 bit NTT)  Mostly portable.
+  common
+  ntt32
+  ntt32/c586 (vector.c will overwrite previous vector.c)
+
+NTT32 for all systems, using generic code (32 bit NTT)
+  common
+  ntt32
+  ntt32/generic
+
+NTT32 for systems with an efficient 64 bit 'long long' int.
+  common
+  ntt32
+  ntt32/longlong
+
+Then,  you  should  read  the  'version.txt'  file  for  information
+specific to that particular version.
+
+Then you need to  take  a  look  at config.h, sys_cfg.h, port.c, and
+port.h
+
+port.c contains a few functions that you might  want  to  port,  but
+don't  actually  need to.  There are generic functions in there that
+will work just fine.  For example, the TestKeyboard() function is in
+there that allows you to press  a  key  to have the program save its
+state and stop computing.
+
+port.h contains the macros for the low level timing  functions.   If
+you  aren't  doing the 'DO_TIMINGS' in config.h, then you don't need
+to mess with these.
+
+For config.h, the two most important choices are whether to use disk
+based numbers or virtual memory for the numbers and caches.
+
+If you are  just  wanting  a  few  million  that  will fit into your
+physical memory, chose 'USE_VIRT_MEM' and 'VIRTUAL_CACHE'.   If  you
+are  wanting  a  lot  of  digits,  chose  'USE_DISK_NUM' and not the
+'VIRTUAL_CACHE'.   If  you are wanting a mid-range, where most of it
+will fit into your physical  memory,  do  the virtual memory but not
+the virtual caches.
+
+If you are using DJGPP,  you  will  probably need to use a different
+memory allocation package, rather than the terrible one  that  comes
+with DJGPP.  If so, define the 'USE_SPECIAL_DJGPP_MALLOC'
+
+(If  you  don't  want  to  use  that, you could use the next option,
+USE_SBRK instead.)
+
+Then you have a choice of  whether to do aligned malloc allocations.
+Some compilers don't properly align the memory returned by  malloc()
+for  the  fastest  possible  accesses.   Borland  C happens to be an
+example of this.  This routine may not work on all systems.  I don't
+know.
+
+The next options are  whether  to  gather some timing statistics.  I
+added this for my own use.  Sort of a  poor  man's  profiler  (since
+DJGPP  doesn't  come  with a decent profiling ability.)  This _WILL_
+take more time.  Especially  the  non-DJGPP version.  It'll actually
+make regular calls to the time() function.  If you are using  DJGPP,
+though,  you can directly read DOS' 18.2 tick timer.  And if you are
+using DJGPP _and_ a pentium, you  can  have it use the cycle counter
+built into the pentium.  Anyway, these are best left undefined.
+
+The last option in config.h is whether to  _force_  the  program  to
+always  prompt  you for the parameters.  By default the program will
+always take the values from the  command line.  If there is a pi.ini
+in the current directory, it'll  check  there  first  and  use  that
+setting.   But, if for some reason, you want to force the program to
+always prompt and never use  the  command  line, you can define this
+option.
+
+The version.txt  that  was  copied  into  the  work  directory  will
+describe any special settings in sys_cfg.h.  The settings in sys_cfg
+should be fairly self-explanatory.
+
+You might also want to take a look at crt.h and  modmath.h  (if  you
+are  using  the ntt32).  There aren't really any settable options in
+there, but if  you  aren't  using  the  asm  versions, you might see
+something that your compiler can do quicker than the code provided.
+
+
+Actually compiling it
+---------------------
+
+Actually  compiling  it  isn't  too  difficult.   Mostly it's just a
+matter of compiling all the .c files and linking them together.  And
+using your favorite compiler options.
+
+With my  current  djgpp  2.7.2.1,  I  use  the  options:
+
+-O3 -m486 -ffast-math
+
+which means full optimizations, compile for 486 code (v2.7.2.1  only
+goes  up  to  486 code.  No pentium optimizations.)  And to use fast
+floating point inline code.
+
+Other  versions  of  GNU C/DJGPP might need different optimizations.
+One person has told me that with their version of GNU C (2.9?) under
+Linux, they get better times with:
+
+-O3 -m486 -funroll-loops -fexpensive-optimizations
+
+Of course, there is one exception.   If you are compiling the gcc586
+version, the file vector.c contains a lot of  asm  code  that  needs
+special  compiler  options.  When Jason P. wrote the asm, he said to
+add  "-fno-inline-functions  -fomit-frame-pointer"  to  the compiler
+command line.
+
+-O3 -m486 -ffast-math -fno-inline-functions -fomit-frame-pointer
+
+
+If you are using a Pentium, you  might want to use -mpentium if your
+compiler supports it.  However, it's not really going to help much.
+
+(Each subdirectory has a DOS batch file for DJGPP that compiles  the
+code.  You could use those as a guide.)
+
+You might want to make  sure  that  the  program has at least 64k of
+stack space.  Although there are no large data structures, there  is
+some recursion in the program.
+
+Under DOS, I also set the disk I/O buffer larger than the default.
+
+Anyway,  the  point  is, use whatever compiler options you think are
+appropriate.
+
+You may get a few warnings.  Although I've tried to  make  it  clean
+(and  it  does  compile  cleanly  under my DJGPP), there are so many
+compilers that it's impossible to make  it 100% clean.  You may even
+need to actually make some minor changes to the code in order to get
+it to compile.  Not  every  ANSI/ISO  C  compiler  actually  follows
+ANSI/ISO  C,  and even when they do, there are a number of points in
+the standard that can be  interpeted different ways.  Plus there are
+a lot of 'implementation defined' stuff that can 'legally' vary from
+compiler to compiler.
+
+
+Note that since the  program  was  written with DJGPP 2.7.2.1, using
+any other compiler or OS would  be  considered  'porting',  and  you
+should probably check that text file.   THIS DOES INCLUDE THE USE OF
+ANY OTHER VERSION OF DJGPP OR GCC!  (You might  want  to  read  that
+file anyway.)
+
+If you are using DJGPP v2.8.1,  please  read  the  alignmnt.txt  and
+djgpp281.txt  files.  To put it very simply, DJGPP v2.8.1 "sucks dead
+bunnies".  It's a  pathetic  release.   Go  back  to DJGPP v2.7.2.1.
+You'll be a lot happier.
+
+
+

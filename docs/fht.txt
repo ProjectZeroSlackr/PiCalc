@@ -1,0 +1,64 @@
+The FHT stands for Fast Hartley Transform.  It's very similar to the
+FFT  (Fast  Fourier Transform), except it inherently works with real
+values.
+
+It appeares that Bracewell has somehow managed to  claim  patent  on
+the  entire  FHT concept.  Not just a particular implementation, but
+the  entire  concept  of  doing  a  'Fast'  version  of  the Hartley
+Transform.  That's quite a stretch considering the Hartley transform
+was developed 50 years ago, and the tehcniques to split that type of
+transform (ie:  the Fourier Transform) into the 'Fast' variety  were
+developed  30  years ago (Cooley, etc.) and possibly even far before
+that (Gauss).
+
+For the record, I developed my FHT code directly  from  a  recursive
+Fast  Fourier  program and the Hartley mathematical formula.  It was
+almost a straight, simple  conversion  to  the FHT program simply by
+replacing the complex function with Harltey's 'cas' function.
+
+However, as I am in absolutely  no  financial  position  to  legally
+challenge Bracewell (note no 'Mr.' in front of his name as a sign of
+respect....!   I  have  a strong opinion of people who file software
+/ mathematical patents) or his patent, that code may or may not fall
+under  his  legal patents.  (I think somebody needs to have a rather
+forceful conversation with him  and  teach  him that mathematics and
+patents don't go together!  Perhaps fill your mouth with cotten  and
+make  him  "an  offer  he  can't refuse"<g> (For you foreign people,
+that's a reference to the movie "Godfather", with Brando).)
+
+
+I really, really, considered removing  it.   And  I did for a while.
+But one beta tester kept strongly encouraging me to put it back  in,
+so....   Be  sure  and  read  the legalities in the fftstuff\hartley
+directory.
+
+
+
+This is the only information I have on the software patent, although
+I have no doubt as to its accuracy.
+
+The patent was granted in 1987, so it will expire in 2004.
+
+
+The Fast Hartley Transform algorithm  is covered under United States
+Patent Number 4,646,256.  Implementations may  be  freely  used  and
+distributed only under the following conditions:
+
+      1) This information is included in every copy of the code; and
+
+      2) The code is used for non-commercial research purposes only.
+
+Firms  using  this code for commercial purposes will be infringing a
+United States patent and should contact the:
+
+            Office of Technology Licensing
+            Stanford University
+            857 Serra Street, 2nd Floor
+            Stanford, CA 94305-6225
+            (415) 723 0651
+
+
+
+
+
+

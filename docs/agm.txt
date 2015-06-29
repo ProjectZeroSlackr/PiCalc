@@ -1,0 +1,376 @@
+
+===========
+Why the AGM
+===========
+
+Although I have added a second formula to  the  program,  it's  only
+there  to allow you to check the results.  It's slower than the AGM,
+but even if it wasn't, the  AGM would still be the prefered formula.
+
+The goal of all these calculations isn't to find out what the  'x'th
+digit  of  pi  is.  Nobody really cares.  Instead, we pi programmers
+are testing our programming  skills  (and creativitiy) against other
+programmers, and the AGM formula  is  the  formula  we  all  use  to
+compare  our results.  The AGM is the standard benchmark.  Just like
+some people still use the  sieve  or dhyrstones, or linpack, etc. to
+compare computers and compilers.
+
+There are (arguably) better formulas, but most of us use the AGM.  A
+few people use variations, such  as  the  Borwein  quartic  formula,
+which  is  really just two iterations of the AGM put together (which
+might  run  faster  on  a   SuperComputer),  but  no  'hobbiest'  pi
+programmer would consider using,  say,  the  Chudnovsky  formula  or
+Gosper's  continued  fraction method, and then compare their results
+to somebody else.  We might code it, and we might even  say  "I  can
+compute  x  digits faster than you", but we aren't going to actually
+compare our run times and  the  program against somebody else who is
+using the AGM.
+
+It's not where we end up (ie:  how many digits we  computed  in  how
+long),  but  how  we  got  there  and  how  quickly  we  did it.  (A
+'professional' pi hunter, who is going for the record is free to use
+any formula they want,  but  it  still  wouldn't  be fair to compare
+their run time against everybody elses.  For them, it _is_ where you
+end up, and not how you got there.)
+
+
+=======
+The AGM
+=======
+
+The  AGM  formula  is  actually  a  class of formulas, rather than a
+specific formula.
+
+This is the basic formula, as given by Salamin:
+
+
+     A[0]=1 B[0]=Start_1
+     X[0]=1 Y[0]=Start_2
+     Sum=1
+
+     iterate: n=1..inf
+      A[n] = (A[n-1] + B[n-1])/2
+      B[n] = Sqrt(A[n-1]*B[n-1])
+      C[n] = (A[n-1]-B[n-1])/2    or:  C[n]^2 = A[n]^2 - B[n]^2 
+
+      X[n] = (X[n-1] + Y[n-1])/2
+      Y[n] = Sqrt(X[n-1]*Y[n-1])
+      Z[n] = (X[n-1]-Y[n-1])/2    or:  Z[n]^2 = X[n]^2 - Y[n]^2 
+
+      Sum  = Sum - (C[n]^2+Z[n]^2)*(2^n)
+     end_iteration
+
+     PI[n] = 4*(A[n+1]*X[n+1]) / Sum
+
+However,  you'll  rarely  see  it expressed that way.  The reason is
+that it's rather inefficient.  You need  to  do two AGM's to get the
+computed pi.
+
+Any two starting values that equal:  Start_1^2 + Start_2^2 = 1  will
+work.  For example, Start_1=4/5 and Start_2=3/5 will work.
+
+But,  as  I said, it's inefficient.  It's far more convenient to use
+starting values that are  equal.   For  example, 1/sqrt(2) will work
+just fine.
+
+Once you use the  same  starting  values,  the  formula  is  usually
+rewritten in the much more common form of:
+
+     A[0]=1 B[0]=1/sqrt(2) Sum=1
+
+     n=1..inf
+     A[n] = (A[n-1] + B[n-1])/2
+     B[n] = Sqrt(A[n-1]*B[n-1])
+     C[n] = (A[n-1]-B[n-1])/2    or:  C[n]^2 = A[n]^2 - B[n]^2 
+     Sum  = Sum - C[n]^2*(2^(n+1))
+     PI[n] = 4A[n+1]^2 / Sum
+
+You might see it arranged a litle differently.  However, this is the
+'official' formulation,  as  given  by  Salamin  himself.  It's also
+worth noting that the  iteration  of  A[]  and  B[]  is  the  actual
+Arithmetic-Geometric Mean.  The rest are pi related.
+
+An alternative form is:
+
+     A[0]=1 B[0]=(sqrt(6)+sqrt(2))/4 Sum=1
+
+     n=1..inf
+     A[n] = (A[n-1] + B[n-1])/2
+     B[n] = Sqrt(A[n-1]*B[n-1])
+     C[n] = (A[n-1]-B[n-1])/2    or:  C[n]^2 = A[n]^2 - B[n]^2 
+     Sum  = Sum - C[n]^2*(2^(n+1))
+     PI[n] = 4A[n+1]^2 / (Sum*sqrt(3)-0.5)
+
+Again,  the  AGM only needs to do one AGM because the starting value
+is the same.  The  final  computation  is done a little differently,
+though.  (I don't know much about this version.  I've only seen  one
+reference to it.  It works, but I don't know where it came from.)
+
+
+======
+My AGM
+======
+
+
+My AGM is  probably  one  of  the  most advanced AGM implementations
+around.  I'm not talking about the pi program itself, but  just  the
+formulation of the AGM formula.  (That's  not to say it is the best,
+but it is definetly significantly better than normal.)
+
+It  sounds  a  little  odd.   After  all,  how many ways can the AGM
+formula below actually be implemented?
+
+ A[0] = 1
+ B[0] = 1/sqrt(2)
+
+ A[n] = (A[n-1] + B[n-1])/2
+ B[n] = Sqrt(A[n-1]*B[n-1])
+ C[n] = (A[n-1]-B[n-1])/2
+ or:  C[n]^2 = A[n]^2 - B[n]^2
+ or:  C[n]^2 = 4A[n+1]*C[n+1]
+
+                          n
+ PI[n] = 4A[n+1]^2 / (1-(Sum (2^(j+1))*C[j]^2))
+                        j = 1
+
+
+It turns out, there are quite a few ways!
+
+The way I'm doing it looks quite a bit more complicated.  And it is.
+But it does, however, remove  the  need  to do the A[n-1]*B[n-1] two
+value multiply.  Now, each iteration is  only  requiring  a  square,
+which  is just two full sized FFT/NTT transforms.  With the old way,
+it'd take a totaly of 5 full sized FFT/NTT transforms.
+
+ A[0] = 1          A[0]^1 = 1
+ B[0] = 1/sqrt(2)  B[0]^2 = 0.5
+ Sum  = 1
+
+ First pass:
+
+ A[n]     = (A[n-1] + B[n-1])/2
+ B[n]     = Sqrt(A[n-1]*B[n-1])
+ C[n]^2   = ((A[n-1]^2+B[n-1]^2)/2-B[n]^2)/2
+ A[n-1]^2 = C[n]^2 - B[n]^2
+ Sum      = Sum - C[n]^2*(2^(n+1))
+
+(Since  for  the  first  pass,  A[n-1]  will be 1.0, we can skip the
+multiply altogether.  We also know what B[n]^2 is going to be.)
+
+ Remainging passes:
+
+ C[n]     = (A[n-1]-B[n-1])/2
+ A[n]     = A[n-1] - C[n]
+ C[n]^2   = C[n]*C[n]
+ B[n]^2   = (A[n-1]^2+B[n-1]^2-4C[n]^2)/2
+ A[n]^2   = C[n]^2 + B[n]^2
+ B[n]     = sqrt(B[n]^2)
+ Sum      = Sum - C[n]^2*(2^(n+1))
+
+
+And then for the final calculation, instead of computing A[n+1]^2, I
+can just use the B[n]^2  formula  above,  since the two numbers will
+have converged.
+
+Since I'm no longer needing B[n] for final calculation, on the  very
+last pass, I can skip the square root.
+
+There is a lot of 'simple' operations, but even with extra disk I/O,
+they  will  take  a lot less time than doing that two value multiply
+that we've saved.
+
+There  isn't  a whole lot of fat left in there.  We do need at least
+one multiplication in there, the  math  requires it.  There's no way
+you can do a multiply with just one  FFT/NTT  transform.   So  there
+isn't much left that you could do.
+
+
+(There are still other ways to reformulate the AGM, although I don't
+know  of any other style that takes fewer multiplies.  And there are
+other formula relations that could be  used in the 'one square' AGM.
+I just chose those particular  relations  because  you  gotta'  pick
+one.  Also, it's fairly easy to  just  reduce  the AGM to only a two
+value multiply, although that doesn't save as much time  as  just  a
+single squaring multiply.)
+
+
+=================
+AGM Self-Checking
+=================
+
+I thought I should say a few words about my program's ability to run
+some self checks on the computation.
+
+The normal AGM formula has next to no error checking ability.  About
+all you can do is  make  sure  that the variables don't go negative,
+that 'B' is less than 'A', and so on.  Just simple  sanity  checking
+that isn't likely to catch any problems.
+
+My  program,  on  the other hand, has the ability to actually detect
+whether the computations and  storage/retrieval of the variables has
+occured without errors.
+
+It's not going to catch all errors, though.  There are  three  areas
+where  errors  can  slip through.  1) The accumulation of the 'Sum'.
+2) The final  division.   3)  Any  situation  where multiple massive
+errors have occured but the variables are still self consistant (for
+example, all zero's would still pass the self check.)
+
+To do this self checking, I take advantage of the fact that I'm  not
+doing  the  AGM like normal people.  (I don't claim to be normal...)
+Most people do it somewhat like:
+
+               A[0]=1 B[0]=1/sqrt(2) Sum=1
+
+               n=1..inf
+               A[n]     = (A[n-1] + B[n-1])/2
+               B[n]     = Sqrt(A[n-1]*B[n-1])
+               C[n]     = (A[n-1]-B[n-1])/2    or:
+               Sum      = Sum - C[n]^2*(2^(n+1))
+               PI[n]    = 4A[n+1]^2 / Sum
+
+
+That's the normal way.  But, if  you  look at my agm.c, you'll see I
+do it quite differently.  (I'll show the normal  pass  here.   I  do
+pass 1 differently.)
+
+               C[n]     = (A[n-1]-B[n-1])/2
+               A[n]     = A[n-1] - C[n]
+               C[n]^2   = C[n]*C[n]
+               B[n]^2   = (A[n-1]^2+B[n-1]^2-4C[n]^2)/2
+               A[n]^2   = C[n]^2 + B[n]^2
+               B[n]     = sqrt(B[n]^2)
+               Sum      = Sum - C[n]^2*(2^(n+1))
+               PI[n]    = ((B[n]^2 + A[n]^2)/2) / Sum
+
+This  is  definetly  unusual!  It does however, reduce the number of
+multiplications.  The normal  version  requires  a  square and a two
+value multiply.  The bottom version only requires a square.   That's
+quite a bit faster.
+
+The self checking comes about because I have several representations
+of  the  variables.   For  example,  A[n]^2  had  sure  better equal
+A[n]*A[n] if I multiplied it out.  And so on.  I can take  advantage
+of the redundancy inherent in the multiple representations.
+
+It can be done a bit simpler, though.
+
+               A[n]     = (A[n-1] + B[n-1])/2
+               A[n]^2   = (A[n-1]^2 + 2B[n]^2 + B[n-1]^2)/4
+
+The first two formulas are fairly easy to compute.  And they involve
+most of the  variables  and  operations  already  performed for that
+iteration.  All I have to do is compute  Test_A[n]  and  Test_A[n]^2
+using  those formulas and compare it to the regular variables.  They
+should be close (allowing for round-off errors, etc.)
+
+I'm sure that  while  looking  at  these  formulas, you are probably
+thinking "Of course they'll match!  It's the same stuff"....   Well,
+that's  sort  of  the  point.   They  _should_  match.   We are just
+arriving at the same  variables  by  a  different route.  As long as
+they match, then we can be  fairly  sure  that  things  are  working
+correctly.
+
+These  two  formulas  do  consume a little extra time.  Tolerable, I
+guess.  Perhaps a few percent.  But it does slow the program down.
+
+There  is  a  problem, though.  The two simple formulas I list above
+don't cover the B[n] variable!   If  an  error occured in it, during
+the square root, then those two checks probably  are  not  going  to
+catch it.
+
+We can solve this by using one of two other formulas.
+
+               A[n]^2   = A[n]*A[n]
+               B[n]^2   = B[n]*B[n]
+
+Both of these will involve the B[n] variable.  (A[n] does it through
+the  relationship of how you compute A[n].)  By computing either (or
+both) of these and comparing  the  results, you can find out whether
+that variable is accurate.  In  other  words, you can make sure that
+the square root was done without error.
+
+Actually, the computation of A[n]^2 is even better.  All  by  itself
+it  checks  all  of the other variables and calculations!  B[n] just
+checks itself.  Of  course,  the  A[n]^2  check  will only catch the
+error on the next iteration, but that's not really a problem.
+
+Unfortunately, the use  of  either  of  those formulas increases the
+runtime.  Quite a bit.  Using  both  of  those will increase it even
+more.  But, on the other hand, it should catch  the  errors  in  the
+square root routine, which is the most likely place to fail!
+
+
+But, as I said at the top of this section, it's still not  going  to
+be 100% accurate.
+
+There are several parts that aren't checked.
+
+I don't check the final division.  I could do  this  by  multiplying
+the resultant pi by the sum, and I should get the other part.
+
+And I could check part of the final calculation.  It'd take a little
+more time (like the  use  of  the  last  two formulas would), but it
+could be done.
+
+And  a few other parts of the final calculation.  Like with sqrt(3),
+I could square that to make sure it was done.  And so on.
+
+And for the initialization,  I  could  also check the square root(s)
+and the other stuff.
+
+And  for  the printing of pi, I could read the file back, convert it
+to a number, and then compare that to the pi variable.
+
+So, it _IS_ possible to  make  the  AGM  fully  self  checking,  and
+consuming  perhaps  30%  extra time.  (That's extra time beyond what
+the fast-AGM takes.)   That would  put  it  about even with, perhaps
+still a little faster than, the regular  AGM  implementations  which
+require  a  square and a two value-multiply per iteration.  We would
+only require two squares plus a little extra.
+
+But even with  all  those  extras,  there  are  still two additional
+problems.
+
+First, checking the accumulation of the Sum. The only way I've  been
+able  to  think  of would require yet one more variable (!) and then
+instead of multiplying by a  float and then subtracting, do multiple
+multiplies by integer 2, and then add, and then to check it  against
+the other sum, simply subtract this one from 1.0 and compare.  But I
+don't like the extra var, or the extra work.
+
+The second problem is one  you've probably already noticed if you've
+looked at the code and followed this text....  And that  problem  is
+that  all  those  checks  (and the others above) are adding a LOT of
+complexity to the fast AGM.   Even  what  few checks I have in there
+are adding a lot of clutter.  Adding the  rest  would,  well,  let's
+just say it would make the fast AGM unreadable.
+
+I really, **really** liked the idea of doing a fully  self  checking
+AGM!   There is something so attractive about a computation that can
+detect when errors have occured.
+
+And, by adding these checks, I  'one up' every other pi program that
+I know of.  I don't even know of another pi program  that  does  the
+simple checks I do in my v2.1, much less these kinds of checks!
+
+
+But the extra complexity and reduction in readability, and  the  one
+extra  variable, has really soured my enthusiasm.  Sure, I _do_ like
+the _idea_.  But I don't like the implementation.
+
+So, after a lot of  thought....   I've  decided  not to purse it any
+further.
+
+
+
+
+The best check of all is to simply do a calculation using some other
+pi program, preferably with some other formula.  My inclusion of the
+Borwein  formula  and  the  sqrt(3)  AGM  satisfies this 'full' self
+checking.  (Although  in  reality,  they  do  share  some  points of
+failure.  Such as the pi printing routine itself.)
+
+
+
+

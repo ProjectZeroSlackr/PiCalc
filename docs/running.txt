@@ -1,0 +1,93 @@
+
+===================
+Running the program
+===================
+
+Running the program is very simple.
+
+First, you need to check to  make  sure that the pi.ini settings are
+suitable for your  system  and  desires.   (See  pi_ini.txt  for  an
+explanation of each option.)
+
+The  number  of digits must be a power of two.  This can be followed
+by a 'k' to mean *1024 or a 'm' to mean *1048576.
+
+If the number  of  digits  is  negative,  it  will enter a 'testing'
+function instead of computing pi.
+
+If you want to do any major runs or for benchmarking, see the  files
+'bestperf.txt' and 'tuning.txt'.
+
+The  program  works best when you don't run it under Win95 or Win98.
+In fact, pure DOS is probably  the  best choice.  It may be archaic,
+but it allows the full computing power to be  used.   See  the  file
+win9598.txt for more details.
+
+If  you are using the disk number version, you are probably best off
+not using any disk write caching.  Also, if it's possible for you to
+turn  off  the  virtual memory, you might want to do that.  That way
+you can be 100% sure that no virtual memory accesses are sneaking in
+and sapping performance.
+
+If you do run  this  under  DOS,  be  sure  and do it without EMM386
+installed.  EMM386 only allows 32m of memory  to  be  given  to  the
+program, regardless of how much you actually have.
+
+The pi.ini file should be in the 'current' directory.
+
+Command line version
+--------------------
+
+Once that is done, you can run it like:
+
+pi 1m
+
+That will compute 1 million digits of pi.
+
+If  you  want  to  use one of the other formulas, you'd specify a:
+
+1 or C means the classic AGM              (Slowest)
+2 or A means the default AGM              (Fastest)
+3 or S means the sqrt(3) AGM              (Fast)
+4 or B means the Borwein Quartic formula. (Slow)
+
+(#2 is the default.  #3 makes a good quick check formula.)
+
+(#1  is incredibly stupid and slow.  It came straight from my v1.2.5
+tutorial program and is included mostly  as  a way for people to see
+how much difference the "Karp tricks" and a decent FFT  can  improve
+overall performance.)
+
+If you want to only run part of  the total pi run, you can specify a
+third argument.  (Of course, you  also  have  to  specify  a  second
+argument.)
+
+The third argument tells how many iterations to perform.  If the run
+is just getting started and you specify a zero, then it will only do
+the initialization.
+
+To initialize for a 2m run using the Borwein formula: pi 2m b 0
+
+To do 2 passes of a 4m AGM run: pi 4m a 2
+
+If you run  the  program  without  any  arguments,  it  will print a
+summary of the options.
+
+
+Prompting version
+-----------------
+
+The prompting version will ask you  how  many  digits  you  want  to
+compute.  You can either specify  the  digits completely, or use the
+'k' or 'm' suffix.
+
+It will then ask you which pi formula you wish to use.  A 'b'  means
+the Borwein formula.  Anything else means the AGM.
+
+It  will ask you how many passes to compute.  Entering zero means to
+do no passes (although do  the  initialization  if this is the first
+run).  If you enter a '-1', the program will do all the passes.
+
+
+
+

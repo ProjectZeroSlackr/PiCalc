@@ -1,0 +1,58 @@
+
+==================
+Estimating Runtime
+==================
+
+There  are  several  ways  to estimate performance, and which one is
+best will depend on the program and options.
+
+For the fast AGM, a reasonable time estimation formula is:
+
+Est. time=(Log2(Digits)-0.7)*time_for_Second_Pass
+
+(The Second_Pass is  actually  the  third  'pass'.   The init is the
+first, the first pass is second, and the second pass is  the  third.
+Confusing,  but since the different AGMs call them different things,
+I can't say "pass 8" or  anything.  Log2(Digits) is the power of two
+for the number of digits.  For example, 1 million  digits  would  be
+20.  8 million would be 23.)
+
+This wont be 100% accurate,  but  you  should get a fairly good feel
+for how long the entire run will take.
+
+For the regular AGM, the formula:
+
+Est. time=(Log2(Digits)-0.5)*time_for_Pass_8
+
+Will probably work okay.  Or you could use the formula:
+
+Est. time=(2.4+3*(Log2(Digits)-2))*Init_Time.
+
+I used to be quite fond  of  the  second one, since it only requires
+doing  the  initialization,  but  with   so   many   variations   in
+performance, and the fact that it doesn't actually do a 'full' sized
+multiply, the time estimate can be off quite a bit sometimes.
+
+
+The best estimate I have for the Borwein formula is:
+
+P1=time for pass 1
+L2=Log2(# digits)
+   if L2 is even : L2=L2/2-0.75
+   else L2 is odd: L2=L2/2-0.5
+
+time=L2*P1
+
+
+Of course, remember that  these  are  only estimates.  There will be
+some variation depending on whether you are using virtual memory  or
+disk,  and  so on, but these should be good enough for you to have a
+feel of how long the program might take.
+
+
+With slightly different constants,  either  of  the  first  two  AGM
+formulas  will  also  work  with  other  programs  that  use the AGM
+formula.
+
+
+

@@ -1,0 +1,365 @@
+
+================
+Q&A and PROBLEMS
+================
+
+*Q:  I don't have a compiler.  How can I  get  an  executable  copy?
+Can you send me one?
+
+A:  You'll just have to find somebody with a compiler to do  it  for
+you.   I don't supply executables because I don't have a web site to
+put  this  stuff  on.  And my email is very limited and its a lot of
+trouble sending large binary files.  I have to break  them  up  into
+small uuencoded files and that's a pain.
+
+
+*Q:  I don't know anybody with a compiler.  Can you tell me where to
+get DJGPP and how to compile your program?
+
+A:  Nope.  Well, DJGPP is widely available, including on the  simtel
+sites.   (Through v2.2, it required djgpp 2.7.2.1, and wouldn't work
+with 2.8.1.)  So, you can get  the  compiler.  Get the FAQ first and
+read the getting started section and see what files you  need,  etc.
+
+As to providing you with step by step instructions on how to install
+a  compiler  and how to use it, etc....  I wont do that.  I've tried
+doing that with  several  people  and  in  only  one  case did it go
+smoothly.  You are just going to need to know how to use a compiler,
+or find somebody who can give you an executable.
+
+*Q: I'm having problems with DJGPP.
+*Q: How do I install DJGPP?
+*Q: I'm having problems with my DJGPP compiled programs.
+*Q: How do I install DJGPP under Win9x?
+
+A:   Read  DJGPP's  FAQ.   It  covers  a lot of area, including many
+common problems with DJGPP and programs compiled with DJGPP.
+
+
+*Q: I keep running out of memory.  I'm using Windows 9x.
+
+Q:  Windows doesn't provide for virtual  memory  for  DOS  programs.
+The solution are either to switch  to the disk based number version,
+or boot pure dos and use cwsdpmi.
+
+
+*Q: I get massive disk thrashing.
+
+A1: You have probably compiled  the  program with the virtual memory
+version, rather than the disk version.  Your virtual  memory  system
+has become overloaded.  Recompile for the disk number version.
+
+A2:   You  are  using a disk cache with write caching enabled.  Turn
+off  the write caching.  Write caching can cause almost as many disk
+head movements as an overloaded virtual memory system.
+
+A3:  You have the  phys  mem  setting  in  pi.ini  set too high.  It
+should be the amount of phys mem the program gets when  it  is  run.
+If  you  have  32m, this should be set at 16m.  If you have 36m, you
+can set it at 32m, and  so  on.   With  DOS, it's is easy to do phys
+memory management, but with other OSs (Linux, Unix, OS/2, etc. etc.)
+it can  be  more  difficult  because  the  OS  doesn't  provide  any
+convenient way to control how much phys mem the program gets (or any
+way  for  the  program  to  make sure the memory stays in memory and
+isn't paged to disk.)  I needs  to  be  at least 1/4th the number of
+digits you plan to compute, and needs to be no more than  twice  the
+number of digits you plan to compute.
+
+A4:  if  you  are  using  DOS  and  the  disk  numbers version, it's
+possible that EMM386 isn't allocating  enough  actual  physical  mem
+(assuming  you have the value in pi.ini set that high), and the DPMI
+driver is doing some virtaul  memory without your knowledge.  When I
+did my 32m pi run, I used disk numbers, of course,  and  I  had  the
+virtual  memory  turned  off  in the DPMI driver, so that no virtual
+memory accesses  could  occur  behind  my  back.   I discovered that
+EMM386 wouldn't let me allocate 32m of my 36m of memory.  I  had  to
+boot  cleanly  without  it  to  be  able to allocate 32m of physical
+memory.  If I hadn't turned  off  virtual memory in the DPMI driver,
+EMM386 still wouldn't have given  32m  of  physical  memory  to  the
+program,  but  the  DPMI  driver  would  have  faked it with virtual
+memory, slowing the program down.
+
+
+*Q: The run times seem erratic.
+
+A1:  You are probably running  it under Windows.  Windows, even when
+shelling to DOS or booting up to the DOS that  comes  with  Windows,
+can  be erratic.  Use a genuine DOS, such as MS-DOS 6.x, PC-DOS 6.x,
+OpenDOS,  etc.,  and boot from a floppy.  You'll need himem.sys, but
+not emm386.  (On my system,  EMM386  prevents me from getting 32m of
+memory.)
+
+A2:  You are probably running it  on  some  OS  that  does  its  own
+virtual memory dance.  Try figuring out  how much phys mem the OS is
+actually giving to the program and use that in the pi.ini
+
+A3: Your hard drive may be extremely fragmented.
+
+A4: Perhaps you have some background task running.
+
+A5:  Perhaps the BIOS  is  activating  its  power saving mode and is
+reducing the CPU speed.  Turn this bios feature off.
+
+
+*Q:  The program says it has encountered an  unknown  value  (square
+root, divisor, etc.).  What's going on?
+
+A:   The  program has failed.  One of the math routines was passed a
+number that it shouldn't have received.  For example, if the  square
+root  routine expects to allways receive a number of around 0.7, and
+it some how gets 1.9, then  something has failed.  Better you get an
+abort than computing a bunch of wrong digits.  (In fact, is was this
+type of error reporting that alerted me to my overheating L2 cache.)
+
+As  to  what  could  have  failed...   Maybe your hardware failed or
+perhaps your compiler is  buggy.   Try  running  it without any disk
+caches, with your L2 cache turned off, and  anything  else  you  can
+think  of.  Try compiling it with a newer (or older) compiler.  I've
+tested the program up  to  32m  digits,  so you shouldn't be getting
+these warnings without a reason.
+
+It  is indeed possible that bugs still exist in the program, and you
+can try to  help  me  track  them  down.   Try  a different phys mem
+and cache setting in the pi.ini.  Try compiling and running it  with
+different  config.h  settings.   Try  compiling  and running it with
+different compiler optimization switches.  Try the disk num and virt
+mem versions.
+
+
+*Q:  When I run the program, it gives me a warning about some routine
+that may be failing.
+
+A1:  These are some of the safety checks I added to the program when
+I found out my L2 cache  was  overheating.  I just do a simple check
+to make sure that the numbers the  routines  are  working  with  are
+indeed  the  numbers  it  should  be.  These checks may be a bit too
+sensitive and might (although  they  shouldn't!) give a false alarm.
+Try letting the program continue past the  warning  and  see  if  it
+actually fails (either  an  abort  or  an  incorrect output.)  If it
+runs okay, then the warning was  wrong.  Please let me know about it
+so I can fix it.  If the output was wrong  or  the  program  failed,
+then it's possible your  hardware  may  have  failed  in  some  way.
+Programs such as pi computations put a sizable amount of 'stress' on
+a system and if even one calculation is wrong, the whole answer will
+almost certainly be wrong.
+
+A2:  It may also indeed be some bug of some sort in my program.  Try
+various  compiler  options, config.h settings, different settings in
+the pi.ini file, a different compiler,  etc. etc. to try and isolate
+the problem.
+
+
+*Q:  The program says it failed to converge and aborted.   I  didn't
+get any other warnings or errors.
+
+A:   Well...  the  same  answer above applies here.  Try a different
+compiler, etc.  The  self-checks  mentioned  above are rather simple
+and wont catch every possible problem, so a few might  slip  through
+and be caught this way.
+
+
+*Q:   I  want to use Jason's fast NTT586 (in gcc586/vector.c), but I
+don't have DJGPP.  How can I get it to work with xxx compiler?
+
+A1:  Well, the c version  (c586)  operates the same basic way.  It's
+not as fast as the asm version, but works tolerably well.  Then  you
+can, at your 'leisure', supply asm versions for crt.h, modmath., and
+then finally the c586/vector.c
+
+A2:  You could contact Jason.  Or you could port it yourself.  DJGPP
+uses an odd type of inline assembly that lets you pass parameters to
+the  asm  code, and that specifies what registers it uses so DJGPP's
+code generator knows to deal with  them.  It might be easier to make
+seperate .asm routines out of the inline code.   I  can't  help  you
+with this because I don't know x86/x87 asm very well.
+
+A2:  It may just be easier to get DJGPP, or have somebody with DJGPP
+compile  the  program  for you.  If you have someobyd compile it for
+you, you might want them  to  give  you  both the virtual memory and
+disk based number versions.  The virtmem version runs  better  until
+your virtual memory system becomes overloaded.
+
+
+*Q:  I'm using a non-x86 processor and I have to use the 'long long'
+version.  It keeps failing.  Help!
+
+A:   The  'long  long' is buggy in many GNU C compilers.  Even DJGPP
+(which is the DOS port of GNU  C)  is buggy.  The best way to see if
+this is the problem is to compile the ANSI/ISO  generic  C  routines
+and  see  if the program still fails.  If it works, then you'll have
+to do a lot of manual work.   A  routine at a time, enable the 'long
+long' version while disabling the generic one, until you find  which
+routine  is  failing.   Once that is done, you can either figure out
+how it fails (and work  around  it)  or just use the generic version
+for that one routine.  Or you can write custom asm versions, like  I
+did for the 386+ processor.
+
+
+*Q:  I don't have 'long long' and I don't want to write asm, and the
+generic is so SLOW!
+
+A1:  Yup,  the  generic is slow.  There's no way around it.  You can
+tweak it a bit (taking advantage of various compiler features or the
+code it generates), but it'll still be slow.
+
+A2:  Many non-GNU  C  compilers  have  their  own  version of 64 bit
+integers.  Sometimes it's called "int64" or what ever.  You can  use
+those with just a few simple changes to the code.
+
+A3:   You may have to give in and write some assembly.  I don't like
+having such processor & compiler  dependant code in my programs, but
+a NTT requires it for performance.
+
+A4: You might try the c586 version.
+
+*Q: I want to understand Jason's NTT586, but I can't follow it!
+
+A:   Neither  can  I.  Well,  I  know  the  principles, but actually
+following the code  is  something  else  entirely.   The best way to
+understand the gcc586/vector.c would be to look at the c586 version.
+Same  basic  principles,  just in C instead of ASM, and it only does
+two modular multiplies at a time, instead of 4.
+
+
+*Q: All these choices are confusing me!!  Can't you put it simpler?
+
+A:   No.  Although  the  earlier  docs  (in  v2.0-v2.2)  were  a bit
+confusing, I've spent a lot of time for v2.3, and  it's  already  as
+clear as I'm able to explain.
+
+
+*Q)  What  was  your  config when you did the 32m run in 60.5 hours?
+(Or 36.5 hours for v2.1)
+
+0) I used DJGPP  2.7.2.1  with  cwspdmi  release 4.  MS-DOS 6.22.  I
+have 36 megs of memory.  My processor was a Cyrix 486/66.
+
+1) I set the config.h  for  disk based numbers, the special malloc()
+for DJGPP, the timings options, and the 486 asm version of the code.
+
+2)  I compiled it like:
+
+gcc -O3 -m486 -c *.c
+gcc -o pi.exe *.o
+
+3)  I  copied  cwsdpmi  and cwsparam into the directory where the pi
+program was.  I ran cwsparam and  disabled  the  virtual  memory.  I
+probably  didn't  really  need to do this, but I wanted to make sure
+that no virtual memory accesses sneaked into the run.
+
+4) In pi.ini, I used 32m of phys mem, and 4k for my cache setting.
+(The 4k was half my L1 cache (since my L2 was flaky).
+
+5) I booted DOS 6.22 cleanly, with himem.sys, but without emm386.  I
+then  loaded  smartdrv  and  enabled a 1m read cache.  EMM386 wasn't
+used because  it  wouldn't  let  me  allocate  32m  in  the program.
+(EMM386 doesn't recognize more than 32m of memory.)
+
+6) I then simply ran it.  Usually like:  pi 32m 1 1 which  means  to
+do 32 million digits, the AGM, and  only one pass at a time (because
+each pass took so long.)
+
+7) After every pass was finished, I copied the saved data to  my  D:
+drive.   I was able to keep the last two copies so in case something
+happened I would hopefully be able to recover.
+
+8) and I repeated steps 6  and  7  many  many times over more than a
+week, until I finally generated the output.  (The last  pass,  I  of
+course  remembered  to  redirect  the  output to a file, to save the
+digits of pi.)
+
+9) I compared it with 10m digits  I had from another source.  I then
+compared it with the digits that were published  in  David  Bailey's
+29m digit pi paper.
+
+
+*Q:  Windows says I've  run  out  of  disk  space, but I should have
+enough?!
+
+A:  Windows likes to have some extra space and wont let you use  all
+of  the  disk  space you have.  It'll pop up a warning saying you've
+run out of disk and  to  clean  off  your drive.  The soltuion is to
+either free up more space, or don't do the run under Windows.
+
+*Q: How can I get good performance under Win95/Win98?
+
+A:   Don't  run  it  under  Win95/98!  It's a simple as that.  Well,
+almost simple, since you might  have  trouble getting down to a bare
+DOS 7.0 boot.
+
+Windows 95/98  does  everything  in  its  power  to  make  sure your
+programs don't run very fast.  It goes out of its way to do what  it
+thinks is 'best' even when you know better.
+
+There  are  three  problems  with running a high performance program
+under Win95/98.
+
+First, Win95/98 usually  has  disk  write  caching enabled!  You can
+change that setting from within the 'systems' icon  in  the  control
+panel,  but  its buried in several sub-menus, so you have to know it
+exists or you'll probably never know  about it.  If you aren't doing
+a disk based pi run, it's not going to matter a lot, but if you  try
+one, it will definetly effect performance.
+
+Second, when you go into a DOS box, Win95/98 is still running.  It's
+still taking up performance.  On my system, that results in about 5%
+reduction in performance over genuine DOS.  Not a major problem  for
+small runs, though.
+
+Third, Windows 95/98 doesn't like  giving a DOS program much memory.
+Although the 'mem' command in DOS may say that you  have  a  lot  of
+memory available, very little of that may be physical memory.  There
+is a good chance that much of it is virtual memory being provided by
+Win95/98.   And  a  DOS  program  isn't  normally  going to know the
+difference.  And, as I've said many times, you don't want  to  do  a
+FFT or NTT using virtual memory!
+
+
+The solution is to completly exit  Win95/98, and run a genuine DOS.
+If you were smart enough to  still  have DOS 6.x installed, when the
+Win95/98 start-up menu asks you which OS  you  want,  you  can  just
+select  your  old  DOS.   (If  you  don't have the startup boot menu
+enabled, I think you can  reach  it  by holding down the control key
+when you boot.  Of course, if you don't have an old  DOS  installed,
+it's not going to do any good.)
+
+But, not everybody has an old DOS still installed.   In  that  case,
+you  are  going to have to force Win95/98 to drop to genuine command
+line DOS-7.
+
+At the boot menu, you can select the 'command line' option.  And  at
+the shut-down command in  Windows,  you  can  select the 'Restart in
+MS-DOS mode' prompt.  Both of those will _almost_ work.
+
+The problem, at least  on  my  system,  is  that it still insists on
+rebooting with emm386 installed.  You can do a "mem /d /p" and still
+see emm386 installed.  And  on  my  system,  emm386 wont let me have
+enough physical memory to allocate 32m of physical  mem.   The  DPMI
+server will end up using virtual memory.  Not good!
+
+I'm sure there is some good, easy way to prevent it, on  a  case  by
+case  basis,  but  I  don't  know  what  it  is.   Windows 98 can be
+extremely stuborn at times.
+
+What  I  have  done  is set up a new DOS .pif with the 'ms-dos' mode
+selected.  And have it use the 'specify new dos config', rather than
+the existing one.  And  in  the  config.sys  lines it lets you edit,
+make sure emm386 isn't in  there  and  himem.sys  is.   And  in  the
+autoexec, I have it load a 1meg disk read cache.
+
+(To create a  new  'pure  dos'  .pif,  just  create  a new shortcut,
+specify c:\windows\command.com as the program to run.  Then edit the
+properties for the full DOS mode, etc.  Then try it out, do a mem /d
+/p, look for emm386, etc.)
+
+This lets me easily get  down  to  a  pure,  clean  MS-DOS  7  boot.
+Windows  is  still  around,  mostly sleeping, but it's better than a
+normal dos shell.
+
+Anyway,  once  you  get  down  to  a clean OS, without Windows 95/98
+interference, then you can run a pi program efficiently.
+
+You might want to read the win9598.txt file.
+
+
+

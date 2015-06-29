@@ -1,0 +1,95 @@
+==================
+Performance Tuning
+==================
+
+There are a lot of things that can effect the performance, and  it's
+hard to decide which factors are the most important.
+
+The  proper  pi.ini  cache  size  setting  can have 10% or even more
+effect on the total run time.   My FFTs are much more cache friendly
+than the old classic FFTs, but a little guidence from you can  still
+help quite a bit.  You are best off doing a few quick test timings.
+
+As to what a 'good' setting is will depend upon your system  whether
+you are using the FFT or NTT, etc.  Usually half of your L1 or L2 is
+good.   Depending on the situation, though, might get better results
+with the full size.  Suggested sizes that you should check are:  4k,
+8k, 16k, 128k, 256k, 512k.
+
+Setting  the  L1  and/or  L2  cache  to write back vs. write through
+doesn't seem to have any  effect  on my system.  Manufacturers often
+say that you'll get 10-15% improvement by using write back, but that
+isn't always true.  I didn't see any effect with this NTT  (with  my
+'classic' FFT, write back L1/L2 was slower.)  Your system may vary.
+
+Since the program uses the  disk,  you  may want to defrag your hard
+drive and have the pi.ini filenames pointing to that drive.
+
+If you have a lot of memory, you may get  better  results  with  the
+virtual memory version over the disk based one.  For me, with 36m, I
+can  give  32m to the FFT (when doing large pi runs) and that leaves
+nothing for the virtual memory system to efficiently use.  If you've
+only got 32m, the program will only use 16m, leaving you 16m for the
+OS, program, and virtual memory.   So,  you might get better results
+with VM and I do.  If you have 64m, and the FFT gets 32m, that would
+leave you with about 30 megs free.  Virtual  memory  might  do  very
+well  with  that, even at 8m or 16mm digits.  I don't know.  I don't
+have any feedback from users to even give a suggestion beyond how my
+system performs.
+
+The speed  of  the  disk  will  probably  have  a  large  effect  on
+performance.  On my 486/66, disk I/O consumed 20% of the run time of
+the 32m pi run.  A faster disk will help a little, but a slower disk
+would  hurt  a lot.  A faster CPU may make the disk performance even
+more important.
+
+Depending on how much memory  you  have  to  spare, a disk cache may
+help quite a bit.  I'm not sure about write caching.  That can  vary
+a lot from cache to cache.  Personally,  I  always  suggest  turning
+disk write caching off.  (Even  with  a  virtual memory pi run, a 1m
+disk cache or might help,  because  it  might  better  handle  'read
+aheads',  where  it  goes  ahead  and  reads  the  next  ?k bytes in
+aniticipation of it being needed, where as the VM system might do it
+a block at a time with no read/write ahead.)
+
+With 64m of memory, I usually give 32m to the program, and use a 24m
+disk read cache.
+
+If you do a very large pi run, you might want to turn off any  power
+savings  you have enabled.  It'd be a shame if your computer noticed
+there hadn't been any screen  or  keyboard  activity for a while and
+put the processor into a slower power saving mode.
+
+If  you  run it under DOS, you need to be aware that EMM386 will not
+recognize more than 32m of  memory.   Even  if you have 256m, EMM386
+will only see 32m, and that's all it will give to your  pi  program.
+So, do you pi runs without EMM386 installed.
+
+Some  DPMI  extenders  also dislike giving you the memory amount you
+request, and will only give  you half the available physical memory.
+Windows 95/98 fall into  this  category.   (W95/98  have a number of
+other evils.  See that text file.)
+
+If you've got a lot of memory (say 256m), you need to make sure that
+the DPMI server is actually recognizing all of it.  The popular DPMI
+extender cwsdpmi v4 only  recognises  128m  by default.  You need to
+run cwsparam to set it for 256m.  (Earlier  versions  only  went  to
+128m max.)
+
+If you are going to do a  large  disk run, you might want to set the
+fixed buffer setting in pi.ini to a value larger than 128k.  Perhaps
+1m or more, if you have the memory to spare.
+
+I strongly recommend that you  turn  off  any  disk  write  caching.
+Although  caching  sounds  good,  the  reality is that it's going to
+cause a lot of disk head movement, and that's a very bad thing.
+
+When  you  do  try all these variations, the best way to compare the
+results, if you don't want to  spend  the entire time, is to just do
+the init.  It's even better to also do the first two  passes,  since
+that will give you even better numbers.
+
+
+
+
+

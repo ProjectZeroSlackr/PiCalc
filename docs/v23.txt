@@ -1,0 +1,131 @@
+
+=====================
+What's new about v2.3
+=====================
+
+As far as performance goes, not a  heck of a lot.  Sure, I'd like to
+always produce a version that's 20% faster than  the  previous  one,
+but  reality  makes  that  difficult.   I  doubt that you'll see any
+improvment.  In fact, due to some  other changes, you might even see
+a 1 or 2 second slow down.  (Of course, that's insignificant  unless
+you are just doing <1m digits.  That's the only way I've noticed.)
+
+What   this   version  has  concentrated  on  has  been  portability
+(especially getting it to work with DJGPP v2.81, since so few people
+have the older v2.7.2.1),  yet  more  reoganization, and a switch to
+the 586 version as the primary.
+
+I guess most importantly, at least as far as _I'm_ concerned is that
+the 586 version has now become the primary version.  That's  because
+I finally upgraded from a 486 to a Pentium/MMX 166mhz.
+
+I've also discovered some  data  alignment problems when using DJGPP
+(or GCC) v2.8.1.  It's fairly safe to say that without a Pentium,  I
+would not have even noticed them, much less found them.
+
+I've investigated a few areas of  Pentium tuning, but I haven't done
+a lot.  I've been too busy with other aspects of the program.
+
+I've  also  coded  up a (mostly) portable C version of the 586 code.
+It does run slower than  the  asm  version (especially if you have a
+poor compiler), but it's a heck of a lot  faster  than  the  generic
+version, so it should be useful.  To my knowledge, the only system /
+compiler dependancies are:  it must have 'long double's with 64 bits
+of mantissa, and it must  be  in  round  to nearest.  That first one
+rules out some PC compilers, such as Watcom.   (Note  that  although
+I'm  calling  it  586,  it would actually work on any processor that
+meets those requirements.)
+
+I  removed  the  NTT64  version.   Just  wasn't  really  needed   or
+practical.   If somebody really does need a 64 bit version, I'll see
+what I can do, but otherwise it was just wasting space.
+
+I  modified  the  FFT  version  to  allow  you to more easily use an
+external FFT library.  Makes it  fairly generic.  You can write your
+own FFT and see how it performs in an advanced pi program.   Or  you
+can use some highly system customized FFT.
+
+I modified the FFT version to let  you put just 2 decimal digits per
+FFT element.  This increases the total range by doubling the  amount
+of  memory and runtime consumed.  Sounds bad, except this will allow
+you to use an external FFT library, which if happens to be much more
+tuned  for your system, may make this practical.  (I could have just
+put 3 digits into it, but that wouldn't have really helped.  The FFT
+needs a power of 2 length, and  I'm computing a power of 2 number of
+pi digits.  To get any benefits, one of those would have to change.)
+
+I've integrated the 586  version  into  the regular version about as
+far as it's going to be possible.  A couple of routines in ntt.c are
+#if'ed specifically  for  the  vector  version,  but  with  the  new
+organization,  the  586  version  doesn't have to be the only one to
+operate faster in 'vector' mode.
+
+I've added my classic  v1.2  style  AGM.   This  requires only 5 AGM
+variables.  It's slow, but I thought it might help if  somebody  was
+low  on storage.  Plus, it (and the NRC style FFT) make an excellent
+demonstration  of  how  performance  depends  upon  the  AGM, Newton
+routines, and the FFT.
+
+I've  added a _second_ AGM formula.  Well, it's still an AGM, but it
+uses  different  starting  numbers,  therefor  all  the intermediate
+calculations are also different.  This means that in  spite  of  the
+two sharing nearly all of their code, they can be used to check each
+other.   And  this  new AGM runs almost as fast as the old Fast-AGM.
+Just about a 3% difference, which is  a heck of a lot less than what
+the Borwein took!
+
+I've accomplished  all  the  goals  I  stated  in  v2.2,  except for
+providing a fully self-checking AGM.  And as I've stated in AGM.TXT,
+I decided that  it  wasn't  worth  pursuing.   It's  an  interesting
+novelty, but its usefulness was limited.
+
+
+Although  I haven't had a Pentium for long, I have done a few simple
+tests using  the  RDTSR  instruction  to  provide  an accurate cycle
+count.  Judging from early results,  my  MMX/166  doesn't  have  any
+problem  with  the data accesses that are a power of two in distance
+apart, as long as you access  the data itself sequentially.  Even my
+old 486 had a greater performance hit.  That was a  bit  surprising.
+Frankly,  I  was  expecting that to be a problem.  I need to do more
+testing,  of  course,  but  it appears that I'm not going to need to
+worry about that, at least.   That  also means that my recursive NTT
+should  still  be  effective.  Its Left/Right accesses are 2^x apart
+although the data is done sequentially.  Just like I tested.
+
+I've changed to a 1e8 base (in  a  32 bit int) instead of a 1e4 base
+(in a 16 bit short int).  I've thought before about doing this,  and
+I even started to do it a few times, but I never completed it.  Now,
+however,  I  decided  to go ahead and do it.  The motivation was the
+'large' number of unaligned accesses  that  were caused by my use of
+16 bit integers.  Although this wasn't a problem on the 486/586 (and
+probably not with any CPU with a L1 cache), I figured I should do it
+anyway, just in case it was  causing  problems  on  somebody  else's
+system.
+
+
+I've checked into the possibility of using the MMX instructions, and
+it just wouldn't help.  It  only  doing 16 bit multiplication really
+limits its usefulness.  Other  processor's  instructions  (such  as,
+perhaps,  the  AMD  K6 stuff, or any upcomming new Intel multi-media
+instruction set) might help, but I'm not in a position to know.
+
+
+I've noticed a rather  peculiar  shift  in  my  pi  programing.   Up
+through  v2.1,  my  pi programs were for me.  It was great if others
+could use it, but it wasn't  a  big concern.  My driving goal was to
+compute 32m digits faster on my  486/66 than David Bailey did with a
+Cray-2.  However, with v2.2, my concern shifted slightly, to writing
+the program for others benefit.  With v2.3, that's occured even more
+so.  I still haven't computed beyond 32m digits.  I  have  the  disk
+space now, and I could probably manage 128m digits, but I just don't
+seem  to  have  the  urge.  Instead, I've been programming for other
+people's benefit, rather than any  actual urge to compute pi.  Sure,
+I like the challenge, but that only goes so far.   What's  going  to
+happen when somebody finally computes 1g digits with this thing?
+
+
+
+
+
+
+

@@ -1,0 +1,181 @@
+
+========
+Formulas
+========
+
+This sections lists many of the formulas used in the program.
+
+AGM
+---
+
+The AGM  is  actually  a  class  of  formulas,  of  which  I use two
+particular implementations.
+
+The first  is  the  traditional  1/sqrt(2)  formula,  and the second
+happens to be (what I call) a sqrt(3) formula.
+
+The traditional 1/sqrt(2) formula is:
+
+     A[0]=1 B[0]=1/sqrt(2) Sum=1
+
+     n=1..inf
+     A[n] = (A[n-1] + B[n-1])/2
+     B[n] = Sqrt(A[n-1]*B[n-1])
+     C[n] = (A[n-1]-B[n-1])/2    or:  C[n]^2 = A[n]^2 - B[n]^2 
+     Sum  = Sum - C[n]^2*(2^(n+1))
+     PI[n] = 4A[n+1]^2 / Sum
+
+(You might see it arranged a litle differently.   However,  this  is
+the  'official' formulation, as given by Salamin himself.  It's also
+worth noting  that  the  iteration  of  A[]  and  B[]  is the actual
+Arithmetic-Geometric Mean.  The rest are pi related.)
+
+The alterantive sqrt(3) formula is:
+
+     A[0]=1 B[0]=(sqrt(6)+sqrt(2))/4 Sum=1
+
+     n=1..inf
+     A[n] = (A[n-1] + B[n-1])/2
+     B[n] = Sqrt(A[n-1]*B[n-1])
+     C[n] = (A[n-1]-B[n-1])/2    or:  C[n]^2 = A[n]^2 - B[n]^2 
+     Sum  = Sum - C[n]^2*(2^(n+1))
+     PI[n] = 4A[n+1]^2 / (Sum*sqrt(3)-0.5)
+
+This formula came from one of Joerg Arndt's pi  paper.   Frankly,  I
+have  no  idea where it originated from.  It does, however, work.  I
+should also point out  that  Joerg  seems  to  have the AGM formulas
+(including the traditional one) written rather oddly.   He  has  the
+Sum variable accumulating starting with index 0 (the initialization)
+rather  than with 1 (the actual AGM iteration.)  It took me a bit of
+work to get his  formulation  to  actually  work.  This includes the
+powers of two, and the 0.5.  But, as I said, it does seem to work.
+
+
+Fast AGM
+--------
+
+Those two AGM formulas above can be rearranged a little differently.
+As you can see, each pass will require  a  square  and  a  multiply.
+There are a lot of other ways to arrange the AGM (including the form
+that  T.  Ooura  uses  in  his pi programs), but the form that I use
+requires only a single squaring per iteration.
+
+You do the  initialization,  the  accumulation  of  the sum, and the
+final PI calculation like normal.  You change how you calculate  the
+A[], B[], and C[] variables.
+
+If  we  introduce a few more variables (the squares of A[] and B[]),
+we can use various simple algebraic relationships to remove the need
+for that two value multiply.
+
+ First pass:
+
+ A[1]     = (A[0] + B[0])/2
+ B[1]^2   = A[0]*B[0]  ; Since A[0]==1, B[1]^2=B[0]
+ C[1]^2   = ((A[0]^2+B[0]^2)/2-B[1]^2)/2
+
+ Remainging passes:
+
+ C[n]     = (A[n-1]-B[n-1])/2; C[n] is actually temp usage of C[n]^2
+ A[n]     = A[n-1] - C[n]
+ C[n]^2   = C[n]*C[n]
+ B[n]^2   = (A[n-1]^2+B[n-1]^2-4C[n]^2)/2
+
+ Then the rest of the formula is done the same:
+
+ A[n]^2   = C[n]^2 + B[n]^2
+ B[n]     = sqrt(B[n]^2)
+ Sum      = Sum - C[n]^2*(2^(n+1))
+
+Then, for the final calculation, we can still do it the same way  as
+before,  but  we can even optimize that.  Instead of doing A[n+1]^2,
+we can realize that by  this  point,  the A[] and B[] have converged
+(due to us working with fixed precision, rather than infinite),  and
+that  we can compute B[]^2 quicker than A[]^2.  That's done by using
+the B[n]^2 formula above.   We  don't  even  need  to include C[] in
+there, since that will be zero  since  they  have  converged.   This
+means we also don't need the B[]=sqrt() in the last iteration, since
+we no longer need B[].
+
+
+Borwein Quartic
+---------------
+
+Root() means the 4th root.  ie: sqrt(sqrt(x))
+
+Set:
+
+a=6-4*sqrt(2)
+b=sqrt(2)-1
+
+Iterate:
+
+   1-Root(1-b^4)
+b= -------------
+   1+Root(1-b^4)
+
+a=(1+b)^4*a-2^(2n+3)*b*(1+b+b^2)
+
+and 'a' converges to 1/pi
+
+'b' must be computed before 'a'.
+
+All of those powers can be done fairly efficiently by raising
+b to 2, 3, and the 4th power.  Even the (1+b)^4 decomposes into
+powers of b, so we don't need to do a special 4th power.
+
+a=(1+b)^4*a-2^(2n+3)*b*(1+b+b*b)
+
+(1+b)^4     = (1+4b+6b^2+4b^3+b^4)
+b*(1+b+b^2) = (b+b^2+b^3)
+
+b^2 = b*b     FU   (b   -> cache)
+b^3 = b*b^2   CFU  (b^2 -> cache)
+b^4 = b^2*b^2 CCU
+
+One point worth pointing  out  is  that  computing the FourthRoot is
+actually computing the reciprocal  (like  the  square  root  formula
+does,  too)  and  to  get  the  final  root,  we'd have to multiply.
+However, we can work with the  reciprocal just as easily by changing
+the formula slightly.  (By using basic algebra.  Nothing fancy.)
+
+Instead of:
+
+   1-Root(1-b^4)
+b= -------------
+   1+Root(1-b^4)
+
+Do:
+
+   Root(1-b^4)-1
+b= -------------
+   Root(1-b^4)+1
+
+
+Newton
+------
+
+The  basic  Newton  routines are used to compute the reciprocal of a
+number, and the reciprocal of a root.
+
+The traditional way is the ones on the left.  The ones on the right,
+though allow what are sometimes refered to as 'Karp' tricks.
+
+1/n   : r = r*(2-n*r)          and  r = r + r*(1-n*r)
+n^0.5 : r = r*(3-n*r^2)/2      and  r = r + r*(1-n*r^2)/2
+
+1/n   final iteration:              z=b*r; r=z+r*(b-n*z)
+n^0.5 final iteration:              z=n*r; r=z+r*(n-z^2)/2
+
+Karp tricks are just that,  tricks.   They allow you to replace full
+sized multiplications with only half sized ones.
+
+For more details, see the 'how to write a pi program' tutorial  that
+I wrote.  It should be fairly obvious, though.
+
+
+
+
+
+
+

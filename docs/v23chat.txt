@@ -1,0 +1,465 @@
+
+=======================
+Chatty remarks for v2.3
+=======================
+
+I happened to see some  interesting  timings  on T. Ooura's March 8,
+1999 pi program. (http://momonga.t.u-tokyo.ac.jp/~ooura/pi_fft.html)
+
+On  his  web  page,  he  shows  that  with  his  program,   on   his
+Pentium-II/450, with 512m of memory, he was able to compute 1m in 96
+seconds (cs version), 16m in 2269 seconds (cs version), and 128m  in
+8.75 hours (cw version).
+
+Frankly, that's pretty good.   Good  enough  that  I decided to take
+another look at his program and re-evaluate my virtual memory  usage
+for v2.3.
+
+I've  said several times that T. Ooura's program has its good points
+and its bad points.  And that as  long as you work within the limits
+of your system, it runs quite well.  That hasn't changed since  I've
+switched  to  a  Pentium.   (In  case  you  are  thinking  that  I'm
+patronizing  his  program, and then turning around and degrading it,
+I'm not.  Within limits, his program is good and I don't really like
+having a competitor that close.   What  I'm  doing  is  testing  and
+pointing  out  the  limitations that it does have when you try to go
+beyond its limits.  He has much better hardware, so the limits are a
+lot higher for him than it is with me.)
+
+(The  individual run times reported here aren't entirely comparable,
+since our AGM  is  so  different  and  several  other things.  Also,
+neither program was done to give the best time for such small  runs.
+The goal here was to find out where virtual memory killed us, not to
+find out how fast we could compute.)
+
+
+
+I  modified  his pi_fftcs to print out the time for the init and the
+passes, and I compiled and linked  it  with his fft4.  I then ran it
+up to 8m digits.  Again, the init and the pass  times  are  reported
+here.  No disk cache was used, since I was giving the program all of
+my available memory (about 63m).
+
+1m= 24, 17
+2m= 52, 36
+4m=108, 76
+8m=222,684
+
+(I  also  ran  it with 'cw' disk version.  As expected, the base run
+times were higher due to the disk, but since there  was  no  virtual
+memory  thrashing, it was able to do the 8m passes in half the time.
+Plus, it was able to do  16m  init, too.  32m wasn't possible due to
+my not having enough phys mem for the FFT, and virtual memory kicked
+in during the FFT itself.  After  well over an hour, it still hadn't
+finished initializing.  The 16m 'cw' init took only 17 minutes.   So
+there was at  least  a  +4  growth  jump  here.   Far beyond what it
+normally would have been.)
+
+The important part to notice  is  the  8m.  It doesn't start out too
+bad, but you can see that for  the  actual  iteration,  it  suddenly
+takes 9 times as long!
+
+That's  virtual  memory!   That's  what I was encountering back with
+v1.5, and even still, when I push virtual memory too hard.
+
+He  has  much  more memory than I do.  And he also runs under Win98,
+where virtual memory  behaves  a  little  differently.  But it still
+shows that a program is very sensitive to the  system  it's  running
+on.
+
+(Of  course,  those  small runs don't take into account when you run
+out of memory for the FFT.  That would happen at the cross over from
+16m to 32m digits of pi, for my 64m of memory.)
+
+Judging  from  that,  I  think  it's reasonably safe to say that the
+performance he got with his program (the 128m run) was  due  to  his
+hardware, and that he tuned his program for that much hardware.  And
+his virtual memory system.  I know I (or anyone else  I  know)  sure
+don't get anywhere near that good of virtual memory support.
+
+
+
+
+As to my program....
+
+As  you  should  remember, I chose explicit disk for v2.0 becuase at
+the time I was unable to depend upon virtual memory.  It was way too
+unreliable.
+
+Also, the order of development was going from v1.5 to  disk  numbers
+(still  using  a  FFT),  then  changing  from  the  FFT to the NTTs,
+resulting in v2.0.  I never  really experimented with virtual memory
+for the NTTs. That's a significant point  because  the  NTTs  (as  a
+whole)  takes  half the space of the FFT.  (Or one fourth, if you go
+far enough that you need to reduce the number of digits in the FFT.)
+Plus, the NTT can be  done  in  parts,  which can further reduce the
+minimum physical memory  requirements,  even  in  a  virtual  memory
+situation.
+
+Now that I have a Pentium and 64m, I decided it was time to consider
+the possibility that using virtual memory might be more appropriate.
+Although v2.x can use virtual memory, it's not  tuned  for  it.   It
+still does quite  a  bit  of  unneeded  copying  of  data when using
+virtual memory.
+
+So,  I  ran some tests up to 32m digits, using virtual memory rather
+than disk numbers.  (For the higher  levels, I only did the init and
+maybe the first two passes.  It would have taken too long to do  the
+whole thing.)  These are just some early tests, not something final.
+Anyway,  I  discovered that with a few minor changes, I know I could
+do 8m reliably.  Possibly 16m.
+
+Anyway, here are the timings.  (Again, remember these are early, and
+are done with my current 'work'  v2.3) The first number is the init,
+the next are the passes.  (Not all conditions were the same, so  the
+growth  isn't entirely accurate.)  No disk caching was used.  I gave
+all the memory (about  63m)  to  the  program.   I also compiled the
+gcc586 for 8 primes, which caused it to take more time than actually
+needed for just 1m or 2m digits.
+
+ 1m= 11, 20, 26
+ 2m= 23, 40, 49
+ 4m= 44, 82,104
+ 8m= 93,169,220
+16m=219,602
+32m=975
+
+16m=269, 644
+32m=634,2522
+
+That's  not  too bad.  There is a big jump at 16m that at this point
+I'm not sure of, but it's  still  tolerable.  Better than what I was
+experiencing with v1.5 oh so long ago.
+
+The second group of 16m and  32m  were  done with a reduced phys mem
+setting in pi.ini, keeping its core memory usage down, and  allowing
+the  virtual  memory  system to use more.  The times are better, but
+you can still see that the first pass of 16m is a bit higher than it
+should be.  Normally, it's  around  double  the  init time.  You can
+also see that at 32m, that the growth for the init  isn't  too  bad,
+but  the  time  for  the  first pass is bad enough to make a 32m run
+impractical.
+
+(I've also tried using some  system  calls to explicitly tell the VM
+system to lock the NTT memory in, so it wont page, and  to  tell  it
+that  it  can  discard  the  memory,  so it wont page data that I no
+longer need.  With that and a  few  other changes, I was able to get
+the first few passes of a 16m run to take only a little longer  than
+what the disk version took.)
+
+I've actually run a few quick tests, and I know that at 8m digits, I
+can do better with virtual memory than with disk.  However, I wasn't
+able to get 16m to  reliably  be  faster than explicit disk.  With a
+better virtual memory system, and perhaps a few VM  specific  tweaks
+to  the  program,  I  might  be able to do 16m well, but I think 32m
+would be pushing it too far for 64m of memory.
+
+
+The conclusion from these tests are:
+
+1) The more phys mem  you  have,  the  less  effect  virtual  memory
+thrashing has.  Although it can still get too bad.
+
+2)  The  NTTs  are more virtual memory friendly, simply because they
+take less memory.
+
+3) It might be possible  to  modify  v2.x  to be more virtual memory
+efficient, which, if you have gobs of memory, might allow better run
+times than pure disk.  But it wouldn't be easy.
+
+4) A better virtual memory system can certainly help.   Not  all  VM
+systems  are  created equal, and it's quite possible that the one in
+cwsdpmi v4 isn't very good.
+
+---
+
+I'd like to talk a  moment  about  T. Ooura's program and mine.  Or,
+more accurately, on how they perform.
+
+I've run his program several times.  All  three  versions  with  the
+fft4,  and  the  ca version with the fft8.  (The ca & fft4 performed
+the same as with the fft8.)
+
+On  his  web  page,  he  shows  that  with  his  program,   on   his
+Pentium-II/450, with 512m of memory, he was able to compute 1m in 96
+seconds (cs version), 16m in 2269 seconds (cs version), and 128m  in
+8.75 hours (cw version).
+
+His cs8 takes 330 seconds to compute 1m digits on my P/MM/166.  That
+would  suggest  that  his  P-II/450  is  about  3.43  times  faster.
+Allowing for 2.7 for the clock rate difference, that leaves  a  1.27
+for  improvements  to the architecture and the fast memory bus.  All
+in all, not unreasonable.
+
+Applying the same speed up to  my  program (which takes 285 seconds)
+would suggest that it would take about 83  seconds.   Again,  that's
+not unreasonable.  Of course, whether it actually  would  take  that
+long is something very different from the word 'reasonable'!
+
+Looking  at  it another way, we could say that since his took 330 on
+my computer, and my program took 285 on my computer, then mine takes
+0.864 as long as  his.   In  which  case,  which would again suggest
+about 83 seconds.
+
+Next, he says that he can do  16m  in  2269 seconds.  I can do it in
+12846 seconds, but I have to use disk.  But, applying the same speed
+up to my 12846 would be 3745 seconds.  Again, though, that  includes
+disk  time,  which  would not apply on a system with so much memory.
+If, instead, I did it  based  on  the  1m  ratio of 0.864, then that
+would suggest mine would take only 1960 seconds on his.
+
+Of course, that's fantasy.   If  you've  followed my pi programs, or
+have  read all these docs, you know that comparing different systems
+and programs is not even vaguely  that simple!  Not only do you have
+all the hardware differences, you also have compiler differences.
+
+(In actuallity, on a Pentium-II/400, with 256m, the timings were:
+
+ 1m    109  (pi_fftc.c  + fft8g.c)
+16m  3,462  (pi_fftc.c  + fft8g.c)
+32m 11,794  (pi_fftcw.c + fft4g_h.c)
+64m 34,717  (pi_fftcw.c + fft4g_h.c)
+
+My v2.3beta:
+ 1m    109 (virt mem & virt caches. 4 primes)
+16m  3,428 (virt mem & virt caches. 8 primes)
+32m  8,437 (virt mem, no virt caches. 8 primes)
+32m  9,983 (disk)
+64m 23,764 (disk)
+
+Although I do have some actual timings, I felt it was  worth  saying
+all  that stuff above to give a taste of just how difficult it is to
+actually guess about a  pi  program's performance on another system.
+That  it  _is_  fantasy.   The  only way you are going to know if by
+actually testing it.
+)
+
+The next interesting point is his 128m run.  I have to admit, I find
+that quite impressive, because _I_ always  run  into  major  virtual
+memory problems at around  Phys_Mem/4 digits.  Roughly.  Even though
+the NTT takes less phys mem than the FFT, it overloads the VM.   The
+point is, if I depended upon virtual memory, even a little, like his
+'cw'  does, it would kill me.  I have to totally ignore virt mem and
+explicitly use disk.   Maybe  his  virtual  memory  system is vastly
+better than what cwsdpmi provides, but I still find it quite hard to
+believe that it would be good enough for the performance he got.
+
+He shows a growth of 10.298 for going from 16m to 128m.  Since thats
+a jump in 2^3 digits, the cube root of 10.298 is 2.175 per  next  *2
+digits.  That's not bad.  It's _real_ good.  It's  better  than  any
+other  growth  level from 1m digits on up!!  That does make things a
+wee bit suspicious!  It might be  true,  but it would be a whole lot
+more believable if he showed the timings from 1m on up  through  his
+128m run.
+
+Anyway,  the  point  I  guess  I'm wanting to make here is that I am
+impressed with the run he got for 128m digits.  I'm sure the massive
+amount of memory he has influenced that!  But I  am  also  a  little
+puzzled.
+
+The FFT would take a  full  512m  (all  of  his  phys mem), so he is
+really pushing the VM system hard.  Of course, it  doesn't  hurt  as
+much  when  you have so much memory, but it's quite surprising.  (Of
+course, that is assuming  that  I  understand his program correctly,
+and  that  he is indeed doing a 512m long FFT!  As I've said before,
+his docs are not very good.)
+
+However, I do know of a person with a setup similar to T. Ooura, and
+he didn't get quite the same  performance  result.  He tried it on a
+256m Pentium-II/400, under Win98.  (Ooura's runs  at  450,  and  has
+512m.)   At  32m  digits,  he had to switch to the full disk version
+(cw).  (My own program worked  fine  with virtual memory through 32m
+digits.)  That caused a jump of  3*  in  runtime  over  the  virtual
+memory  16m  run.   And  going  to  64m digits again took 2.94 times
+longer than the 32m run.   (It  took  9.6  hours.)  Just the 64m run
+alone took longer than Ooura's own 128m run.  If the  128m  run  had
+been  possible  (and  it isn't, due to only 256m of memory), then it
+would have taken at least 21 hours, and that's being generous.
+
+I am quite puzzled by how he managed to do 128m in only 8h 43m.
+
+
+---
+
+I've spent quite  a  bit  of  time  using  the Pentium's performance
+counters to check on things like pipeline stalls,  misalinged  data,
+and so on.
+
+The  misaligned  data  is a particularly annoying problem.  On a CPU
+such as the Pentium, in most cases  it's not going to matter at all,
+because it'll be taken care of in the L1  cache.   In  other  cases,
+though,  it can be a problem.  However, getting rid of the alignment
+problems isn't easy.
+
+First, DJGPP 2.7.2.1 itself  is  responsible  for  many of them.  It
+only aligns some data on 16  bit boundaries.  Some of its temp stack
+vars can be off, too.   In  short,  you  can't  force  it  to  align
+everything on 4 or 8 byte boundaires.
+
+When  it  does  align  its  temp stack vars, it'll be on 4 bytes, of
+course, which sounds okay,  but  later  8  byte  doubles will end up
+being misaligned!
+
+The 'releasing  carries'  loop  in  the  fftstuff/bigmul.c was quite
+annoying.  It was causing a few million when doing  just  a  16k  pi
+run.  I don't know how much performance was lost, but that's not the
+point.  The point is I was never able to arange the data or code, or
+write new code, that eliminated them!
+
+The point is, although I've removed  quite  a  few  from  the  basic
+program,  there  are  some  places that still have some.  If you are
+running a CPU where that's a  big problem, then your compiler should
+certainly take care of them.  But on processors where it's  just  an
+annoyance, you may have some anyway.
+
+
+---
+
+I encountered a rather  puzzling  failure.   I had been running some
+tests with the Pentium performance counters and to  do  that  I  was
+using  the  cwsdpr0.exe  extender  (since  those  counters  are only
+accessible  in 'ring 0'.)  After doing that, I finally got around to
+switching to a 1e8 base, and while converting the FFT version, I was
+frustrated by getting a 'double fault'  when I ran it.  (The cwsdpr0
+can't handle all exceptions, so it results  in  a  'double  fault'.)
+So,  I  switched to the regular version and didn't get any failures!
+The failure didn't occur at a specific place.  It varied from run to
+run!  As you  can  imagine,  that  was  annoying!   After a while, I
+started trying my earlier versions, and I was able to get it to fail
+all the way back to v1.2!!
+
+I think it's quite safe to say that a bug like that isn't  going  to
+survive  for  that  long without _somebody_ noticing by now!  So, it
+obviously had to be something  else.   And,  after a bit of testing,
+I've narrowed it down to two things needing to  exist.   First,  you
+have  to be running the cwsdpr0.exe extender.  Second, you must have
+linked in the seperate math library (-lm with DJGPP) so that you are
+including the alternate floor() function.   If you aren't doing both
+of those, then it wont fail.
+
+I can understand why  cwsdpr0.exe  needs  to  be part of the failing
+combination.  It openly acknowledges that it  can't  handle  certain
+types  of  interrupts  etc.  (You could say it's incomplete, or even
+buggy, without being too far off.)  But if it's so 'buggy', then why
+doesn't it fail with the regular ANSI/ISO C version of floor()?
+
+As to why that 'libm' floor()  fails...   I have no idea.  If it was
+buggy itself, you'd think it'd fail with other DPMI extenders, too.
+
+---
+
+During v2.3 development, I  encountered a rather peculiar situation.
+I did most of the basic 'vector'ization while I still had a 486.  No
+major code changes, just a rearrangment of the existing code.  I had
+just gotten the  586  version  reorganized  when  I  upgraded  to  a
+Pentium.  A few days after  that,  I  went  to work writing the C586
+version of vector.c.  And since I needed some  way  to  compare  its
+performance  to  the  asm,  I  ran  the v2.3 version to 512k digits.
+After a bit of effort, I  was  able  to get the c586 version working
+faster than  the  gcc586  version!
+
+Unfortunately, what I didn't  realize  until  much later (when I was
+trying to track down why v2.3 took so  much  longer  to  compute  1m
+digits  than  v2.2  did)  was  that  in  the  gcc586/vector.c, I had
+declared the JSP_array[] as 'static'.  Sounds harmless  enough,  and
+it's  even good C practice.  BUT, what I didn't know at the time was
+that  the  'static'  keyword  was  causing  v2.3 to take about 1/3rd
+longer!!  Really, just declaring  one  variable as 'static' made the
+entire program take about 1/3rd longer!  It's incredible.   I  still
+don't  know  _why_.  And, since it was running so slowly (without me
+knowing it), it made the c586 look much better than it actually was.
+It's still not bad, but, sadly, not nearly as good as what I thought
+it was.
+
+[I've gone through all the static  variables in the program, and the
+only two places where they cause problems are  the  gcc586/vector.c,
+and  it  slows  down  c586/vector.c by just a few percent.  Why only
+those two files, and why  was gcc586/vector.c  so much more than the
+c586 version?  Dunno.  It doesn't  appear to be an alignment problem
+with the 'local' vs. global vars.]
+
+Anyway,  this  is  the reason that I've gone through and removed the
+'static' keywords from a few other  vars.   I figured that if it can
+hurt mine, it might hurt somebody else, but in  a  different  place.
+Better to be safe.
+
+I've tried to track down the reason, and I just don't know.  Sure, I
+thought it might be some alignment problem.  So I added an alignment
+char  array and had gcc generate the asm source for the file, and in
+the asm code,  I  adjusted  that  alignment  array  from 1 through 7
+bytes, but it never helped.  It didn't make anything worse,  either.
+So  it's  not an alignement problem.  (At least not one that the can
+be fixed from the source.)
+
+I went ahead and  compiled  to  .o  both versions, and although both
+files are the same size, they look very different when I  looked  at
+them  with  a  file viewer.  One file also had a rather recognizable
+sequence of lines that were not  in  the other one.  So although the
+asm (.S) code is the  same,  I  think  the culprit is the assembler.
+It's doing something of some sort.  But I don't know what.
+
+
+---
+With  M.  Lee's  help, I managed to isolate why v2.2 and v2.3 ran so
+poorly on a Pentium &  Pentium-II, especially when compiled with GCC
+2.8.1.
+
+It seems that gcc281  has  _extremely_  poor  data  alignment.   The
+result  was  that the critical JSP_stuff[] array in ntt32/gcc586 was
+misaligned and causing massive performance problems.  Unfortunately,
+there's no good  fix  for  that.   It's  going  to  have  to be done
+manually by the person when they are compiling.
+
+Also, M. Lee sent me a copy of DJGPP v2.8.1, and I was able to track
+down why v2.2 (and v2.3) didn't work.  It was a  problem  in  crt.h,
+and gcc281's optimizer couldn't deal properly with the asm.
+
+---
+
+I've added support for other FFTs, and I've accumulated some  rather
+interesting  information.   All  times were for a 'work in progress'
+v2.3, 1m digits, virtual  memory  &  caches.  The number of FLoating
+point  OPerationS  were  reported  by  the   Pentium's   performance
+counters.   Integer multiplies and a few other things are counted as
+FLOPs, even though they aren't.  (The point is, they aren't exact.)
+
+          time       FLOPS
+1: Quad2   314   5,707,175,985
+2: Ooura   374   5,200,553,462
+3: Ooura2  378   4,613,160,805
+4: Hartley 319   6,368,882,571
+5: NRC     669   5,970,276,830
+
+[1] My regular recursive Quad-2 FFT
+[2] T. Ooura's real FFT from fft4g_h.c  (as used by pi_fftcw.c)
+[3] T. Ooura's real FFT from fft4g.c  (table based, as used by
+    pi_fftcw.c)
+[4] My regular recursive Fast Hartley Transform
+[5] The classic Numerical Recipes style FFT from my v1.2.5 tutorial
+    pi program.
+
+First, notice the sizable run time difference  between  #1  and  #2,
+even though #2 took fewer FLOPs.
+
+Notice that #3 took slightly longer  than #2, in spite of taking 11%
+fewer floating point operations!.
+
+Notice that #4 took only slightly longer than  #1,  even  though  it
+took 11% more operations.
+
+Notice  that #5 took more than double the time of #1, even though it
+consumed only a few more FLOPs.  I rather liked seeing that, because
+it  makes  a  good point in my pi tutorial.  (That FFT came directly
+from my v1.2.5 tutorial program.)
+
+It's also worth noting that #1 and #4 were developed on a  486,  and
+in spite of that, run quite well on a Pentium.
+
+Finally,  compare #4 and #3.  #4 (the FHT) takes 38% more FLOPs, but
+runs 15% faster!
+
+I guess it's safe to say that the number of FLOPs executed isn't the
+controlling factor in how fast a FFT runs!
+
+
+

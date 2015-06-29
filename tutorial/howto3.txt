@@ -1,0 +1,918 @@
+*******************************
+How to go beyond virtual memory
+*******************************
+
+============
+Introduction
+============
+
+This third  part  will  talk  about  how  you  might  go  beyond the
+limitations of virtual memory, to allow you to go higher  than  with
+your old program.
+
+There are also two aspects of virtual memory.  The FFT, and the rest
+of  the  program.   The  biggest problem is, of course the FFT.  The
+'rest of the  program'  can  tolerate  it  without too much problem,
+provided you aren't pushing the bounds of physical memory  with  the
+FFT.  And provided you actually have enough virtual memory.
+
+Actually, depending on just how much memory you have, virtual memory
+might NOT be a problem yet.  But, it still needs to be discussed.
+
+As  I've  told  a  few people over the past year, nearly anybody can
+write an in-memory pi  program  that  runs  fairly well.  It's going
+beyond that limitation that seperates the hobbiest from  the  truely
+obsessed pi programmer.
+
+If you've got enough memory that  you don't need to worry much about
+it, then you can just code in the  FFTW  fft  package  and  use  the
+techniques  in  the previous sections, and get one of the fastest pi
+programs around.  Nearly trivial.   Until  you  run out of memory or
+disk!  That's when the world starts crashing down around you.   Even
+then, if you have a lot of phys mem, the effects aren't as bad as if
+you  only  have  a  little.   With  32m,  the  effects are much more
+pronounced than if  you  had  512m  and  started  paging.  Also, the
+quality of the virtual memory system can effect where the VM  system
+becomes overloaded.
+
+When I chose to try to compute 32m digits faster than  David  Bailey
+did  on  a  Cray-2 in 1986, I had to face the limitations of virtual
+memory  and disk space.  These are the reasons so many of the things
+in my v2.x are the way they are.
+
+
+===========================
+The evils of virtual memory
+===========================
+
+Virtual memory is a nice thing to  have,  but  if  you  are  wanting
+performance,  it's a pain.  First, the paging techniques will almost
+certainly be on a page by  page  basis.   That means that as you are
+doing  a  calculation,  when it needs a new page from disk, it moves
+the disk head, writes a  single  page  to  disk, moves the disk head
+again and reads a single page from disk.  And it does  it  over  and
+over  and  over.  It's a lot more efficient for you to just read and
+write the whole thing at once.  Disk is slow, but disk head movement
+is even slower!
+
+Also, the virtual memory  system  isn't  going  to know that you are
+finished with a section of  memory  and  can  safely  overwrite  it.
+Instead,  it'll  slowly  save  that memory to disk.  Imagine you are
+doing a large  FFT.   Once  you  are  finished  and  have saved your
+answer, you no longer care  what  the FFT memory contains.  However,
+the virtual memory system wont know that and save  it  to  disk  for
+you.  One page at a time.
+
+(I should admit that  some  virtual  memory systems, for example, 32
+bit DOS running under a virtual memory DPMI server, do  often  allow
+you  to  control  the virtual memory system, such as telling it that
+you are finished  with  some  memory  and  that  the contents can be
+discarded (ie:  not written to disk).  However,  coding  for  things
+such  as  that  make  a program very very non-portable.  And you are
+still limited to the amount  of  virtual memory available, which may
+not be enough.)
+
+Plus,  there's  the  tiny  fact  that  many virtual memory OSs put a
+definite limit on how much  virtual  memory  a process can use.  The
+most famous example is Windows 3.x, which has a  very  firmly  fixed
+size  of  virtual memory.  Nearly every other virtual memory OS will
+also  have  limits  that are well short of the available disk space.
+By doing the disk I/O yourself,  you  can even specify which disk or
+partition to put the data.  If needed, you could even split the data
+onto several disks.
+
+And finally, there are  a  variety  of  virtual memory page swapping
+algorithms in use by  the  various  OSs.  Some are fairly primative,
+others try to be more clever, by keeping track of  which  pages  get
+accessed  the  most,  and  keeping  them  in  memory  until they are
+accessed again or  until  their  ref  counts  drop  to a more normal
+level.  (LRU and LFU both operate like this.)  The theory is that if
+you've heavily used a section of memory, you are  likely  to  do  so
+again  in the near future and so it keeps the pages in memory longer
+than pages that are only access a few times.  Imagine trying to do a
+FFT that way.  The FFT  will  cause  a massive number of accesses to
+those pages, but when the FFT gets done, those pages will still have
+a very high ref count and will be kept in memory, even after  you've
+finished  the  FFT  and are trying to do something else and need the
+memory.  Although that keeps the FFT  happy (no page swaps inside of
+the FFT), it slows everything else down because there is  less  phys
+memory  to do all the additional stuff that you need to do, and as a
+result,  that  memory gets swapped very heavily.  Not all VM systems
+perform equally.  I suspect that  the  virtual memory in the cwsdpmi
+(a common DOS DPMI extender) is rather poor.
+
+Virtual memory can be very helpful at times.   But  when  you  start
+pushing the limits of physical memory, you end up with a lot of disk
+head  thrashing.   Listening to the drive can be enough to drive you
+crazy!  It makes the  traditional  'Chinese water torture' look like
+fun.
+
+
+================================
+Reducing the virtual memory load
+================================
+
+The first way to reduce the load on the virtual memory system is  to
+do a little bit of explicit disk paging.
+
+The FFT data is certainly going to consume the most memory.  Putting
+4  digits into each FFT element, you'll consume 32mb to multiply two
+8m digit numbers, getting  a  16m  digit  answer.  To go beyond that
+requires only putting 2 (or 3) digits into  each  element,  so  that
+doubles the memory usage.  (ie:  if you wanted to multiply 64m digit
+numbers,  you'd  put  two  digits  into each FFT element (32m long),
+double the length for the zero  padding (now 64m elements long), and
+then multiply that by 8 for the size  of  the  'double'  data  type,
+meaning it would take 512m bytes of memory!)
+
+To multiply, you'll need two of those, of course.   So  that  memory
+usage  certain  adds  up!   One way you can reduce the strain on the
+virtual memory system is  to  only  have enough memory allocated for
+one FFT, and then page it in and out to/from disk  as  needed.   Not
+too hard, and it does work fairly well.
+
+You  can  also  do  something  similar  with  the regular big number
+variables.
+
+Doing both of  those  will  drastically  reduce  the  strain on your
+virtual  memory  system,  without  too  much  effort  (ie:   without
+requiring a complete rewrite.)
+
+However, that still assumes that you have enough physical memory  to
+hold  the  FFT  itself,  and have enough virtual memory.  It's quite
+possible you don't.  And  when  that's true, different solutions are
+required, because the simple paging just isn't going to get the  job
+done.
+
+Let's say you want to multiply two 64m digit numbers.  You'd put two
+digits  into each FFT element (32m elements long), double the length
+for the zero padding (now 64m elements long), and then multiply that
+by 8 for the size of  the  'double' data type, meaning it would take
+512m bytes of memory!  Do you even  have  512m  bytes  of  memory???
+Didn't think so!!
+
+Sure,  the FractalMul() could reduce that, but that involves its own
+performance problems.
+
+
+============================================
+Solving virtual memory for the basic program
+============================================
+
+Well,  I  guess there are several ways, but basically it involves us
+doing explicit disk I/O  and  staying within physical memory, rather
+than going beyond physical memory and  letting  the  virtual  memory
+system take care of it.
+
+(I guess the most convenient solution would be to  spend  big  bucks
+and  buy 256mb or 512mb, or even 1gb of memory and not even face the
+limitations of virtual memory!  Of  course,  I doubt that most of us
+can afford to do that!  So we are going to have  to  solve  this  in
+code, rather than hardware.)
+
+How you do this will depend on your math package.
+
+You  could  switch to some math package already written that already
+does disk based stuff.  Unfortunately, I  know of only one, and it's
+buggy.   (It's  not  really  suitable  for this type of computation,
+anway.)  So you are probably going to need to write your own.
+
+I guess there are three basic ways.
+
+The first is to simply use  a regular file to just temporarily store
+some data that you aren't needing at the moment.   For  example,  if
+you  only  have  room to hold one FFT work area, you can store it on
+disk while you do the  second  one.   You can also do the variables,
+although that takes a bit more work.
+
+This will certainly work, but  it's  still  going  to  require  some
+virtual  memory.   You  are still going to be fairly much limited by
+your virtual memory system.
+
+In most cases you are better off going all the  way.   Which  brings
+me to the next two options.
+
+The second is to have some sort of 'identifier' that 'points' to the
+place on the disk where the data is.  In other  words,  a  filename,
+and  perhaps  a  position  offset  into  the file.  Each variable is
+conceptually seperate.  This definetly  has advantages!  (It doesn't
+have to be a filename, I just used that as an example.  It could  be
+a  pointer  to  a structure that contained a variety of information,
+such as length, sign, etc.)
+
+The third way is  to  sort  of  treat  the  disk file(s) as a single
+memory space.  Sort of like how  a  regular  memory  pointer  works.
+This  has  the  advantage  that all the variable space looks sort of
+like continuous memory, and you  can treat the 'variable identifier'
+much like you would a pointer.  In fact, you  could  just  grow  the
+file when you need more 'memory'.  You wouldn't have to create a new
+file.  It could all be just one single file.
+
+Both  methods  have  their  good points and bad points.  Since I was
+retrofiting disk numbers onto an  existing virtual memory program, I
+chose the third method.  But, if  I  was  writing  from  scratch,  I
+probably would have chosen the second.
+
+Of  course,  that  third  method  that  I  use  does have one little
+problem....  If you treat the disk  numbers like a pointer, then you
+can't easily delete a variable.   You'd  have  to  create  your  own
+version  of 'malloc' and 'free' to work with your disk memory space.
+That's not trivial.  In my pi  program, though, I was allocating all
+the variables at the beginning, and then using them until the end of
+the program, where I deallocated them all.  I didn't have  to  worry
+about this.
+
+
+So,  once you've decided how to do it, you need to spend quite a bit
+of time actually coding it.  That  means read in a block, operate on
+it,  write  it  out, read in the next, and so on.  Depending on your
+big number math package, it  probably  isn't  going to be that hard.
+Just mostly a lot of 'grunt' work.  You just  need  to  formalize  a
+procedural  call way of operating on the data, rather than accessing
+it directly.
+
+(I'm assuming there that the  numbers  might  be  larger  than  your
+physical  memory.  If they'll fit into memory, the operations can be
+a *lot* easier!  If you've seen  my v2.x line of programs, all those
+'block' operations are due  to  the  possibility  that  the  numbers
+themselves  will  be  so  big  they wont fit completely into memory.
+Which, with the NTT I use, is indeed quite possible.)
+
+I'll be the first  to  admit  that  doing explicit disk numbers like
+this isn't the most efficient.  Especially at lower sizes that would
+normally fit into memory!
+
+But, if you can't depend upon virtual memory,  then  there  isn't  a
+heck  of  a lot you can do.  (Well, you could cache small numbers in
+memory, but that would be a pain.   It's  a lot easier to just use a
+couple of meg disk read cache.)
+
+
+If you've  implemented  a  disk  number  based  pi  program, you are
+probably upset that it now runs slower.  Well, <shrug>, where as the
+previous parts of this tutorial were on how to make it run fast,  we
+are now talking about making it go very high.  And this is the first
+step.
+
+Even before I switched, I did some tests from where  I  was  pushing
+the  limits  of  physical  memory and explicitly saved some stuff to
+disk.  And that did  drastically  reduce memory thrashing, improving
+the run time.
+
+Of course, as I said way up above, there are two aspects about using
+virtual memory, and this is only one of them.  It is indeed entirely
+possible that you have enough memory to deal with the  numbers,  but
+your problem is that of the FFT.  Meaning that you wont need to mess
+with  the  hassles  of disk based numbers and can just safely depend
+upon virtual memory.
+
+
+
+=========================================
+Problems of doing a FFT in virtual memory
+=========================================
+
+The big problem is the  FFT.   As  you remember above, it's going to
+take 512mb just to FFT a single 64m digit number.  The odds are good
+that you don't have that much memory.
+
+I guess there are two ways  to  do these things.  First, to go ahead
+and depend upon virtual memory, but do a FFT that is virtual  memory
+friendly.  The second is to do a fully disk based FFT.
+
+If you are using  virtual  memory,  then  you could use some 'memory
+local' style, such as my recursive framework.  It  may  not  be  the
+best,  but  it  would  be  a  good place to start.  Or you could use
+something like Bailey's 2/4/6-step style.
+
+If you are  doing  it  disk  based,  then  things  are a little more
+complicated, but it can be done.
+
+But in neither case is it easy or efficient.
+
+The actual FFT itself  isn't  that  hard.   Oh,  it takes some care,
+certainly, but there are a number of solutions.  My  'Quad-2'  style
+would  work.  As would a version based on David Bailey's 2/4/6 step.
+Or you could use a dedicated  disk  based  FFT, sort of like what is
+shown in the Numerical Recipes book.  So,  the  FFT  part  could  be
+solved.  The rest isn't quite that simple.
+
+The  first problem is that you still have to do the real <-> complex
+wrapper.  If you are doing it  with  virtual memory, you can sort of
+tolerate it, but if you were doing it  disk  based,  you'd  have  to
+write  some very ugly code to access the data in chunks.  A bit of a
+pain, but it could be done.
+
+The  second problem is that FFTs require you to scramble the number.
+That's a big big  problem  when  you  are  trying  to do it on disk.
+Although you can do a DiF style FFT followed by  a  DiT  style  FFT,
+doing  both  of them with-out scrambling, the real<->complex wrapper
+_needs_ to work with unscrambled  data.   You _might_ be able to get
+around that by doing a DiF style wrapper, but I've  never  seen  one
+and  I'm  not  even sure that's possible.  The point is, although it
+_might_ be solvable, at best, it's a pain.  We could get around that
+and  not even use a real wrapper.  Just put our data directly into a
+complex FFT.  But that would  double  our storage usage, and the run
+time.   There are a few disk style FFTs that do their own scrambling
+efficiently.  But the only one that I have is way too slow.
+
+Since  the wrapper is a problem, then you can switch to a Real-Value
+fft, which automatically works with  real value numbers.  However, I
+don't happen to know of a  good, working, public domain RV FFT.  The
+best I know of is an 'auto-sort' one.   But  the  'auto-sort'  style
+require  a large working space.  So, instead of needing 32 megabytes
+to  multiply  two  8meg  digit  numbers,  you'd  need  64 megabytes.
+Imagine trying to multiply two  32  meg digit numbers....  Since I'd
+have to put only two digits  into  each  FFT  element  (due  to  the
+pyramid  size;  remember?  see  below), each FFT itself would be 256
+megs of memory.  I'd need  two  of  them,  plus a third one (for the
+working space for the auto-sort)...  That's  a  heck  of  a  lot  of
+space!   I  don't  think  most  people would be happy with that much
+storage usage.  You might be able to find a non-auto-sort style, but
+I never could.   However,  _assuming_  we  solved this problem, then
+that leads us to the next problem...
+
+The next problem is the FFT limit  (which happens to be due to round
+off error and the pyramid size.)  To multiply more than 8m  numbers,
+I'd  have  to  either put only two digits into each number (doubling
+the run time and the memory used) or switch to 'long double's, which
+would increase the run time by about 25% and the memory by 50% (with
+DJGPP.  Other compilers might be  25%  or even 100% more memory.  It
+depends on how the compiler organizes the data and on the hardware.)
+(You could put 3 digits, instead of  2, but that is usually too much
+trouble.)
+
+Chosing  to  use  long doubles sounds like a good idea, except there
+are many systems that don't have long double!  The Power-PC (used in
+the PowerMac and others) only go up to standard double.   Some  OS's
+or  compilers  might  even put the x87 FPU into 'double' mode so you
+couldn't use it even if  you  had  it!   But, if you were willing to
+limit the program to only systems with  'long  double'  fpu's,  then
+this could work.
+
+Or, we could reduce the number of digits in each element.  Down from
+the current four to only  2.   Or  perhaps 3, if we rearrange our pi
+program.  That's going to result in a 33% or 100%  increase  in  run
+time, plus what ever extra is consumed by doing it on the disk.  I'd
+guess  that the result in going from a LEN in memory to a LEN*2 disk
+FFT would be 3-5 times increase,  and  that assumes you have a super
+fast  disk.   For  others, it might even be 5-7 times.  That fractal
+mul is starting to look  good  at  a  run time increase of 'only' 3x
+plus overhead!
+
+I should emphasise the rather major memory consumption by using this
+FFT.  Putting only 2 or 3 digits into the FFT _vastly_ increases the
+memory  used.   Both physical and disk.  To multiply two 32m numbers
+would result in the FFT being  256  megs  big.  Two of them would be
+512m!  That's very large.  It would work if you  have  the  storage,
+but it sure seems inefficient.
+
+
+So,  as you can see, doing a virtual memory friendly or a disk based
+FFT isn't quite as simple as  it first appears.  _IF_ you could find
+a good real value FFT, then that would certainly be a good  starting
+point.   But you'd still have to deal with using more memory and run
+time when you reached the  point  of  having to reduce the number of
+digits per FFT element.
+
+The whole subject is a pain!  That's why way back in the first  part
+of this tutorial, I suggested you just use the FractalMul!   It's  a
+very simple solution and works tolerably well for a few levels.
+
+As  long  as  a  FFT fits into memory, then it's not too hard.  Even
+doing it efficently isn't  too  big  of  a  problem, because you can
+usually use some freely usable FFT that is fairly fast.
+
+But once you need to go beyond memory, you've got some problems!
+
+They can indeed be solved.  Just because I wasn't able  to  come  up
+with  a  good working solution for me doesn't mean you wouldn't find
+one.
+
+
+===============================
+Solving the Virtual FFT problem
+===============================
+
+Frankly,  there  is  no  'Perfect'  solution.   On  various  partial
+solutions.  And many of them  are  dependant upon what resources you
+have available.
+
+The simplest solution is  to  use  the FractalMul. That'll work okay
+for one or two passes.   Of  course, depending on the situation, the
+growth of the FractalMul() is going to go from 2:3 (ie:  O(n^1.585))
+to perhaps 2:3.5 or even 2:4.  That means when you double the number
+of digits, the growth isn't going to be 3 times (the FFT gives about
+2.2-2.4), but closer to 3.5 or even 4!  The extra  overhead  can  be
+significant  at  times.   And,  at  times,  it will give a growth of
+around 3, and everything works fine.
+
+The next easy solution would be  to  simply  get  rid  of  the  Real
+wrapper and do it as a complex FFT (taking twice as much memory) and
+use  a  FFT designed for disk.  There are a few, one is shown in the
+Numerical Recipes book, although  it's  not a high performer.  (It's
+also not public domain.  If you  write  a  program  that  is  freely
+distributable, you need to be very careful about licenses.  Even the
+GNU 'copyleft' is often too restrictive.)
+
+A better solution would be to  find  a real value FFT, modify it for
+disk, and use that.
+
+That would be a fairly tolerable solution.  I really wish I had  one
+to show you, too.  Unfortunately, I never have found a fully working
+RVFFT that I could understand enough to modify to actually use!  The
+only  ones  I've ever found are tweaked versions that don't show how
+they operate (and are usually copyrighted), and that auto-sort one.
+
+To be honest though, I didn't look extremely hard, nor try extremely
+hard to understand what few references I did have.  Although I might
+have been able to  solve  those  problems,  I didn't really like the
+idea of having to go from putting four decimal digits into  it  down
+to only 3 or 2.  That right doubles your storage requirement and its
+running time.  And worse, it  also  doubles  the size of all the FFT
+caches you use.  And at the time, I flat out didn't  have  the  disk
+space to spare even if I had been willing to do it!
+
+When I was doing all my  work  on  v2.0, which was designed to go to
+32m digits, I only had 36m of memory.  And less than  500m  of  free
+disk  space.   I  simply  couldn't  afford  to  do  those  kinds  of
+solutions.  A solution you can't do isn't much of a solution!  In my
+v2.0 program, I called this the 'insurmountable' problem, because it
+was  causing  me so many problems.  I guess you can probably imagine
+my feeling about having a problem and the only solution is something
+that you can't do on your system!
+
+You  very  likely have more space than I do.  So, a better FFT might
+indeed  be  a useful solution.  But you are going to have to work on
+this yourself, because I don't have much information that would help
+you.
+
+Now, having said _ALL_ of that....
+
+There is one type of 'real value' FFT that is readily available  and
+works  fairly well.  It's called the Fast Hartley Transform, or FHT.
+There are a  few  catches  involved  in  using  it,  but the biggest
+obstacles to using it are legalities.
+
+It appears that Bracewell  has  somehow  managed  to talk the patent
+office into granting him a patent on the entire concept  of  a  Fast
+Hartley   Transform.   In  spite  of  the  Hartley  transform  being
+developed and published before Bracewell  was  born, and in spite of
+going from 'regular' to 'fast' is the exact same steps as  with  the
+Fast  Fourier  Transform, he has somehow managed to claim ownership.
+People like him are what give software patents a bad name.
+
+I have a FHT that I developed entirely on my own.  It's a  recursive
+one  that  I developed directly from the formula by comparing it and
+the Fourier  formula  and  applied  the  same  steps  to the Hartley
+transform.  By all reasonable rights, the code should  be  mine  and
+there shouldn't be any legal problems.
+
+But this  is  the  U.S.  where  the law has never heard of the words
+'reason' or 'common sense', etc.!  He may have a 'friendly'  license
+to  use  it,  but  you should never, ever, ever, be able to patent a
+mathematical formula or  a  mathematical  process  that  has been in
+existance for more than 30 years!
+
+As I said, if somebody wants to have a talk with  Bracewell  (notice
+I've never called him 'Mr.'???), feel free!
+
+But  the FHT still wouldn't really solve our problems.  All it would
+really do is remove the wrapper  part  of the complex FFT, and allow
+us to do a DiF/DiT style  transform  without  the  scrambling.   You
+still have the limits of the  FFT/FHT (meaning switching from 4 to 2
+digits.)  You still have the memory requirements.  You  would  still
+have  to  come  up  with a disk based transform.  And so on.  All it
+would really do is remove the  need for the real/complex wrapper and
+the scrambling.
+
+The FHT (since it's a real value transform, not because  it's  based
+on  the  Hartley  transform)  would certainly help, but if you don't
+have the memory or disk space, then it's not going to help enough.
+
+
+
+======================================
+Surmounting the Insurmountable Problem
+======================================
+
+The solution to this whole mess is to switch to a  Number  Theoretic
+Transform.   Basically  it's just a FFT using integers.  (Done using
+'modular' arithmetic, rather than just  approximating  the  floating
+point  stuff  as fixed point integers.  I mention that because there
+_are_ some FFTs that  do  that.   For  this  situation, they'd be no
+better than a regular FPU based floating point one.)
+
+I'll say right up front that I don't  like NTTs. Oh, I like the idea
+of working fully in integers, but on modern computers,  the  FPU  is
+fast enough that its 53 bits of mantissa will have an advantage over
+integer's  32  bits (on a 32 bit CPU, of course.)  So that's no real
+advantage except on older processors.  In the beginning, the idea of
+working in floating point format with integers did bother  me  on  a
+basic level, but I got over it once I had a bit of experience.  What
+bothers me now  is that to efficiently do the modular multiplication
+is going to _require_ assembly language.
+
+That is going to  make  porting  difficult.   You'll have to provide
+some slow generic code to allow it to port to new systems.  And  you
+are going to have to write some assembly for your system.  Those two
+things are serious problems in a portable program.
+
+Plus,  you've  just  increased complexity a great deal.  I can speak
+from experience, because my  v2.x  programs  used this very solution
+I'm describing.
+
+On top of that, a NTT  is  likely  going  to be _slower_ than a FFT!
+The integer math of a NTT isn't going to  be  able  to  easily  take
+advantage of the very fast FPU's that many modern computers have.
+
+So,  with  these  reasons why I dislike them, why did I chose to use
+it, and describe it here?  Because  I  _had_  to use it.  (As I said
+before, I flat out did not have the memory or disk space to do it as
+a FFT.)  And because once I did get it done, it worked fairly  well,
+and  was memory frugal enough to allow sizes that would otherwise be
+difficult.  For example, to compute  32m  digits only required 8m of
+memory.  With 32m of (of my 36m) memory  available  to  the  NTT,  I
+could  have  gone all the way to 128m digits of pi!  And done it all
+without _any_ disk I/O inside the NTT.  I do indeed like that memory
+frugality.  (Incidentally, the  limited  memory  requirements of the
+NTT parts is why I allow for the possibility that the  core  numbers
+will be larger than what phys mem can hold.)
+
+
+A FFT, whether done with floating point or in modular arithmetic (as
+a NTT), is always  going  to  have  some  failure  point.   And  you
+calculate it fairly much like I calculated the FFT  error  point  in
+part   1  of  this  tutorial.   You  determine  how  many  bits  the
+multiplication pyramid  (for  the  length  &  number  of  digits per
+element you are using) will consume and go from there.
+
+You are going to have to use more than 32  bits  because  that  just
+isn't  enough for anything!  (Well... if you put a single bit of the
+number  into  it,  you  could...  but  considering  how  much  I was
+complaining about going from  4  full  digits (0..9999) down to just
+two (0..99), going all the way down to a single bit is absurd in the
+extreme.)
+
+I then considered just using a 64  bit prime.  64 bits would be more
+than enough mantissa for a mul pyramid.  And it wouldn't consume any
+more memory.  It  wouldn't  reduce  it  any,  either.   But,  a  NTT
+wouldn't  have  a  wrapper  and we could use some form of disk based
+NTT.  The problem is that  most people, including myself, don't have
+a DEC Alpha sitting on our desk at home.  We use a 32 bit processor,
+so the 64 bit numbers would have to be faked.  That's not  a  recipe
+for performance.
+
+NTT's,  though have the interesting property that you can do them in
+parts.  Inside the NTT, you can  still work with 32 bit integers and
+then later combine them to 64 bits!
+
+So, I considered using two primes.  Sounds great.  Just one problem.
+(Naturally...<sigh>) To do a NTT takes about as much time as it does
+to do a FFT.  On a modern processor, it might even take quite a  bit
+more  time because the integer unit wont be as efficient as the FPU.
+So, to do two seperate NTTs  (with 32 bits each) would take anywhere
+from nearly twice as much time as a FFT to more than double the time
+for a FFT.  Even the old 'long double'  FFT  would  do  better  than
+that!
+
+I  then  considered  just  going  ahead and using three primes, like
+everybody else is doing.  I figured  that if they are using it, they
+are probably doing it for a  reason.   The  reason  being  they  are
+putting  9 digits into it, and I've only been thinking about putting
+4 digits into my FFT & NTT.
+
+At this point, I had  an  inspiration....   Why only use 3 primes in
+the NTT??!  Why not think big and use, oh...  8 primes!
+
+It's brilliant!!  Why just  double  or  triple my pleasure?  Octuple
+it!
+
+If you can't get two or three prime NTTs to run as fast as a regular
+FFT, what chance is there for 8 primes!  Not only  do  you  increase
+the number of NTTs you have to do, but the Chinese Remainder Theorem
+means  you'd have to work in 8*32=256 bits!!!  Insanity!  You'd have
+to be a masochist to even consider it.
+
+Except, that by increasing the  'mantissa'  to 8 32 bit primes (~256
+bits), I can put 32 digits into the NTT!!!  That's 8 times  as  many
+digits  as  what  I  had been doing.  Eight times as many digits per
+element offsets the cost of having to  do 8 times as many NTTs. And,
+since I'm putting more digits into each 'element' of the NTT, I  can
+do  a _shorter_ NTT.  That cuts the run time.  Of course, the CRT is
+big...
+
+The  idea  rolled  around  in  my head for a couple of days, until I
+finally sat down and created  the  table  below.  It shows the rough
+relationship between the number of primes and the number of digits I
+can put into it.  It is done like I showed in my  v1.x  docs  for  a
+floating  point  FFT.  It is a bit simplistic, since it doesn't take
+into account the choice of  primes,  which  will result in the total
+number of available bits being less than what I'm showing.  And  the
+power  of two that the special prime is based on will also influence
+the maximum length of the  transform.   But  since you have to start
+somewhere, the table is a good place to start.
+
+
+                  int   *2  *3  *4  *5  *6  *7  *8
+       Mantissa bits... 64  96 128 160 192 224 256
+1e4  takes  26.6 bits   36  68 100
+1e5  takes  33.3 bits   29  61  93
+1e6  takes  39.9 bits   23  55  87
+1e7  takes  46.6 bits   17  49  80
+1e8  takes  53.2 bits    9  41  73
+1e9  takes  59.8 bits    3  35  67
+1e10 takes  66.5 bits       28  60
+1e12 takes  79.8 bits       15  47
+1e13 takes  86.4 bits           40
+1e14 takes  93.1 bits           33
+1e15 takes  99.7 bits           27
+1e16 takes 106.4 bits           20  52  84
+1e18 takes 119.6 bits               39  71
+1e20 takes 132.9 bits               26  58  91
+1e21 takes 139.6 bits               19  51  83
+1e24 takes 159.5 bits                   31  63
+1e25 takes 166.1 bits                   24  56
+1e27 takes 179.4 bits                   11  43 75
+1e28 takes 186.1 bits                       36 68
+1e30 takes 199.4 bits                       23 55
+1e32 takes 212.6 bits                          42
+1e33 takes 219.3 bits                          35
+1e34 takes 225.9 bits                          29
+1e35 takes 232.6 bits                          22
+1e36 takes 239.2 bits                          15
+
+As  you  see,  if  we used 64 bits, we'd have more than enough for 4
+digits.  We could even put 5 digits into it.  But the extra run time
+of doing two NTTs is still prohibitive.
+
+We could do three primes and  put  10  digits into it.  We could put
+2.5 times as many digits into it, and it'd  take  only  3  times  as
+long.  Or we could put 9 digits  into  it and do an even longer mul.
+But both of those would mean having to change  my  program  and  the
+number of digits it used (from 4 digits in a short, to 9 in a long).
+We are starting to break even.  But we aren't there yet.   It  would
+work.  Probably well enough to get by, especially for a new program.
+But it does have the minor problem that it doesn't really reduce the
+memory  consumption  as  much as I'd like.  I have more to say about
+this one later on in the next section.
+
+The  first  one  that would be a canidate would be 4 primes, where I
+could put 16 digits and still do a transform length of 2^20.  I'd be
+able to multiply two 16 million  digit numbers and get a 32meg digit
+answer.  That's a little better than what I can do with my FFT,  but
+not  as  good as I'd hoped.  It's not even really good enough, since
+I'm wanting to do 32 meg  digits  of  pi to beat SuperPi (and to see
+how my programming & 486/66 compare to David Bailey's Cray-2 back in
+1986.)  (And, actually, it's optimistic, since  the  required  prime
+modulus  wouldn't total to a full 128 consumed bits.  But it doesn't
+really matter because even  under  best case conditions, this choice
+isn't good enough.)
+
+[Note:   Actually, that's not entirely true.  Four 32 bit primes are
+enough to go to 32m  digits  of pi.  The multiplication pyramid just
+barely fits, but it works.  Then, on top of that, due to the way  my
+advanced AGM and the Newton routines are done, I never actually do a
+full 32m times 32m digit multiply.  The highest I go  is  only  16m.
+That  means I could actually use the four prime NTT up to 64m digits
+of pi.  But at the time I developed this, and wrote this section,  I
+was  using 31 bit primes, so it wasn't possible then, but is now.  I
+just thought it worth pointing out a 'minor' note to my old text.]
+
+The next one, 5 primes and 20  digits, would result in being able to
+multiply two 64 million digit  numbers  and  get  a  128  meg  digit
+answer.   It'd  work,  but  I  just don't really like doing 5 primes
+because 5 isn't a nice power of two.  It could work, but since my pi
+program does length of  numbers  that  are  power of two, I'd either
+have to padd my NTT a bit more, to make Len/5 a power of two, or I'd
+have to change my program to work with  it.   Also,  the  choice  of
+primes  would  make  this one marginal.  (Primes are often chosen so
+they are only  31  bits,  instead  of  32,  because  it  makes a few
+operations simpler.)
+
+Six and seven primes would both  work.  But again, since they aren't
+a power of two, I'd have to modify my program  to  work with numbers
+that  weren't  lengths  of  power  of two.  I could do it, but I was
+looking for something a bit more of a 'drop in replacement'.
+
+The  next  power of two one would be to use 8 primes (a total of 256
+bits) and put 32  digits  into  each  modular  number.  I could do a
+transform length of 2^42.  More than I could ever possibly do!  Even
+allowing for the realities of  prime  number selection, it would  be
+more  than  I could ever use.  (The choice of 31 bit 'signed' primes
+drops that quite a bit, due  to  the scarcity of 31 bit primes.  But
+it's still enough.)
+
+That last one means I need  to do the chinese remainder theorem with
+256 bits, but at least it's outside of the FFT.   Although  it  does
+have  to  be done for every element of the NTT.  Additionally, since
+I'm putting 32 digits  into  each  modular  number (and each modular
+number is actually 8 integers), that means to multiply  8 meg digits
+together,  I'd  only need to do eight 512k element (256k *2 for mul)
+NTTs. Each NTT would only  consume  2meg,  and the whole thing would
+consume 16 megs.  Surprise!  It takes less memory this way than  the
+old  FFT.   (Because our integers are 32 bits, instead of the 64 bit
+double.)
+
+For the old FFT, I'd put 4 digits into each one and do a  4  million
+element FFT, which would consume 32 megabytes.
+
+I'd save memory.  I wouldn't even  have  to  do a disk based NTT!  I
+could do each part fully within memory and then, if needed, save  it
+to disk and do the next, etc.  Just 8 megs of memory would be enough
+to do each part of multiplying two 32 meg digit numbers....
+
+I'd save run time because they are smaller NTTs. Growth is typically
+around 2.2, so doing two 'Len'  numbers instead of one 'Len*2' would
+be  slightly  faster.   Of  course,  doing  the  Chinese   Remainder
+calculation  to  merge  those seperate NTTs into a final result will
+consume some time.  But not nearly  as  much as what doing a regular
+disk based FFT would cost! (And that is a major selling point.)
+
+You  might be curious as to why I didn't try 16 primes or something.
+Well, I'm running out of primes.   Plus, the more primes you do, the
+longer the total running cost will be.  The cost in  the  CRT  grows
+rather  quickly.   It's  better than having to use disk, but you are
+better off using as few primes as possible.
+
+I also considered  using  an  odd  number  of  primes,  but it would
+require changes to the program to handle an odd  number  of  digits,
+plus  it  wouldn't have really helped.  The 8 prime really works out
+well, in terms of total  capabilities,  and  in the number of digits
+per element it can hold.
+
+I'd also like to point out that I have never seen  anybody  else  do
+this.   Most  people tolerate having to do more NTTs and the Chinese
+Remainder Theorem.  David Bailey has said before that doing a NTT is
+slower than doing a FFT.  Well, not necessarily....!  That's only if
+everything  else  is  equal,  and it doesn't have to be!  Mr. Bailey
+also has more experience working  on  super computers etc. that were
+designed more for floating point  operations  than  regular  integer
+operations.
+
+I've never heard of  anybody  besides myself deliberately doing more
+NTTs (and a longer CRT) to actually _improve_ performance.  As  near
+as I know, I'm the only one stupid enough to even consider doing it.
+
+(Hey,  if  you  want to be #1, you can't get there by doing the same
+things that everybody else is  doing.   You  are going to have to be
+creative.)
+
+But, I can say that based  on  the performance of v2.0 through v2.2,
+it may sound like a stupid idea, but it's one that has  worked  very
+very  well!   It's  caused some headaches on portability, but on the
+Pentium, with Jason P.'s public domain hand coded FPU assembly to do
+the modular multiplication,  it  works  very  well,  and the reduced
+memory requirements still keep me/us from having to do a disk  based
+NTT!   (Although  a  disk based NTT would be easier than a FFT would
+be!   With  no  'real' wrapper, we can do a DiF/DiT pair without the
+scrambling.)
+
+[Notice  above  I  said that *WITH* Jason's hand coded fpu assembly,
+the NTT ran well on the  Pentium.   This  is a case of where integer
+operations are slower than the FPU is.  The  NTT  requires  doing  a
+multiply  followed  by a division, but the Pentium does them slowly.
+Although the regular NTT ran  faster  on  my 486, on the Pentium, it
+still improved according to clock rate, but the old  FFT  went  even
+faster  than that.  So the effect was the program slowed down on the
+Pentium.  It wasn't pleasant, but it was still better than trying to
+do  a  disk based FFT!  Jason's ntt586 code solves most of this, but
+not all, and it's still  not  pleasent.  Other processors are likely
+to be similar, so be aware of this ahead of time!]
+
+As for the details of how to do a NTT....
+
+That's complicated.  And what's worse, I can't describe it well!
+
+Basically you find a 'special'  prime  that  has a primative root of
+unity that you can use.  From there, you can compute a  few  special
+constants.   When  you put the data into the NTT, you do it 'modulo'
+the prime you are currently  using.   Then  to  do the NTT itself is
+very much like doing a FFT.   Except  instead  of  doing  a  complex
+multiply,  you  do  a  modular  multiply.   Instead of doing complex
+add/sub, you do a modular one.   Then  to combine the parts into the
+final pyramid, you use a Chinese  Remainder  Theorem.   The  one  in
+Knuth's book works fairly well.
+
+And that's the basics of how I solved my 'insurmountable problem'.
+
+I  know very well that what little information I've given here isn't
+really going to be enough for you  to do one yourself.  I can't help
+it.  It would require a fairly complex and  long  answer.   You  are
+best  off  looking  at  my  'findprime.c' program that generates the
+required prime and root.  And my  v2.x  program to see how I compute
+the other constants at run time, and how I load my numbers, and  how
+I do the NTT, and how I do the CRT.
+
+
+====================
+The Assembly monster
+====================
+
+By chosing to use  the  NTT,  you've almost automatically guaranteed
+that you will need to write some assembly.
+
+It  may  not  sound  that  bad,  until  you  start  thinking   about
+portability  among  compilers,  OS's,  and processors.  And it's one
+more thing  that  has  to  be  written  very  carefully, possibly by
+somebody who is just trying to get the program up and running.
+
+You  might  not  need  to  write  a  lot.   (I mean, the stuff in my
+modmath.h and crt.h  isn't  all  that  much.)   But, then again, you
+might need to write a lot (such as in the ntt586.h).
+
+Some people don't mind assembly.  I hate it.  Some people  may  feel
+that my distaste for using assembly is a bit odd, and perhaps it is,
+but I came by it honestly.
+
+I got my first home computer in  1982.   A  16k  Radio  Shack  Color
+Computer 'F' board, with 16k, and using a 6809E processor running at
+a  blistering  0.894Mhz. I had a choice of one language, interpreted
+Basic.  (It could have been  worse...   I could have bought a Commie
+64!  At that time, C64s often didn't even last through the  warranty
+period.)  I later bought the  assembler  ROM  Pak (to use with tape)
+and learned 6809 assembly language.  And that was the best I had for
+a couple of years (until the single sided, 156k floppy  disk  drives
+came out and were cheap enough to buy.)  It was tedious as heck, but
+it  was  either  that  or  Basic.   (Even  back then, I was doing pi
+calculations....   I  didn't  even  have  a  printer  to  print  the
+results.<g> If you think that's  something, I once disassembled a 6k
+chess program and wrote it all down by hand!)  I later  switched  to
+Pascal,  and  eventually C. Since I switched to the x86, I've always
+disliked the odd way Intel chose  to do things.  I like the Motorola
+style, and their style of opcode  mnemonics  makes  sense.   Nothing
+Intel  does makes sense.  (And the idiot that did backwards 'endian'
+ought to be lynched!  Even  long  time PCer's trip over that 'little
+endian' fairly regularly.)
+
+In addition to that, I spent several years in Fidonet (ie:   BBSing,
+before  the  internet  &  newsgroups 'killed' it).  There, you could
+find about any processor  and  OS  you  wanted.  68000, 68020, 8088,
+80286, 80386, 80486+, and even a few RISC chips.  OS's  ranged  from
+Amiga's  OS,  to  OS9,  to  CP/M,  to DOS, to Win, to OS/2, to Unix,
+to....  Although  I  wasn't  a  fantatic  about  portability,  I did
+quickly learn that if you wanted anybody else to use  it,  not  only
+had  you  better  stick  with  pure  C,  you  better stick with pure
+ANSI/ISO  C,  even  avoiding  many  of  the  'standard'  Unix  style
+functions that most  people  take  for  granted.   And if you really
+wanted it to be portable, you had to make provisions  for  the  many
+people  who  were  still  having  to  use K&R C, even 6+ years after
+ANSI/ISO C came out!
+
+When  I  did my first pi program, portability was paramount, even at
+the expense of run  time.   I  even  had  to  be concerned about FPU
+performance because  the  68881,  8087,  80287,  etc.  aren't   high
+performance FPUs, and a few  people  didn't  even have FPUs and were
+using emulators.  A few 'quirks' made it into the final product, but
+they were 'mostly safe' things.  (One of the major 'quirks' was  the
+implicit 'dependence' upon  the x87, 68881/2's 64 bit mantissa 'long
+double' registers for doing  the  butterflies.   My old pi program &
+FFT would probably not work as well on a PowerPC chip.  That was one
+of the reasons back then I  investigated NTTs, but I couldn't figure
+out how to compute the various constants needed.)
+
+So, here I am suggesting a method that will require  assembly.   Not
+only  does  it limit the program to a specific processor, but also a
+specific compiler.  But, if  you  need to solve this 'insurmountable
+problem', then this is the best way I know  of.   I  guess  the  old
+saying "No pain, no gain" is appropriate.
+
+
+
+
+==========
+Conclusion
+==========
+
+Again,  I  do  say  that  the  NTT  has  many  problems.   And  it's
+complicated.  But for me, it was the only solution available because
+I didn't have the disk space  to  even do a disk based FFT solution!
+And after several months, I hadn't been able to  do  it  efficiently
+anyway!  A complicated 'sub-optimal'  solution  is a lot better than
+none at all, or one you can't even do.  Without the NTT, I would not
+have been able to practically compute 32m digits with a  486/66  and
+36m of memory.
+
+If you can find a public domain real value  FFT,  that  is  easy  to
+understand, then I'd be interested in it.
+
+If  you can come up with a better general purpose solution, then I'm
+listening.
+
+
+Remember, though, this whole section  is about going beyond physical
+memory limtiations.  If you have plenty of memory,  then  you  don't
+need to concern yourself  with  this.   As  long  as you live within
+physical memory (or are just barely going outside of it into virtual
+memory, and have a good VM system), things are pretty simple.
+
+
+Also, please remember that just because I chose to  do  things  this
+way  doesn't  mean it's the only way, or the best way.  I did things
+this way because for my  situation  at  that time, this was the only
+way to compute 32m digits of pi.   I  had  severe  disk  and  memory
+limits that you probably don't share.
+
+
+
+

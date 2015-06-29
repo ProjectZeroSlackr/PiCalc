@@ -1,0 +1,127 @@
+============
+Thanks to...
+============
+
+The following list a number of people who have  helped  the  program
+itself  be  born, or evolve.  This does not list the large number of
+people who have made suggestions, comments, or done various runs.
+
+
+-- v1.0 through v1.2 --
+
+J.M. Borwein and P.B. Borwein.
+  Both of them have been quite helpful over  the  years.   Even  way
+  back  in  the  late 80s, they readily sent me a copy of several of
+  their papers, including a  preprint  of  their "How to compute one
+  billion digits of pi" that they were writing with Mr. Bailey.   Of
+  course, these days you can download their  postscript  papers  off
+  the web, but back then, they had to take the time to print  out  a
+  copy,  and  actually  send me physical copies through the mail.  I
+  can't say I can follow much of  the math in their papers (or their
+  book, which I borrowed through the library), but I read it anyway.
+
+David Bailey
+  His MPFun package.  His idea for the way to check for a FFTs over-
+  flowing.   His  29m  pi  run.   Way back in 1987, his sending me a
+  physical copy of his 29m paper and a short letter describing NTTs.
+  And a few recent  email  messages  giving  me some suggestions and
+  pointers to a real value FFT (which I ended up not using).
+
+Bob Stout
+  for maintaining the C Snippets collection,  which  distributed  an
+  early  version  of  my  pi  program.  General help, comments about
+  copyright law, etc. www.snippets.org
+
+Vinhhao Nguyen
+  for help with the FFT in v1.0-v1.2.  I was a definite novice about
+  FFTs.
+
+Andrew Frank
+  testing and timing in v1.0-v1.2
+
+Cliff Rhodes
+  general comments in v1.0-v1.2
+
+Jerry Coffin
+  general comments in v1.0-v1.2
+
+
+-- v1.4 through v2.0 --
+
+Mikko Tommila
+  http://www.hut.fi/~mtommila/apfloat
+  the inline DJGPP asm routines in his APFloat, because at the time,
+  I didn't have the faintest idea how GNU's asm() worked.
+
+Jason Papadopoulos
+  http://www.isr.umd.edu/~jasonp/pipage.html
+  his  web   page   distributing   my   program,  timings,  testing,
+  suggestions and some FFT photocopies, which I ended up not  using.
+  And  for  discovering  how  bad  the C code for the NTT works on a
+  Pentium and, of course,  for  providing  the  asm FPU version!  He
+  also has a large collection of pi programs on his web page.
+
+Alan Pittman
+  Timings for v2.0, my test jig, and  helping  to  discover  why  my
+  program  didn't  perform  well  on a Pentium.  He also did a large
+  number of timings for  APFloat  and  SuperPi, which definetly took
+  some time.  But thanks to his effort, now everybody can have  some
+  idea  how  APFloat,  SuperPi,  and my v2.0 compare.  It was due to
+  Alan that I was finally  able  to  say  that my program was faster
+  than APFloat or SuperPi at 32m digits.
+
+
+-- V2.1 --
+Kevin Acres
+  He found a bug in my generic ModMul() routines.  Very embarrasing.
+
+Dara Hazeghi
+  Provided suggestions for the  Mac.  Notified  me  of  an  'endian'
+  problem  that  prevents  the  program from running on the PowerMac
+  when using the disk based numbers.
+
+Mikko Tommila
+  For the hardwired way to do  64 bit modular multiplication on a 32
+  bit CPU.  From his APFloat package.
+
+
+-- v2.2 --
+
+Dara Hazeghi
+  For massive amounts of help in  tracking down the 'big endian' bug
+  (which wasn't endian at all) and doing portability  testing  on  a
+  wide range of systems.  Due to Dara's help, the v2.2 program was a
+  lot cleaner than  v2.1  was!   A  lot  of  porting  headaches  and
+  embarassing  compiler warnings etc. were avoided because of Dara's
+  help.
+
+Jason Papadopoulos
+  I think I need to thank Jason yet again for his 586 assembly code,
+  since I found yet more  uses  for  it, and am getting still better
+  performance.  It's no exageration to say  that  without  that  asm
+  code, the NTT is impractical on the Pentium.
+
+'MLee'
+  For doing a 256m run with v2.1, which unfortunately, only resulted
+  in  128m  digits  being  correct!   (Compiler  problems.)   I  can
+  definetly sympathise.  For doing  a  256m  run with v2.2, of which
+  268,435,375 (of the 268,435,456 digits) were correct.
+  
+-- v2.3 --
+
+Joerg Arndt
+  In one of his pi papers, he lists the 'sqrt(3.0)' AGM.  That's the
+  first time I saw it.
+
+'MLee'
+  For doing a 512m run (and verification)  with  v2.3.   536,870,776
+  digits were correct.
+
+Dominique Delande
+  For doing the record breaking 1g pi run, of course!
+
+Stuart Lyster
+  For  his  benchmarking  page, which provided a slight incentive to
+  improve the 1 million digit run times.
+
+

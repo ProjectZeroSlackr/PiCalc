@@ -1,0 +1,76 @@
+====
+Bugs
+====
+
+Although  there  have  been a few porting problems, my v1.5 and v2.x
+line of programs have been  surprisingly  bug free.  There have only
+been a few problems.
+
+Only the latest program version is supported.  It just doesn't  make
+sense  to  fix  bugs  in  old  versions  when  the source is readily
+avialble.
+
+
+v1.5
+----
+None known at release.
+
+
+v2.0
+----
+v1.5 ceases being supported.
+
+Fresh release.  No bug fxies, obviously.
+
+
+v2.1
+----
+v2.0 no longer being supported.
+
+The ntt32/generic/modmath.h ModMul()  in  v2.0  was  buggy.   Fixed.
+Reported by Keven Acres.
+
+Only known  bug  in  shipping  version:   'Big  Endian'  bug in disk
+version.  Reported by Dara H.
+
+v2.2
+----
+v2.1 no longer being supported.
+
+Fixed v2.1's 'Big Endian' bug.  Wasn't  endian related at all, but a
+stupid optimization on my part in the ReadNumIntoBuf().  The fseek()
+should always be done, but I did it conditionally.
+
+Known  shipping  bug:   unable  to  get  it  to  work correctly with
+2.81(??)  of DJGPP.  Reported by MLee.
+
+v2.3
+----
+v2.2 no longer being supported.
+
+Fixed v2.2's problem with GCC 2.8.1
+
+Fixed memory leak in  virtual  memory  caches.   (How the heck did I
+miss that?!)
+
+Fixed major  alignment  problem  in  gcc586/vector.c.   It  caused a
+massive performance  penalty  on  Pentium+  class  processors.   Not
+really a bug, but considering the speed penalty, it might as well be
+called that.
+
+No known shipping bugs.
+
+
+
+If you need to contact me,  you  can  reach  me  at  my  Juno  email
+address.   Be  aware that Juno has limitations on size etc., so keep
+messages under 30k of content.  If you want to send me stuff, let me
+know  in  advance!   And  you'll have to send it uuencoded, cut into
+about 30k each.  No MIME, no  attachments, etc.  I try to answer all
+my mail within a week, so if  you  don't  get  a  response,  then  I
+probably didn't get it.
+
+Carey Bloodworth
+cbloodworth@juno.com
+
+

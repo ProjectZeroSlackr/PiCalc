@@ -1,0 +1,49 @@
+A basic 'wide' FHT.  Starting to hard wire it for 32 decimals.
+
+Improvements that could be made:
+
+1) get rid of the 'integer' part  of the fixed point number.  We can
+easily use a pre-computed trig table, so we no longer need it.  That
+will reduce the size of the data type.
+
+2) switch to binary, rather than  decimal.   This  should  provide  a
+significant speed boost.
+
+3)  switch to a nice, hardwired inner FFT/FHT multiply.  There are a
+couple in the FFTW package,  but  for small sizes, the hardwired FHT
+generator in Joerg Arndt's FXT package works quite  well!   (At  the
+time  of  this  writing,  FXT is under the GPL copyright, but he has
+told me that he intends  to  change  that,  since GPL does not agree
+with his 'free to use' intentions.  In other words, he disliked  GPL
+about as much as I do.)
+
+4) cache the trig etc. for the wide-FHT.  You'd save one transform.
+
+5)  perhaps  switch to a radix-8 or higher FFT.  Since you no longer
+have to worry about FPU  registers  (which  is what makes high radix
+transforms slow), you can take advantage of the  reduced  number  of
+muls in the higher radix transforms.
+
+6) Since we are using a fixed point data type, we no longer need the
+'unusual'  method  of  computing  and  maintaining  the  cosine trig
+variable.  That's done to  preserve  precision on a _floating_ point
+system.  A fixed point doesn't gain anything.   It  just  makes  the
+code a little more complicated.
+
+7) Or (rather than #6), we could switch from a fixed-point format to
+some super fast software floating point format.  That  would  reduce
+the  size  of  the  inner FFT multiply, but require 'justification',
+etc.  I don't happen to have any, though, which  is  why  I  haven't
+tested it.
+
+
+With these,  and some careful C coding, the method would probably be
+fairly competitive.  Not as great  as  if you were using assembly in
+some other method, but probably fairly good.
+
+(The reason I chose 32 decimals was to match my  ntt32.   You  could
+reduce that if needed.  Or  increase it.  What ever the 'sweet-spot'
+is for your implementation.)
+
+(Also see widefht for a few more ideas.)
+

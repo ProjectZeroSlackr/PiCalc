@@ -1,0 +1,15 @@
+This version is a  fairly  generic  NTT,  except it does require the
+compiler to supply some sort of 64 bit integer.
+
+GNU C does provide this, although on a 32 bit processor it's not  as
+fast  as  if you made a processor specific version.  (ie:  like I've
+done with the DJGPP486 and DJGPP586 versions.)
+
+Some 32 bit compilers produce buggy 64 bit 'long long'  code.   I've
+tried to minimize the risk, but I can't guarantee that it'll work on
+your system.  All I can say is that it works under DJGPP 2.7.2.1.
+
+If  your  compiler supplies 'inline' functions, you'll probably want
+to make the modmath.h and crt.h functions 'inline'.
+
+

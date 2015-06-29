@@ -1,0 +1,167 @@
+
+==================
+Configuring pi.ini
+==================
+
+The  pi.ini  file  is  a fairly simple, readable configuration file.
+It's got plenty of comments to cover most of the details.
+
+Filenames can include  a  path.   Numbers can be immediatly followed
+with a 'k' to mean *1024 (kilo) or a 'm' to mean *1048576 (mega).
+
+Lines are limited to a maximum of 128 bytes per line.
+
+Under the [Memory] section, you need to specify  how  much  physical
+memory  is  available for the NTT to use.  This should be the amount
+of _available_ physical memory, not  your total memory.  You need to
+allow some for the OS, program, etc.  And just because  an  OS  says
+it's  given  you  'x'  megs  doesn't  mean  that  they  are actually
+physical!  There's no good  way  to  detect  this at runtime, so you
+have  to  specifiy it.  Since the NTT and FFT work with power of two
+sized data, this should be  a  power  of  two.  If you have 64m, you
+should set this to 32m.  If you have 32m, then this should  be  16m,
+and  so  on.  If you have an odd size, say 36m, then you might still
+be able to give it 32m, if  your  OS can fit into the other 4m (like
+DOS can.)  [The 'long double' may take an odd size amount of  memory
+that isn't a power of two.] Since there is no way for the program to
+detect  how much memory you actually have, by default it will assume
+you have an infinite amount!
+
+[You  might want to see the mem_req.txt file.  You can safely set it
+more than what the program needs,  just  be sure and not set it more
+than what is actually available.]
+
+The next setting is the cache  size setting.  This is _usually_ half
+the size of your L1 or L2 cache.  But not always.  A setting of 128k
+is popular with Pentiums with 256k of L2 cache.  4k  works  okay  on
+older  486's.   However,  the  'best'  setting will depend upon your
+system, which program version (fft vs. ntt), and your compiler!  You
+can't  just say '???k' will always be best.  By default, it will set
+this at 128k
+
+I recommend trying settings of 4k, 8k, 16k, 128k, 256k, and 512k.
+
+If you are not sure what size  cache  you have, if you enter a zero,
+the program will _attempt_ to determine a  decent  setting  for  the
+number of digits of pi you want.  It will then save that size to the
+pi.ini  file  for  you.  This will only be an _estimate_.  This will
+*NOT* be optimzal.  This test  might take several minutes, depending
+on the size of your physical memory and the number of digits  of  pi
+desired.
+
+[This setting also influences how much memory will be needed for the
+pre-computed trig tables for the vector version of the ntt.]
+
+You can also control how large of an internal buffer that is used in
+some parts of the program.   The  default  of 128k is good for most,
+but if you are going really high, and have the memory, a setting  of
+1m or higher might work better.
+
+
+The  [Settings] section allows you to configure various options that
+the program can do.  Most of  these  are a 'boolean' setting and can
+be 'Yes'/'True' or 'No'/'False'.
+
+UseCommandLine  tells  the  program  whether  it  should   get   the
+parameters  from  the  command  line,  or  prompt  you.  This can be
+overridden at compile time.  By default, the program  will  use  the
+command line.
+
+DeleteSaveFile allows you to  delete  the large, disk consuming save
+file after you've loaded it for an iteration.  This can be useful if
+you are low on disk space, but it's risky  because  if  the  program
+crashes (or the power  goes  off,  etc.)  you've  lost you data!  By
+default, it doesn't delete.
+
+The  'Macintosh'  option  just  does a few minor things differently.
+Mostly insignificant.  The  biggest  thing,  as  far  as the user is
+concerned, is to get rid of the 'real-time' progress indicators  and
+only  do  the  AGM  passes.   It  seems the PowerMac has such a slow
+screen that for 'small' runs updating the screen takes about as much
+time as the computation does.  (Windows 3.x & Win9x don't have  this
+problem, in spite of also using a GUI.)
+
+You then have a choice  of  "OutputFormat"s.
+
+A setting of '0' just dumps  the  digits  to a binary file, with two
+decimal digits per byte.  The digits will be done as 00..99.   There
+will  be  no  formatting.  This is mainly to allow you to compute 1g
+digits and to be able to put them onto a CD-ROM.
+
+A setting of  '1'  does  the  classic  'Guttenberg'  pi file format.
+(That file is what I used to develop my early pi programs.)  It does
+50 digits per line, a speace every ten digits, and three blank lines
+every 1000 digits.
+
+A setting of '2' does the SuperPi program output style.   50  digits
+per  line,  a  space  every 10 digits, and one blank line every 1000
+digits.
+
+A setting of '3' does the 'Japanese archive' format.  When I went to
+32m digits, I got  hold  of  a  10m  Japanese  value and this is the
+format it used.  It does 100 digits  per  line,  a  space  every  10
+digits, and no blank lines every 1000 digits.  This is the default.
+
+If  you  are  interested  in seeing a lot of debugging progress data
+dumps, you can enable 'DumpDebug'.  The default is to not dump.
+
+If you want, you can  have  the  program  always save the data after
+every  iteration.   This  is  what the 'AlwaysSaveData' option does.
+The default is not to save.
+
+The program has two styles of AGM.  The classic AGM, and  the  newer
+'Fast-AGM'.  The setting "UseFastAGM" controls that.  The defualt is
+to use the fast agm.
+
+If you would like some way of 'identifying' the data that gets saved
+or  loaded  between  iterations,  you  can have the program print to
+stderr the CRC-32  of  each  number.   This  is  not  used for error
+checking.  It just there for the user.  Using this can allow you  to
+compare  your  intermediate data to my 32m run.  By default, this is
+off.
+
+(Note:  In v2.3, I've changed  the way the CRC-32 operates.  Before,
+it was x86 Little Endian specific.  I've tried  to  make  it  endian
+neutral.  That also means previous CRC's will not be the same now.)
+
+The program can print the data to  the  screen, or to a file.  For a
+long time, I had the program set to print to the screen, and you had
+to redirect the output.  It finally dawned  on  me  that  saving  it
+directly  to a file would be a bit nicer!  By default, it saves to a
+file.
+
+With the "AllowFractalMul", you can control whether the program will
+use  the slower FractalMul() if it needs to.
+
+The  "AGMSelfCheck"  option controls whether the Fast-AGM does a few
+extra self checks.  (See the AGM docs.)  This defaults to 0 (meaning
+not to do  any  checks.)   A  setting  of  1  does simple checks.  A
+setting of two or three do those simple checks  plus  a  check  that
+requires   squaring  a  variable.   A  setting  of  4  squares  both
+variables.  This takes  a  while  and  is  not  100%  accurate, so a
+setting of 0 is recommended.
+
+In the [Files] section, you have a choice of where the program saves
+various pieces of data.  The save file is the data that  gets  saved
+between  passes.  The NTT_Merge file is where the ntt32 puts part of
+the multiplication data.  The Convolution  file  is where the FFT or
+NTT save one of the transforms during a two value multiplication.
+
+The [DiskNumbers] section lets you specify where  the  program  puts
+each  of the disk number file.  (When the program is compiled to use
+disk numbers, of course.)
+
+The [FFT-Cache] lets you specify how many transform caches (both FFT
+and NTT) to use, and where  they  should be located.  A setting of 0
+turns off fft/ntt caching.
+
+The  final  section  is [RunTime].  It's just a section where I said
+"hey, that sounds interesting, I  might  as well add it."  It allows
+the program to operate entirely in 'batch' mode.  Without using  the
+command  line  or  prompting  you  for  the params.  There's no real
+practical use, I guess.  But,  it's  here  in  case you can think of
+something.  (I seem to be suffering from "Feeping CReature'ism".)
+
+
+
+

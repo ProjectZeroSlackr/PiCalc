@@ -1,0 +1,175 @@
+
+=======
+Porting
+=======
+
+Porting  covers  two concepts:  generic porting, and porting to high
+performance systems.
+
+It is recommended that you also read ALIGNMNT.TXT
+
+==========================
+Potential Porting Problems
+==========================
+
+I wrote this program under DOS with DJGPP 2.7.2.1.
+
+Other  versions  of  GNU C/DJGPP might need different optimizations.
+One person has told me that with their version of GNU C (2.9?) under
+Linux, they get better times with:
+
+-O3 -m486 -funroll-loops -fexpensive-optimizations
+
+(Note that the 586 version of ntt.c needs:
+
+-O3 -m486 -funroll-loops -fexpensive-optimizations
+-fno-inline-functions -fomit-frame-pointer -c ntt.c
+
+All on one line, of course.)
+
+So, I just use what happens to work well for me.  You may need to do
+something different.  The only potential catch is the compilation of
+the 586 version of the ntt.c.  It will  need  a  couple  of  special
+options  because the extreme register usage in Jason's ntt586.  Even
+that is no  guarantee,  though.   It's  quite  conceivable that some
+new version of GNU C might not be able  to  work  around  all  those
+register requirements.
+
+You shouldn't need to link in any external math libraries.  It's all
+ANSI/ISO C and that should link automatically.
+
+Porting  to other OSs, CPUs, or compilers should be fairly easy.  At
+least as far as getting the basic program to run.  You can do either
+the FFT or the ntt32/generic,  or maybe a modified ntt32/longlong if
+your system/compiler has some support for 64 bit integers.   If  you
+are  using  a  system  with  hardware  'long  double'  (ie:   64 bit
+mantissa) then you could try the c586 version, too.  (Read the notes
+about that in the c586 directory.)
+
+The basic program is very ANSI/ISO C.  A  few  areas  have  specific
+extensions,  of  course,  such  as the GCC 486 & 586 that use inline
+assembly.  And the  keyboard  read in port.c  (which is surounded by
+#ifdef's),  and  so  on,  but  you  should  be  able  to   get   the
+ntt32/generic and fft version to work with few to no problems.  Then
+once  you do that, you can think about writing an asm version of the
+NTT stuff, like I do in  the  gcc486.  (Or the much more complicated
+Pentium version, the gcc586 directory.)  Dara H. has  already  tried
+the  program  on  a  variety  of OS's and CPUs, including a Mac. So,
+again, the basic versions should work okay.  You may have to do some
+assembly to get the NTT version working fast, though.
+
+One area that I have made absolutely no attempt to follow ANSI/ISO C
+is in the length of external names.  ANSI/ISO 1989 C only requires a
+linker  to  recognize  the  first  6  characters.   Internal linkage
+identifiers can have up to 31 chars, but external (ie:  global)  can
+be  required  to  have  as  few  as  6.  That was done to allow C to
+compile  &  link  on   antique   (1960's  era)  Fortran  linkers  on
+mainframes.  It's not a real problem these days.  I  don't  see  any
+point in using obscure names just to satisfy obsolete requirements.
+
+I  had  some  problems getting the gcc586\vector.c to port properly.
+Some compilers don't declare  the  variable  quite the same way that
+DJGPP does, and the asm code doesn't know about it.  I had to put in
+some asm() statements after the JSP_Stuff declaration.  This  should
+fix  the  problem on all the systems that would care, but I can't be
+sure.  There are  also  some  alignment  problems  in there that you
+might want to know about.
+
+You  might  also  want to make sure the stuff in modmath.h and crt.h
+are 'inline' functions.   That's  not  an  ANSI/ISO  C keyword, so I
+don't use it in the non-GCC versions.
+
+You should also at  least  glance  at  port.c  and port.h, to see if
+anything in there actually needs to be ported.
+
+I have attempted to port the ntt32 (asm) version to Watcom 10.0  and
+Borland C++ v4.52, but neither were successful.
+
+I attempted to provide  a  486  Watcom  version,  but  all I have is
+Watcom 10.0, and that version  at  least,  doesn't  have  very  good
+inline assembly abilities.  It wouldn't let me do enough assembly to
+do the crt.h stuff.  As for the FFT, Watcom 10.0 resulted in  a  run
+time that was 53% _longer_ than DJGPP did.
+
+I  attempted  to  provide  a  Borland  C++  v4.52 version of the 586
+version, but BC452 doesn't  seem  to  want to inline those important
+routines in modmath.h and crt.h.  I was never able to get them to be
+inlined.  It was always a slow function call.  Also, I never did get
+the asm vector.c completely ported.  I understand  that  DJGPP  does
+assembly  params in the normal order, and that Intel does them (like
+many other things!)  backwards  and  counter  intuitive.  But that's
+still a heck of an amount of code to port.  And I'm  not  very  good
+with  x86  assembly.  (I should point out, though, that based on the
+FFT version, BC452 resulted in a  runtime that was 65% _longer_ than
+what DJGPP did with the same source!  It would appear that DJGPP  is
+fairly good at code generation and optimization.
+
+The  point  is, I guess, that although the basic program and generic
+versions should work okay, porting  the  asm  stuff is going to be a
+pain.  You might be better off just getting a  copy  of  the  GNU  C
+compiler.
+
+If you are porting this to a non x86 processor, be  sure  and  check
+the vector.c file in case you can improve that code.
+
+You  will  probably  want  to  modify the TestKeyboard() function in
+port.c.  This is the function that checks to see if you've pressed a
+key to tell  the  program  to  save  the  data  and  stop as soon as
+possible.  If you don't want  to  mess  with  it,  though,  it  will
+default to a function that always returns 'no key pressed'.
+
+
+===================================
+Porting to high performance systems
+===================================
+
+The basic NTT32 will work, but it's not going to be optimal.
+
+Two  big  reasons.   First,  the  style of the NTTs (the recursive /
+iterative combo) that I use  is  what  happens to worked well on the
+486 system I developed the program on.  Obviously, it's not  a  high
+performance  computer.   The NTT could be improved/changed to remove
+the power-of-2 offset  between  the  left  and  right  halves of the
+recursive NTT.  I haven't done it because  it's  not  needed  on  my
+system (both 486 and Pentium 166), and because I can't do everything
+at  once.   Or  you  might  want  to change to something such as Dr.
+Bailey's 2,  4,  or  6  step  style.   Or  maybe  some  other style.
+FFTs/NTTs are extremely system sensitive, so  I  can't  really  help
+you.   (On  the  other  hand,  the  DiT  style  NTT  that  I  use in
+ntt32/ntt.c does the  left  &  right  accesses  in  blocks  of 4 (16
+bytes).  That could be increased, if you need to.   In  ntt32/ntt.c,
+you could easily (un)comment a few lines and try just a DiT.)
+
+Second, the regular NTT is highly  sequential.   You  could  use  an
+'array'/'vector'  type arrangement though.  For example, the Pentium
+version does it as an array in groups of four.  It uses the FPU, but
+of  course  yours  can be done however you need to do it.  And, as I
+said above, the DiT version does do things 4 numbers at a time, so a
+superscaler processor might do okay with that style.)
+
+There are other areas,  of  course,  but  the  NTTs (and the chinese
+remainder theorem) are the most important areas.
+
+Also note that the ntt32/generic/modmath.h has C versions of  ModAdd
+and  ModSub  that don't branch.  Assembly versions of those could be
+useful.  That same method is used in Jason's ntt586.  (Although they
+do depend upon the use of 31 bit primes.)
+
+As for parallel computers...
+
+Well, the current 8 prime  NTT  would parallize 8 way fairly 'easy'.
+Those routines do use a few global variables, but nothing  that  you
+shouldn't  be  able  to  work  around.  And the CRT could be done in
+parallel, as well.  (Either as an array, like I do with  the  vector
+option, or parallel computers computing seperate sections of the CRT
+and  then  releasing  the carries sequentially.)  Of course, I don't
+have a parallel computer to do any  of this with, so you are on your
+own.
+
+Also,  if  you  have  a lot of memory and already have a FFT in your
+library, if its tuned to the system, including parallelization, then
+you might be  able  to  easily  use  that  instead  of the NTT.  (Of
+course, I'm not sure the rest of the FFT part of the  program  could
+support that large of FFTs.)
+
+

@@ -1,0 +1,159 @@
+
+=================
+Table of contents
+=================
+
+agm.txt
+  Talks about why I use the AGM, and  details  about  my  particular
+  version.
+
+alignmnt.txt
+  Talks about some data alignment  problems  that might show up when
+  you compile the program.  These may or may not slow down your run
+  times.
+
+bestperf.txt
+  Talks  a  bit  about  getting  the  best performance out of the pi
+  program.
+
+billion.txt
+  Details about the 1 billion (1,073,741,824) digit pi run,  plus  a
+  few warnings about doing it yourself.
+
+bugs.txt
+  Lists all the known bugs in my recent pi programs.
+
+compiler.txt
+  Talks a bit about various compilers and DJGPP/GNU C.
+
+compilng.txt
+  Talks about how to compile the pi program.
+
+djgpp281.txt
+  A warning about using DJGPP v2.8.1!  Major alignment problems.
+
+faq.txt
+  A list of frequently asked questions.
+
+features.txt
+  A list of the more important features of this pi program.
+
+fht.txt
+  Some  legalities  concerning  the distribution of the Fast Hartley
+  Transform (FHT).
+
+file_id.diz
+  A  common  file  identification   file.    (It  stands  for  'file
+  identification, description in zip.)   Allows  program  cataloging
+  software to extra a description to put into a database.
+
+formulas.txt
+  A listing of the basic formulas used in the program.
+
+history.txt
+  A brief discussion about the history of my  pi  programs,  and  my
+  early experience.
+
+hundred.txt
+  100 digits from every 1,000,000  digits.  So you can easily verify
+  your results.
+
+index.txt
+  This file.
+
+intro.txt
+  A brief introduction to the documentation.
+
+license.txt
+  The license to use this program.
+
+limits.txt
+  A  description  of  the  limitations  of  this  program.  Includes
+  inherent and memory.
+
+mem_req.txt
+  Explains how much memory/disk the program will need to run.
+
+misc.txt
+  A few other items that don't belong anywhere else.
+
+pentium.txt
+  Points out  a  few  differences  in  the  family  of  cpu's called
+  'Pentium'.
+
+pi_ini.txt
+  Describes each option of the pi.ini file.
+
+pi_ref.txt
+  A  general  reference  guide  on computing pi.  History, formulas,
+  records, etc.
+
+porting.txt
+  Some issues in porting the program  to  a  new  compiler,  OS,  or
+  system.
+
+running.txt
+  How to run the program.
+
+runtimes.txt
+  How  to estimate the total run time, without having to actually do
+  the whole thing.
+
+testing.txt
+  How to have the  program  perform  a  few  tests  to make sure the
+  multiply is working corectly.
+
+thanks.txt
+  A list of people I'm thanking for their help in my pi programs.
+
+timings.txt
+  A brief list of program  timings  for  various  sizes  on  various
+  systems with various versions of the programs.
+
+tuning.txt
+  Some  points  on  tuning  the  program  /  system  to get the best
+  performance.
+
+v20.txt
+  Some excerpts from the v2.0 docs.
+
+v21.txt
+  Some excerpts from the v2.1 docs.
+
+v22.txt
+  Some excerpts from the v2.2 docs.
+
+v23.txt
+  What's new in v2.3, and anything else that I want to say about it.
+
+v231.txt
+  What's new in v2.3.1.
+
+v23chat.txt
+  Some rather chatty comments and notes from the v2.3 development.
+
+version.txt (in each program version subdirectory)
+  contains  description  of  and  information  about that particular
+  version of the pi program.
+
+versions.txt
+  A brief description of each  of  the 'versions' / 'modules' of the
+  program.
+
+win9598.txt
+  Some warnings about running the pi program  (or  any  other  major
+  program) under Windows 95 / 98.
+
+
+If you need to contact me,  you  can  reach  me  at  my  Juno  email
+address.   Be  aware that Juno has limitations on size etc., so keep
+messages under 30k of content.  If you want to send me stuff, let me
+know  in  advance!   And  you'll have to send it uuencoded, cut into
+about 30k each.  No MIME, no  attachments, etc.  I try to answer all
+my mail within a week, so if  you  don't  get  a  response,  then  I
+probably didn't get it.
+
+Carey Bloodworth
+cbloodworth@juno.com
+
+

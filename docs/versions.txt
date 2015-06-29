@@ -1,0 +1,195 @@
+
+========
+Versions
+========
+
+Unlike  my v1.5 pi program, the v2.x line has multiple ways of doing
+the multiplication, to allow  for  what  works  best on a particular
+system.  With v1.5, it was 'one size fits all', and  that  one  size
+didn't always fit quite well.
+
+You've  got  a  choice of a number of basic versions.  (Each one has
+additional otpions, but that's  another  section.)  If you want lots
+and lots of digits, though, you will need to chose the NTT32.
+
+FFT
+---
+
+This is a standard floating point FFT.
+
+To put it very simply,  it's  only  suitable  for  'small'  runs  of
+perhaps  8m  digits.   Perhaps  more,  perhaps  less.   But  not for
+anything like a 128m+ run.  (It would work, if you put only 2 digits
+into the FFT elements, but  it  consumes  a  lot of memory!  I'm not
+sure how far the 2 digit one would work.  It should work to at least
+the 1g limit of the program, though.   That's  a  _lot_  of  memory,
+though!  For example, to  multiply  128m  digit numbers, putting two
+digits into each FFT element would result  in  a  64m  element  FFT.
+That  has to be doubled for the zero padding for the multiply, for a
+total of 128m elements.   Then  each  'double'  is  8 bytes, so that
+would require 1g of available memory.  Plus that much  for  the  FFT
+caching.)
+
+The Quad2 version is my standard FFT.  So,  that's  what  I'll  talk
+about.   All  the others will have their own quirks.  But basically,
+to use them will just  be  a  matter  of  copying the files from the
+appropriate subdirectory, and  making  any  needed  changes  to  the
+sys_cfg.h file.  Each directory will have its own 'version.txt' file
+that describes the basic.
+
+There are a couple of different versions of this, in the same  file.
+It's controlled  by #define's in the sys_cfg.h, which you'll want to
+read.  Basically, we've got  a  version  for  the x87 and 68882 FPUs
+that have FPU registers wider than a standard 'double', and we  have
+a version for those systems that have only regular FPUs (such as the
+PowerPC).
+
+The  'double'  FFT  itself  has a maximum limit of multiplying two 8
+million digit numbers together,  getting  a 16 million digit answer.
+This takes 32 megabytes of memory.  It's not capable of going beyond
+this limit. v1.5 and v2.0  could, by using the FractalMul() routine,
+but I removed that because it cluttered the program and  I  felt  it
+wasn't really needed anyway.
+
+(Putting only 2 digits into the FFT increases that, but at a cost.)
+
+Some systems might be a little sensitive  to  the  way  the  FFT  is
+coded,  but  it should work okay.  There are so many systems that it
+is impossible to write perfect code that works great on every system
+in existance.
+
+I'm  also  supplying an option to compile for 'long double' systems,
+so the FFT  can  be  used  beyond  8  million digits.  However, many
+systems wont be able to run  this  code  because  it  requires  more
+memory and hardware support  for  'long  double'.   I don't know the
+exact failing point for this.  It would depend on the size, how  you
+do your trig, etc.  It will, however, increase the memory used by at
+least 50%.  To multiply  8m  digits  will  now  take  48  megs.   To
+multiply  32m  digits  would  take  192 megabytes of physial memory.
+Needless to say, most people  don't  have that much memory.  This is
+just an option just in case you do.  It wasn't all that hard to add,
+so I did it.
+
+The Hartley version is a module based on the Fast Hartley Transform.
+The FHT is basically a real value FFT.  On my Pentium/MMX it doesn't
+run  quite  as  well  as  the Quad-2, but some people report that it
+works well on a Pentium-II.
+
+The  'NRC' version isn't actually from 'Numerical Recipes in C', but
+is just that sort  of  style.   It's  actually the public domain FFT
+that I used in my v1.2.5 tutorial program.  This is included  solely
+to  allow  people  to  see  just how much performance improvement is
+gained by going from a stupid  style  to one that's a bit more cache
+intelligent, such as my Quad-2.
+
+I'm also including a simple module to use MIT's FFTW  package.   The
+FFTW  package  is  supposed  to  be the best general purpose FFTs in
+existence.  Plus, I believe it is  POSIX threaded, meaning that on a
+shared memory multi-processor system, you could do a  parallel  FFT.
+It  can't  do  an 'in place' FFT though, so it will consume TWICE as
+much physical memory.
+
+I'm including two FFT's  by  Takuya  Ooura.   His program is my main
+competitor, so I thought it was interesting to compare my run  times
+when I use his FFTs.
+
+(Of course, the FFT module is  fairly generic.  It's fairly easy for
+you to add your own, system customized, FFT  library  to  it  my  pi
+program.)
+
+
+NTT32
+-----
+
+These NTTs are for normal desktop systems, which normally use 32 bit
+CPUs. There are several  versions,  with  the  unique files in their
+own subdirectories.  They are  all  fairly  memory  frugal,  at  the
+expense  of  some  complexity and disk usage.  For example, a mere 8
+megabytes of memory for the NTT  is  enough for 32 million digits of
+pi.   This  is  less than any other pi program.  Even at its 'worst'
+the NTT would only  take  64m  to  multiply 32m digits.  That's half
+what the NTT64 consumes.  (Of course, at just 8  megs,  the  program
+doesn't run as quick.  The more memory, up to 64m, the better.)
+
+The  GCC486  is  a  version  optimized for the 486 cpu and the GNU C
+compiler (including  the  DOS  port  DJGPP.)   Really,  the only GCC
+specific stuff is a bit of 486 inline assembly, and  that  could  be
+converted  to  another compiler or even another cpu.  Basically it's
+the LONGLONG  version  with  486  assembly  replacing the appropiate
+routines.
+
+The GCC586 is a version optimized for the Pentium cpu and the GNU  C
+compiler.   There  is  a  lot  of hand crafted assembly in here.  It
+could be converted to another compiler,  but  it'd be a lot of work.
+It uses the Pentium's fast FPU to do the integer NTT.  It was  coded
+by  Jason Papadopoulos.  On the pentium, this version is quite a bit
+faster than the somewhat generic 486  code.   On a 486, it's quite a
+bit slower then the 486 version.  This is an  excellent  example  of
+the  gains  that can be achieved on some systems by writing asm code
+to take advantage of  specific  system  abilities.  And an excellent
+example of why I can't do those types of my optimizations on my 486.
+
+The  C586  version  is a somewhat portable version that is optimized
+for the Pentium.  Specifically, all  that asm in the gcc586/vector.c
+was replaced by comparable C code.  (Of course,  how  well  it  runs
+will  depend  upon  your  compiler!)   This  directory also includes
+'generic'  pentium  specific  crt.h  and  modmath.h  routines.  This
+version runs better than the GENERIC version, but not nearly as good
+as if you replaced those routines with assembly.  (After  all,  that
+is  _why_ I ended up writing them in assembly!)  The c586 version is
+certainly better than the  generic  (and probably longlong) version.
+It's also better than  the  486  version  when  run  on  a  Pentium.
+Depending  on  the  compiler,  it's  probably  comparable to the FFT
+(although it can go much higher.)  But it does run a lot slower than
+the asm version in gcc586.
+
+The LONGLONG is a version for systems with efficient  64  bit  'long
+long'  integers.   This  includes 64 bit cpus, but even 32 bit  cpus
+can qualify.   It  is  also  fairly  generic,  and  doesn't  use any
+assembly.   This  is a good model to use if you are writing your own
+asm routines.  These routines  are  not declared as 'inline' because
+some C compilers may not have that.  But they *SHOULD*  be  if  your
+compiler can handle it.  Many GNU C compilers seem to have  problems
+with  their  built  in 'long long' and actually generate wrong code.
+I've  tried  to  avoid  'complicated'  code,  but that may not help.
+There's nothing I can do about that.  It's here if you can  use  it.
+The  LONGLONG version isn't really very fast on a 32 bit system, but
+it would work well as a guide  for  writing  your  own  cpu/compiler
+specific version using assembly.
+
+The GENERIC is a version that is pure generic ANSI/ISO C. It'll  run
+on any compiler on any system.  But the generic nature makes it VERY
+SLOW.  The routines aren't defined as inline because many  compilers
+wont  accept  'inline'.   And these routines are so slow anyway that
+it's not going to matter all that much.  I repeat, these version are
+** SLOW **!  The only  reason  I  even include them are because they
+should work on all computers and compilers.   On  my  system,  using
+this  instead  of  the  GCC486 results in the program taking about 4
+times longer!  A Pentium would  probably run the GCC586 version even
+faster!
+
+The NTT's have a choice of 4 or 8 primes, and 31 or 32  bit  primes.
+The  more  primes,  the higher it can go.  The wider the primes, the
+higher the program can go.  Four  31  bit  primes give the NTT a max
+size of just 2m digits.  Eight 32 bit primes can go all the way to 1
+billion digits.  The 586 versions require  31 bit primes, due to the
+poor design of the x87 FPU.  The four prime version is  also  faster
+than the eight prime version.
+
+
+
+NTT64
+-----
+
+Previous versions had a NTT designed for 64  bit  systems.   However
+this was removed due to the reality that very very few people had 64
+bit  computers,  and  few,  if  any,  had an efficient way to do the
+ModMul().
+
+Without an efficient way  to  do  a 64*64=128; 128%64=64 bit modular
+multiply, the ntt64 just wasn't efficient.   The  ntt32  would  work
+better.
+
+
+
+

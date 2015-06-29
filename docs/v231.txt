@@ -1,0 +1,17 @@
+
+=======================
+What's new about v2.3.1
+=======================
+
+The only things that have  changed  from  v2.3 to v2.3.1 are some of
+the docs have been updated, and a few minor changes in the source to
+remove a few minor  compiler  warnings  that  occur  on  a  few  odd
+compilers.
+
+I'm also including details of the record breaking 1 billion digit pi
+run.
+
+Performance  is  still  the  same as v2.3, since it's still the same
+program.
+
+

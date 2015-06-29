@@ -1,0 +1,123 @@
+
+===================
+Miscellaneous notes
+===================
+
+I don't really like calling a  large  section  'miscellaneous',  but
+there  are  just  too many things that don't fit properly into other
+categories.
+
+
+I've tried hard to  make  the  program  portable, but let's face it,
+it's a big, complex numerical program.  I can't  test  every  system
+and every compiler.
+
+I've  cleaned up every compiler warning I've found, but that doesn't
+really mean all that much.
+
+I've  added a replacement malloc() package for DJGPP.  This is based
+on D.J. Delorie's stuff on  his  web  page.   As I've said many many
+times,  DJGPP  has  an  idiotic  malloc()  package  that  wastes  an
+incredible amount of memory.   It  doesn't even compact memory after
+you've free()ed it!  D.J. Delorie should be  severely  punished  for
+his  use of that one.  (Sic the I.R.S. on him!)  What kind of a jerk
+would chose a lame malloc like that for inclusion in a compiler?
+
+Also in the malloc6.c file,  I've  added a special AlignMalloc() and
+AlignFree() to align malloc() calls onto a 256 byte  boundary.  Many
+compilers,  including  Borland  C 4.52 and Watcom 10, don't allocate
+memory  that  is aligned for efficiency.  They often only align data
+on 4 byte boundaires, even though many systems, such as Pentiums, do
+much better on 8 or 16 byte boundaries.  These versions (selected in
+config.h) should help.  Provided they work  on  your  system.   They
+should,  since  they  are  just  a  fairly simple wrapper around the
+standard functions.  I didn't take  any  shortcuts, and made them as
+open as possible, to avoid compiler problems.  But, I allow for just
+in case.  The regular versions also has the ability (selected with a
+#if 1)  to  detect  and  warn  you  about  poorly  aligned  malloc()
+pointers, although it doesn't try and do anything about it.
+
+I  added  a  few DJGPP specific things to show how much physical and
+virtual  memory  is  available,  and  to  let you know if disk write
+caching is enabled and  you  are  doing the disk_num version.  These
+things are, of course, wrapped  by #ifdef's, so they shouldn't cause
+you problems.
+
+In the Fast AGM, I changed the FullMul() to a new FullSquare().  The
+Square can be done  very  slightly  faster  than a regular FullMul()
+squaring.  Not a heck  of  a  lot,  but  a  little.  Based on actual
+timings for the FFT, it'd be about 5% faster, but due to  the  extra
+overhead,  it's  nearly  invisible.   It  might show up at very high
+computations, but it would  still  be  very little.  The reason this
+was done wasn't speed.  Instead, by doing it this  way,  it  removes
+the one place in the FastAGM based pi computation  where  we  really
+did  do  a  full  sized  multiplication.   Removing that reduces the
+memory requirements for  the  multiplication, and essentially raises
+the limit of the FFT/NTT based multiplication.  (Meaning that as far
+as the, for example, FFT based  multiply is concerned, we can now do
+16 million digits of pi with 32m, rather than  only  8m.)   I  tried
+this  back in my experimental v1.5 days, but I removed it because it
+wasn't worth the effort.  There  was  no savings in time or increase
+in maximum range for the FFT multiplication.  However, with  my  new
+AGM  style, it's worthwhile because now, in the entire program, I am
+only doing  one  FULL  sized  multiplication  per  iteration, and it
+happens to be a square.  Before, I was having  to  do  a  two  value
+multiply.   (Looking  through Ooura's program is what reminded me of
+it.  Of course, Ooura doesn't  use  it.   It's just dead code in his
+program.)
+
+I  added  an .ini  management  file  that  I wrote last year for the
+Portable D-Flat project (D-Flat  was  Al  Steven's Dr. Dobbs Journal
+CUA text based interface.  I spent some time reworking it and making
+it much more portable etc.  Although I fixed  many  areas,  I  never
+finished it.)  That file is  in  the  public domain.  It allows nice
+and descriptive  labels,  sections,  comments,  etc.   And  you  can
+finally enter 32 megabytes as 32m instead of 33554432.
+
+I  changed the disk based numbers from using one single file, to the
+use of a seperate  file  for  each  big  variable.  I wrote the v2.x
+program for my own use and to up to 'only' 32 million  digits.   And
+all the variables combined easily fit into one file.  However, there
+have  been people semi-seriously talking about computing 256m, 512m,
+and even 1g  digits  with  this  program!   That's  more than I even
+fantasized about when I wrote v2.0! 
+
+Although the ntt586 tops out at 256m, the fractal mul could let that
+go higher.  And the basic 32 bit eight 8 prime NTT can  go  all  the
+way  to  1  billion  digits.   And the C language limits the fseek()
+offseting  to  only  31  bits.   Since  there  were  8  variables of
+'Digits/2' bytes  long,  plus  a  few  extra  for  overhead  (or  10
+'Digits/2'  long  plus  overhead,  if the FractalMul kicked in), the
+program was limited by C's file  I/O ability.  (DOS has a file limit
+of 4gb-1, so that could be a problem, but C's file limitation  comes
+first.)   (You  might  suggest  that  I simply use C's 'fpos_t' type
+which is guaranteed to contain  all the information needed to access
+any position in a file.  The catch is that fpos_t can _still_  be  a
+regular signed integer.  So it wouldn't help.)
+
+By changing the  program  to  use  seperate  files,  each file could
+easily hold 1 billion decimal  digits.  That would only consume 512m
+each.  If, by some chance, the FractalMul() kicked  in,  that  would
+only be at most Digits*2, or a max of 1gb.  Since each NTT works out
+to  be Digits/4 bytes, each part would only be 256m.  BUT, I put all
+8 into a single file, so  that  file will total 2gb!  That shouldn't
+cause a problem, though, because I won't be fseek()'ing the end, and
+based on my reading of the C standard, the fseek()'ing is  the  part
+that causes the problem.  Simply reading up to 2gb should be safe.
+
+So to allow for all those things, say just (did I say 'Just'??!)  1
+billion  (1024m)  digits.   That  should  certainly  be enough for a
+while!  After all, that will  take  a  minimum of 256m of memory for
+the NTT.
+
+I added some code  to  attempt  to  detect  a decent setting for the
+cache size.  If you specify a '0' as the cache size setting  in  the
+pi.ini file, the program will run some simple tests, and then update
+the  pi.ini file with what it thinks is a good guess.  Of course, it
+never  does  this if you specify a size other than 0.  This will not
+be optimal, just a 'good guess'.  This may  take  a  minute  or  so.
+Also,  what is actually the best may vary depending upon whether you
+are using the NTT or FFT.
+
+
+

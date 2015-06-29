@@ -1,0 +1,1033 @@
+Guide to writing a pi program.  Part 1.
+
+This  tutorial is placed into the public domain by its author, Carey
+Bloodworth.
+
+
+******************************
+How to write an AGM pi program
+******************************
+
+============
+Introduction
+============
+
+This text is going to describe  the  process of writing a pi program
+to go to 'high' number of  digits.   Basically, the goal will be one
+million digits.   If  you  tried  the  included  arctangent program,
+you've realized that although it would have worked, to  actually  do
+it  in a reasonable length of time means that we will need to change
+the algorithm used.
+
+In some places, I will refer to  the  included  v1.2.5  pi  program.
+This  is  a  slightly  cleaned  up version of my ancient v1.2.0.1 pi
+program.  It's a fully  public  domain program.  Certainly not state
+of the art.  Embarrasingly niave and ugly in places.  But still good
+as a tutorial.  Just remember that I wrote it when I was new to  AGM
+pi  programming,  and I was still learning etc.
+
+Also, please remember that there are  _many_ ways to do some things.
+I can go over the basics and occasionally point out other ways to do
+the basic concepts, but I  can't  cover everything.  And it'll be up
+to you as to how you chose to implement the ideas.  Just  because  I
+do it one way does NOT automatically make it the best way.
+
+
+==========
+The basics
+==========
+
+When  you  decide to write a pi program, the first thing you need to
+decide is what language to write it in.  I'll assume C.
+
+Next, you need to decide  on  the  math package you'll use.  You can
+either write your own, or use somebody else's.
+
+If you chose to write your own, you get total control over how to do
+things  in  the  program.  But performance and many other things are
+now up to you.
+
+If you chose to use somebody  else's  then  you are saved from a big
+mess  in  writing  your  own,  or  dealing  with  some  aspects   of
+performance tuning, and portability, etc.  But, although I have more
+than 60 math packages  (of  various  quality and abilities), none of
+them are entirely suitable for the various stages  of  pi  programs.
+You  could  change  programs,  of  course.   Unless you can find the
+Perfect math package,  in  the  long  run  you  might  be better off
+writing your own.  In the short term, you could probably get by with
+many of them.
+
+The basic requirements are:
+
+1) It doesn't have to  work  with  numbers  of different sizes.  The
+numbers at any stage will all be the same length.
+
+2) It can be unsigned numbers.  Signed is better, but  unsigned  can
+work provided you can detect underflow and negate.
+
+3) You need to be able to treat the 'Length' numbers as  'Length/2',
+'Length/4', and so on.
+
+4) You'll probably need to  be  able  to access the various parts of
+the numbers, such as upper and lower halves.
+
+5) You need to be able to add, subtract,  multiply  and  output  the
+large numbers.  You also need to be able to multiply and divide them
+by an integer.  And you need to be able to add/subtract  an  integer
+to/from it.
+
+
+Anyway, I'm going to assume you will write your own.  In  the  early
+stages, it's not extremely  hard.   Just  a  little tedious.  In the
+later stages, you'd have to change anyway.
+
+You've got to decide on several things.  I guess the first choice is
+whether  to  work in binary or some power of 10.  Binary is a little
+more efficient in storage, but  there are no other advantages.  Plus
+you have to mess with radix conversion.  It's best to chose to use a
+base of 10,000.  That way you can put 4 decimal digits  per  16  bit
+short, and you can multiply two of them and get the full 8 digits of
+product.  (You could put 1e9 into a 32 bit long, but 1e4 into 16 bit
+short is more convenient in places.)
+
+You  can  chose  to  work  in  either floating point or fixed point.
+Fixed point is where the decimal point is 'fixed' and you keep track
+of it mentally.  You know what floating point is, of course.
+
+Fixed point is  fairly  easy  to  program.   Floating  point has its
+benefits, but for the early stages, you are probably better of using
+fixed point.  Basically, fixed point  is just plain integers, except
+we mentally treat one digit as the integer part and the rest as  the
+decimal point.  The only 'difficultly' is that you have to scale the
+answer when you multiply.
+
+Then  you have to chose where the decimal point is going to be.  The
+easiest is to say that the first short int will hold the integer and
+the  rest  will  hold  the  fraction.   That  certainly  works,  but
+personally I'd suggest  you  just  have  one  decimal digit (0-9) of
+integer, with the other three decimal digits of that first short int
+being fractions.  It may sound arbitrary, but  it  actually  reduces
+round-off errors, making the program give a few more correct digits.
+That does mean  that  when  you  do  a  multiplication,  you have to
+'scale' the product, to align the decimal point.  But  that  doesn't
+take  much  time,  and it does improve accuracy a little.  <shrug> I
+guess  it's  up  to  you.   I've  done it both ways, I guess you can
+experiment, too.
+
+(If you want to use some other method, you can, of course.)
+
+The later sections will assume that you have a basic math package up
+and running that can do the basics,  such  as  add,  sub,  multiply,
+multiply  by an integer, divide by an integer and output.  You don't
+need division or  a  fast  multiplication.   We'll worry about those
+later.  And it can work with just unsigned numbers, as long  as  you
+have some way to detect when it goes negative and you can negate it.
+(Although signed math is better, it's not absolutely required.)  The
+package  should  also  be  able  to  treat  a  'Length'  number as a
+'Length/2', 'Length/4', etc.  That's fairly much a necessity for the
+Newton routines.
+
+
+Also,  since so many things about the AGM and Newton routines double
+the accuracy at each step, I'll also assume that you'll program your
+pi program to compute lengths of  pi that are powers of two.  That's
+the easiest.
+
+
+I also think I need to talk about things such as portability.  I can
+tell you from experience  that  it's  not  easy  to write a portable
+program.  And keep it  portable.   AND  keep  it  free  of  compiler
+warnings.    Nobody  likes  to  see  compiler  warnings,  especially
+somebody who has just grabbed your  program and is trying it out for
+the first time.
+
+Unfortunately,  there  are  so many compilers with so many warnings,
+that it's doubtful you'll be  able  to  get rid of them all.  Simply
+turning on all warnings on your compiler (usually -Wall) is a start,
+but don't believe for a minute that it will actually catch or report
+all warnings.  You should also try  and  write  it  so  it  compiles
+cleanly  under  the strictest ANSI/ISO C settings your compiler has.
+It'll avoid problems later.   (This  may  require  the use of two or
+more compiler switches.)   However,  that  still  doesn't  guarantee
+clean ANSI/ISO code.  (Especially if you are using DJGPP!)
+
+Just because it compiles cleanly on your system doesn't mean it will
+on  other's.   And  just  because  it  runs correctly on your system
+doesn't mean it will on other's.
+
+You might as well write the  code  that you need to write, but while
+you are doing the development, you probably should use the strongest
+warning and error settings you have available.  It'll avoid possible
+problems later.
+
+
+
+===================================
+The Arithmetic Geometric Mean (AGM)
+===================================
+
+The  most  widely  used  formula  is  the  Salamin  /  Brent / Gauss
+Arithmetic-Geometric- Mean pi formula.  It's  been around for a long
+time and is fairly easy  to  implement.   It's  also  fairly  memory
+frugal.
+
+Let A[0]=1, B[0]=1/Sqrt(2)
+
+Then iterate from 1 to 'n'.
+A[n]=(A[n-1] + B[n-1])/2
+B[n]=Sqrt(A[n-1]*B[n-1])
+C[n]^2=A[n]^2 - B[n]^2  (or) C[n]=(A[n-1]-B[n-1])/2
+                       n
+PI[n]=4A[n+1]^2 / (1-(Sum (2^(j+1))*C[j]^2))
+                      j=1
+
+There is an actual error calculation, but it works out so the number
+of correct digits slightly more  than  doubles on each iteration.  I
+think it results in about 17 million correct digits, instead  of  16
+million  if  it  actually  doubled.   PI16 generates 178,000 digits.
+PI19 to over  a  million.   PI22  is  10  million,  and  PI26 to 200
+million.
+
+Notice that I said  'slightly'  more.   The doubling isn't exact, so
+you need to check the results to know when to stop.   That's  fairly
+easy  to  accomplish  by  simply  checking  to  see  if A and B have
+converged,  or, better yet, that C is zero or nearly so.  Due to the
+doubling nature of the algorithm, if only the last  few  digits  are
+non-zero,  we  can  know  for  certain that the current iteration is
+going to be the last.
+
+In  spite  of  having to compute a square root within the iteration,
+and do a division after the  main computations are done, the program
+is considerably faster than  the  arctangent  methods.   Those  have
+N^2  growth,  and  this  one  can  have  N*Log2(N) growth.  That's a
+considerable difference!
+
+There are a lot of ways to organize the AGM.  How you chose to do it
+is up to you.  I don't claim that  the way my pi v1.2 does it is the
+best.
+
+I'm  not  going  into  further  details  about  the algorithm itself
+because it's fairly  straightforward.   There  are only three things
+that need any real consideration.  The multiplication, division, and
+square root.  But since division and square root extraction are done
+with multiplication, it really comes  down  so  that  doing  a  fast
+multiplication is the key.  I'll discuss the multiply later, though,
+since that's not needed to get a rudimentary pi program running.
+
+===============
+Newton routines
+===============
+
+Now  we  need  to see how to do the square root and division that is
+required by the AGM.  Division  is  done by computing the reciprocal
+of the number, and then multiplying.  Square root extraction is done
+by computing the reciprocal of the square root and then multiplying.
+Since these methods are based on  Newton's  method,  the  number  of
+correct  digits  approximately  doubles  with  each iteration.  That
+means you don't have to work in full precision.  (Traditionally,  it
+means   that   division   costs  about  the  same  as  3  full  size
+multiplications,   and   a   square   root   costs   about   7  full
+multiplications.  Of course, that's a very very vague estimate.)
+
+To compute the reciprocal of 'a'.
+                  x[k+1]=x[k]*(2-a*x[k])
+
+To computes the reciprocal of the square root of 'a'
+                y[k+1]=y[k]*(3-a*y[k]^2)/2
+
+And of course, you start with an initial approximation.  That's easy
+to do since the precision doubles at each step, the first one can be
+done in normal C  double  precision.   Or  if  you  are only doing a
+certain number, you could just 'cheat' and directly load the correct
+value.  Personally, I prefer  the  later method, since by hardwiring
+it, it allows us a little  self-checking.  I can't even remember the
+all the times during development and testing that I ran it  and  the
+routine told me it had encountered an unknown number.  Without that,
+if  I  had  just  computed  the  initial approximation directly, the
+program might have gone  on  and  computed  a  lot of time consuming
+wrong digits.
+
+But,  for  the  early  stages  of  development, taking the first two
+elements (a total of 8 digits)  and computing the initial value is a
+very easy way to do it.
+
+To  get  the final division and square root, you simply multiply the
+reciprocal you computed above with the number you  were  wanting  to
+divide or the square root of, and you have the final answer.
+
+I guess I should go ahead and point out now that the formula can  be
+recast  several  ways.   So  what you've seen may not be what I show
+here.  The exact method you use will depend on the sophistication of
+your program.  For now, though, those methods work fine.
+
+You should also note that the square root formula  doesn't  use  the
+traditional 'divde and  average'  method.   Division  is a very slow
+operation, and we can do just as well without it.
+
+With the  square  root  extraction,  we  can  also  use  part of our
+previous square root.  In this case, I know the number is converging
+onto a specific result, so that allows me to use part of the  square
+root of the previous iteration and save a little bit of time.  Not a
+lot, but a little.  Of  course,  this does depend on already knowing
+what the value is going to be, and that  it's  converging,  etc.   I
+guess  in the early stages of the program, you can certainly do with
+out it.  Just remember that it's possible and think about it later.
+
+Anyway, to use those formulas, you set an initial approximation, you
+set your 'sub_length' to the number  of  digits  you  set,  you  run
+through the formula, you double the 'sub_length' and so on until you
+have done an  iteration  at  the  full  precision.   And then, since
+we've computed the reciprocal  of  the  answer,  you  multiply  that
+result by the original number.
+
+As  a test, you might want to set up a testing routine that computes
+the reciprocal and square root,  and  either squares it, or does the
+reciprocation again, and then compares  the  result  with  what  you
+should get.
+
+
+===========================================
+Getting your first basic pi program running
+===========================================
+
+Once you reach this  point,  you  probably  have  a basic pi program
+mostly  up  and  running.   You've got the basic add, sub, multiply,
+output, etc. running.  And when you tell it to compute 'x' digits of
+pi,  you  get  something  resembling pi.  Be sure and get an already
+precomputed value of pi and check your value.
+
+At this point you may  discover  a  few  things.   The AGM has a few
+quirks, and the division and square root don't  seem  to  give  good
+answers at higher number of digits.
+
+First, you might find out that it's hard to predict exactly how many
+iterations to do the AGM.  You can use an estimate formula  to  know
+how  many digits are right, but frankly, it's a heck of a lot easier
+to just and see if C[n]^2  is  nearly  zero.  If it is, then 'A' and
+'B' have  converged.   If  it  isn't,  and  you've  done  more  than
+Log2(Num_Digits_wanted)+x, then it's not converging and something is
+wrong.  The '+x' is just for insurance, in case we mis-estimated.
+
+For  the  square root and division, round off errors can accumulate.
+If we did the  iterations  with  full  precision, we'd totally avoid
+that, but that would waste a _lot_ of time.  By  only  doubling  the
+number  of digits we work with at each iteration, we can cut the run
+time by about half.   But  it  means  we  now  have to deal with the
+accumulation of errors.  The error doubles at each step (which is to
+be expected of an algorithm that doubles the  number  of  digits  at
+each  step),  plus  each  iteration  can add its own digit or two of
+error.  I've seen cases that,  by  the time you've done the expected
+number of iterations, nearly half the digits are still wrong.
+
+There are several ways to deal with this.  The right way, the  wrong
+way, and my way.  (<G>, seriously though, that is fairly true.)
+
+First,  you  can  do  each  iteration  in full precision and pay the
+price.  That's a very  expensive  price,  because there's no need to
+pay it.
+
+Second, you can double the precision at each iteration, and then  do
+one more full precision iteration to deal with the round off  error.
+It's  a  lot cheaper than the first choice and will give you quality
+results.  I've seen a number of  people chose this and it does work.
+But you can do better.  (Whether they chose this method by choice or
+because it simply didn't occur to them  to  do  better  is  an  open
+question.)
+
+Or, you can do it  my  way.   Actually,  there are several ways, and
+they aren't exclusively mine.
+
+You can do like the  second  choice  above,  but put in some code to
+check  the  accuracy of the root or reciprocal, and if it's too low,
+redo the iteration.   We  have  our  previous  estimate (during  the
+iteration) and know that accuracy nearly doubles (allowing for error
+accumulation),  so  we  can  compare  our  new  estimation  with the
+previous one (allowing for differences in size), and decide  whether
+to redo that iteration.  My old v1.2 program does this.  It examined
+the last iteration and decided whether  to  redo it or not.  You can
+even play a bit with how creative you want to be in your decision to
+redo an iteration.  You can even do the checking on every  iteration
+and  any  time the error gets too big (not just the last iteration),
+redo it.  However, in  reality,  this  method isn't much better than
+the second choice above.  About all it does is take just as much run
+time for just a wee bit more security and an occasional win  of  not
+having  to  redo an iteration.  It's rather embarasing I even did it
+that way.  All I can say is that I was in a hurry and burning out on
+working on pi, and that it  worked.  And.... that it was fairly much
+a  necessity  from my poor choice to allow non-power of two lengths.
+This is one  of  the  reasons  I  suggested  above that your program
+handle only lengths of pi that are powers of two.
+
+The generally accepted 'best' method is to simply  always  redo  the
+'N'th to last iteration, and just accept the extra run time.  Errors
+will  accumulate  from  the  'N'th  to  last until we reach our last
+iteration, but unless you  need  100%  accuracy, the error should be
+tolerable.  For example, if you are doing it to 256 digits,  and  at
+each  step,  you doubled the number of digits you were working with,
+then if you redid the  16  digit  iteration  (getting it as close to
+100% accurate as possible), then  the  next  iteration  (length  32)
+would  have  no  accumulated  error,  but  introduce  a digit or so.
+Length 64 would double that and  add  a  digit (for a total of about
+3-4 digits of error), and then length 128 would make that about 7-9,
+and then length 256 would make that around 15-20.   (Perhaps  a  few
+more,  since  we  can't  say for certain how much round off error is
+added at each iteration.)  The  extra  run time is neglible, because
+you spend most of your time in  the  last  iteration,  and  most  of
+what's left in the next to last iteration, etc.
+
+Is 15-20 digits of error  acceptable?   It depends.  If you are only
+doing 256 digits and need them to be exact,  then  no,  it  probably
+wouldn't  be  acceptable.  If you were doing a million digits of pi,
+you probably aren't going to care if the last 15 'digits' are wrong.
+
+(Remember, the '15-20' is just an example.  The  exact  amount  will
+depend  on  your implementation and your decision of which iteration
+to redo.)
+
+It's  just  a  trade  off  of  accuracy  for  speed.   Which is more
+important is up to you.  It's  never  going  to be exact to the last
+digit anyway, due to round-off errors in the  various  calculations,
+so....<shrug>
+
+(I should also add one more way of dealing with round off  errors...
+Use  a  few more digits at each iteration.  Instead of doing 16, 32,
+64,  128,  and  256 digits, do a few more digits (say 4), and do the
+math at a precision of 20,  36,  68,  132, and 260 digits.  For many
+situations that's a possibility.  But almost certainly  not  if  you
+use  FFT based multiplication, because most FFTs require the size to
+be a power of two.   Although  there  are  some that don't, they are
+rarely very efficient for sizes close to powers of two.   The  extra
+cost  could  be  more than if you just worked with powers of two but
+simply redid that last iteration.)
+
+Anyway, once you've taken care of these quirks in the AGM and Newton
+routine,  you  should  have  a  working  pi program.  One capable of
+computing several  hundred  thousand  digits.   (The  run time isn't
+going to be very good.  We'll deal with that next.)
+
+As a test, you  should  compute  65,536  digits  (or  whatever  your
+program  is  set  up  to  do)  and compare them against a known good
+value.  You should only see a few wrong digits at the end.  If there
+are more, then you need  to  rexamine your program.  Better you find
+all the low level bugs now rather than after you've spent much  more
+time coding.
+
+Don't  go  any further unless your program can correctly compute 64k
+digits.
+
+Now  that  you  have  the basics of a working pi program, we can now
+improve  its  runtime.   From  now  on,  everything  we  do  will be
+improvements on the  runtime  or  the  maximum  size  that  you  can
+compute, and so on.
+
+
+===========================
+Breaking N^2 Multiplication
+===========================
+
+The normal method to  multiply  two  numbers  is  to  do it digit by
+digit.  This is commonly referred to as  the  'Schoolboy'  approach.
+It works, but unfortunately, it has N^2 growth.  That means it takes
+4  times as much work for numbers that are twice as big.  It adds up
+(or should I  say,  multiplies  up)  right  quick!  Multiplying two,
+1,000,000  digit  numbers   would   require   a   staggering   10^12
+multiplications!  Yawn...  See you next week.
+
+(Note:  The  rest  of  this  section  doesn't  actually  have  to be
+implemented.  It's mostly for background.  Of course, you can do  it
+if you want.)
+
+In the 60's, it became common knowledge that you could  'divide  and
+conquer' the multiplication.  The discovery is attributed to several
+people,  and  is  called  several  things,  including  the 'fractal'
+method, and  the  'Karatsuba'  method.   It's  doubtful that anybody
+truely knows who first developed it because mathematics  history  is
+littered  with  algorithms  being  discovered,  forgotten  and  then
+rediscovered,  and even algorithms being independantly discovered at
+about the same time by  several  people.   (The AGM is an example of
+both of those!  It was discovered by Gauss 150 years  ago  and  then
+forgotten.  Salamin then discovered it and published it in HakMem in
+1972  (something most people don't know) but didn't formally publish
+it  until  1976.   And  about  the  same  time,  Richard  Brent also
+rediscovered it and they  'fueded'  over  who  could claim it.  Then
+they learned they had simply rediscovered  the  algorithm  and  that
+neither of them could  claim  it.   Although most people _sill_ call
+it the Salamin AGM.)
+
+I'll  just  call  this  method of multiplication the Fractal method,
+because if you looked at a graph of how it multiplied, it would look
+like a Fractal.  And that's  how  I was originally introduced to it.
+Many people, though, prefer to call it the 'Divide and Conquer',  or
+D&C  method.   (As  a  side  note,  according  to  Knuth, the method
+proposed by Karatsuba, in  1962,  is  actually more complicated that
+this, so he can  *NOT*  be  credited  with  this  algorithm.   Knuth
+doesn't bother to say who did actually develop it.   That's  another
+reason I call it the 'Fractal' method, rather than Karatsuba.)
+
+It's fairly simple.  a*b is: a2b2(B^2+B)+(a2-a1)(b1-b2)B+a1b1(B+1)
+
+a2 is the upper half of 'a'. a1 is the lower half.  Same  with  'b'.
+'B' means the 'base' or half the size of the number.
+
+For a=4711 and b=6397, a2=47 a1=11 b2=63 b1=97 Base=100
+
+If we did that the normal way, we'd do
+
+                       a2b2=47*63=2961
+                       a2b1=47*97=4559
+                       a1b2=11*63= 693
+                       a1b1=11*97=1067
+
+                       29 61
+                          45 59
+                           6 93
+                             10 67
+                       -----------
+                       30 13 62 67
+
+Or, we'd need N*N multiplications.
+
+With the D&C method, we compute:
+
+                       a2b2=47*63=2961
+              (a2-b1)(b1-b2)=(47-11)(97-63)=36*34=1224
+                       a1b1=11*97=1067
+
+                       29 61
+                          29 61
+                          12 24
+                          10 67
+                             10 67
+                       -----------
+                       30 13 62 67
+
+We need  only  3  multiplications,  plus  a  few  additions.  And of
+course,  at  longer  lengths, additions are a lot simpler and faster
+than multiplications, so we  end  up  ahead.   Plus,  we can do this
+formula recursively, and  when  the  numbers  are  very  large,  the
+savings is substantial.
+
+The growth is about n^1.585.  Although the effects of memory  caches
+and  such  can  make  that closer to n^1.7 for numbers of only a few
+hundred thousand digits long.
+
+It's far easier to do when both numbers are the same size, and are a
+power of two in length, but there is no actual requirement.  It  can
+be  done  with  any  size  number.  We'll just mess with the version
+where the numbers are the same size and a power of two.  It's easier
+for  everything  involved.   In my v1.2 program, I did allow for any
+size number, and it made the routine look ugly and more complicated.
+
+A square can be done similarly.  Curiously enough, most people don't
+seem to know the squaring version.
+
+It's fairly simple.  a^2 is: a2^2(B^2+B)-((a2-a1)^2)B+a1^2(B+1)
+
+The advantage of this is that the three multiplies are also squares.
+That can be important later on.
+
+
+Once you run it to a few hundred thousand digits, you probably  have
+noticed  that  the  growth  is  around  O(n^1.585).  (That means the
+growth grows by ^1.585.  The O() is the overhead.)  You'll find that
+your program is now much much faster.
+
+
+==========================
+Really Fast Multiplication
+==========================
+
+Even if you implemented the Fractal method of multiplication, we can
+do better.  We _need_ better.
+
+That  is done using Fast Fourier Transform (FFT) multiplication.  In
+spite of the greater complexity of the floating point arithmetic and
+such, it's actually much more efficient for larger sizes.  A regular
+FFT has a growth of only N*Log2(N).  That's far less than normal N^2
+or the D&C's  N^1.535.   And  that's  what  makes multi-million (and
+billion) digit pi calculation practical.
+
+For those of you who  aren't  familiar  with  FFT's,  you  will  be!
+Basically,  a  FFT is (usually) floating point process used in audio
+products (and others) to  take  the  audio  spectrum of some signal.
+The  basic  Fourier  transform  was developed long long ago.  Like a
+regular multiplication, it  has  O(n^2)  growth.   The 'Fast Fourier
+Transform' is the same basic math but  organized  very  differently.
+And  that  organization  drops  the  work  down  to a growth of only
+O(n*Log2(n)).
+
+It  sounds  like  something  a  used  car salesman would say!  Using
+something designed  to  do  spectral  analysis,  with floating point
+numbers, to do  multiplication  quickly!   But  it  does  work.   V.
+Strassen discovered it in 1968.  You can read about it in books like
+Knuth, but the concept is  not  very hard.  In fact, Knuth's version
+makes it sound very complicated.  (Actually, the particular type  he
+discusses  _is_  more  difficult.  But this version is a bit simpler
+and  works  almost  as  well.  In later versions of Knuth's book, he
+does talk about he more  normal  FFT, rather than the other version,
+but he _still_ 'misses the boat' by talking about it in fixed point,
+which requires much greater precision than a floating point one.)
+
+In  concept,  it's  not too hard.  You have two Len size numbers and
+you want a 2*Len result.   So  you  put  a  Len size number into the
+2*Len long 'real' part of an ordinary complex  FFT.   Zero  out  the
+high part of it.  Perform a forward FFT on it.  Do the same with the
+second  number, then do a simple convolution (vector multiply).  You
+then do an inverse FFT  on  that  and  you go through the real part,
+rounding the numbers to integers and releasing your carries.
+
+Let's  say you have X and Y and their product Z, and each individual
+digit is labeled  as  X(0,1,2,3,4...N-1).   Then, the multiplication
+pyramid is:
+
+z(0) = x(0)*y(0)
+z(1) = x(0)*y(1)+x(1)*y(0)
+z(2) = x(0)*y(2)+x(1)*y(1)+x(2)*y(0)
+z(3) = x(0)*y(3)+x(1)*y(2)+x(2)*y(1)+x(3)*y(0)
+    ..
+    ..
+    ..
+z(2n-3) = x(n-1)*y(n-2)+x(n-2)*y(n-1)
+z(2n-2) = x(n-1)*y(n-1)
+z(2n-1) = 0
+
+(That's  essentially  the standard, normal, plain old digit by digit
+multiplication,  except  you  don't  happen  to  be  releasing  your
+carries.  In other words, even  though  you'd be working in base 10,
+the  individual  digits  of  the  result (Z) can be far greater than
+that.  Up to (base-1)*(base-1)*2*Length of num.)
+
+And as you can see, that sort of looks like a pyramid, with the peak
+in  the  center.   And  that's  why  it's  called the multiplication
+pyramid.
+
+
+That can be put into the formula:
+
+                  n-1
+z(k) = C(k)(x,y)= SUM X(j)*Y(k-j)
+                  j=0
+
+where the subscript k-j is to be  interpeted  as  k-j+n  if  k-j  is
+negative.
+
+
+And V. Stassen discovered, in his work with Fourier Transforms, that
+the individual elements of  a  Fourier  Transform convolution is the
+same C(k)(x,y) except the convoultion gives it all at once!
+
+And  that's   the   basics   of   Fast   Fourier   Transform   (FFT)
+multiplication.   It  is  shown  mathematically  that  the answer is
+exactly correct.  The  problem  in  implementing  it though, is that
+computer programming reality is not mathematical reality.....
+
+
+============================
+Practical FFT Multiplication
+============================
+
+The first problem is to find a decent FFT  that  is  public  domain!
+There are many PD ones, but some don't work at all, and others don't
+work  well  and  lose  precision  for  larger  FFTs.  In fact, I got
+'bitten' by that very problem.  For  a 'long' time I couldn't figure
+out how to do an FFT beyond  a  few  thousand  points.   (There  are
+copyrighted  ones,  but  you  can't  put  them  into a public domain
+program!   Of  course,  for  early development work, you can 'steal'
+one, but be sure  and  replace  it  later.   Of  course, my own V1.2
+program is entirely PD, including the FFT.)
+
+Many of the PD ones directly  do the cosine and sine calculation and
+then do a simple multiplication to calculate the next  power.   That
+can  cause  quite  a  few problems due to loss of precision.  Better
+ones will get rid of the cosine  itself and do it based on the sine,
+which is more accurate, and keep the 'working' cosine (which is very
+near to 1.0) as 1 - cosine, which  retains  more  bits.   And  still
+better  ones  will do some very careful calculations and corrections
+for the next power.  I use the  second one, which also happens to be
+used by the  (in)famous  Numerical  Recipes  book (and others).  For
+this application and limited range, there is no need  for  the  more
+careful corrections that the better routines do.  However, the first
+method,  of  directly calculating the cosine is one you should never
+do.  It's  quick  and  looks  like  it  would  work,  but the cosine
+accuracy loss will be so bad that you shouldn't even consider it for
+FFTs (for any purpose) beyond just a few thousand points.
+
+Anyway, you've got to be careful  about trig precision.  Both in the
+original calculations, and especially in the butterflies themselves.
+It certainly helps (almost a necessity) to do  the  butterflies  and
+the  trig  in  higher  precision than your data.  You can use either
+'long double' or keep them in  the  FPU 80 bit registers.  The later
+option works well and doesn't have the slight speed penalty  of  the
+first.  For systems that only have 'double', it will still work, but
+for larger sizes you'll need to  take  extra  care  about  the  trig
+precision.  But for now, for just 1m digits of  pi,  we  can  fairly
+much ignore it.
+
+Then you have to be careful about the size of the  numbers  you  put
+into  the  FFT and the length of the transform.  The following shows
+some limits that I've actually tested.  If you have a base of 65,536
+that means the largest 'digit' you  will work with is 65,535 and you
+can correctly  do  a  FFT  multiplication  so  you  end  up  with  a
+(coincidental) 65,536 size result.
+
+  Base    measured    Bits
+          largest     used
+  100,000   32k       49.2
+1,000,000    2k       51.8
+   65,536   64k       48.9
+  131,072   32k       49.9
+
+
+You  can  estimate  where  it will fail by considering the number of
+mantissa bits in a double (53),  and  the number of bits used in the
+numbers you are multiplying.
+
+Bits in mantissa > Log2( (base-1)^2 * Len * 2).  You need about  3-4
+bits  extra  for  the  complex  nature  of  the  FFT.  And with that
+knowledge, you can  estimate  where  it  will  fail.  Of course, you
+should  test it anyway...  The extra '2' that we are multiplying the
+Len by is because the length of  our product will of course be twice
+as  long  as  the  numbers we are multiplying.  The Log2() is simply
+determining the number  of  bits  that  our  largest pyramid product
+would consume. To compute it in Log2, simply do Log10(...)/Log10(2).
+
+So, to estimate the failure length for a given base, using 'double's
+(64 bit floating point number with 53 bits of mantissa):
+
+53 bits > log2( (base-1)^2 * Len * 2) + TrigBits.
+
+Rearanging it, and saying TrigBits is 4 bits:
+
+53 - 1 - log2( (base-1)^2) - 4 > LenPowerOf2
+
+So, a base of 10,000 (like I'm using) would imply:
+
+53 - 1 - 26.5 - 4 > LenPowerOf2
+
+21.5 bits.  2^21.5 is 2,965,820.  Since  a  FFT  has  to  work  with
+lengths that are a power of  two, it'd be 2,097,152.  Resulting in a
+product that is 4,194,304 'digit's long.  And since each 'digit'  is
+4  digits  (our base is 10,000, remember?), we'd be able to multiply
+two 8,388,608 digit numbers and get a 16,777,216 digit answer.
+
+A base of only 1,000 would suggest a limit of:
+53 -1 - 19.93 - 4 (trig) > LenPowerOf2
+28.07 bits.  That'd be a length of 256m.
+
+A base of only 100 would suggest a limit of:
+53 - 1 - 13.26 - 4 (trig) > LenPowerOf2
+34.74 bits.  That'd be a length of 16g.
+
+Of course, those are just estimates.   And the 3-4 bits for the trig
+is observation, although  that  is  supported  by  other  references
+saying  things  like  4 bits, 'few bits', etc.  It's also worst case
+estimates.  It practice,  since  your  numbers  won't be (base-1)^2,
+you'll have more bits  available  for  the  trig  to  use.   If  the
+estimated  length  is  only slightly below a power of two, you might
+very well be capable of doing the longer length.  You'd just have to
+test.
+
+At  this  point,  I again need to remind you that my saying we could
+put 4 decimal  digits  into  each  FFT  element  and  multiply two 8
+million digit numbers is based on highly accurate trig kept  in  the
+x87's  FPU.   For  the  x87 FPU in 'long double' mode, the recurance
+works well.  For 'double'  systems  you  might need to explicitly do
+sin() calls instead of a recurrance.   There  are  several  ways  to
+solve  this,  but  at  this point, you probably don't know enough to
+know how.  For now, just use the simple recurance and limit yourself
+to just 1m digits of pi.  You can solve this problem later.
+
+[Without a 'long double' FPU & compiler, or a compiler that  doesn't
+keep  the variables in the fpu registers, the recurance doesn't work
+as well.  It takes an extra 3-4 bits of trig to properly  deal  with
+the  extra  round  off  errors.   It  limits  you to multiply only 1
+million digit numbers.  Of course, if  you used some other method to
+generate the trig, a pure double system _can_ manage the 8m limit  I
+mentioned above.]
+
+[I  might  need to clarify something here.  There are two precisions
+being talked about here.  The 'double'  data type where we store our
+number to be transformed, and the precision of the trig values.   If
+you  compute the new trig values with a recurance, then they need to
+be of a higher precision than the FFT data itself.]
+
+[I also need to mention that  this  lets you multiply more than what
+most people are aware of.  People who have never tried  it,  or  who
+have  a poor FFT, will usually give a much lower limit.  Even Donald
+Knuth himself has fallen into  a  related  trap.  The 3rd edition of
+his Vol2 does talk about using a FFT, but he does it in the form  of
+using fixed point.  Doing it that way takes many more bits than with
+a  floating  point  format.   During the main FFT itself, the number
+(and the multiplication  pyramid)  is  smeared through-out the data.
+It only becomes unsmeared (ie:  the multiplication pyramid) upon the
+last pass of the FFT.  At that point, we are losing  bits  of  trig,
+but the 'double' still has enough for rounding.
+]
+
+After rounding your result, and before releasing  the  carries,  you
+have  the same answer as if you had done a normal multiplication but
+didn't do your carries, just let  them accumulate in each 'digit' of
+your answer.  (ie: A multiplication 'pyramid'.)
+
+In that 47 11 * 63 97 example above...
+
+                     29  61
+                         45  59
+                          6  93
+                             10  67
+                     --------------
+                     29 112 162  67
+                     (release your carries:)
+                     30  13  62  67
+
+That's the same answer of course.
+
+With an FFT, each 'digit' of your answer will be like this.  It  can
+get  rather  large.   In  fact,  it can get as large as (base-1)^2 *
+Length of each number.
+
+I  also  need to mention how to detect when the FFT is pushed beyond
+its limit.  It's fairly simple.  When you are rouding the FFT result
+to an integer,  in  order  to  release  your  carries,  if the final
+rounded value is more than, oh, 0.125 away from  integer,  then  the
+result  is  suspect.  If it ever reaches 0.5 or higher, then the FFT
+has definetly failed.
+
+You can also do a few 'tricks' to reduce the size of the FFT you are
+working  with.  Since the numbers you are working with are all real,
+and the FFT uses complex  numbers,  and since you are always needing
+to FFT two numbers, it's possible to put one number in the real part
+and the other number in the complex part, perform the FFT  and  then
+reconstruct  what  the numbers should have been.  This saves you the
+cost of a full FFT.
+
+It's also possible to put  your  one  real number into both parts of
+the FFT, the real and the complex, and perform  a  half  sized  FFT.
+Two  half  sized  FFTs  are slightly faster than a single full sized
+FFT.  Doing this also means that your inverse FFT can also be a half
+sized FFT, rather than a full  sized complex one.  Doing it this way
+saves  you  about 25% of the total FFT multiplication time.  It also
+means that you can  handle  longer  FFTs.  Since  we are doing 'half
+sized' FFTs instead of the more 'normal' FFTs,  we  are  only  using
+half the memory for the FFT.
+
+(There are specially designed 'Real  Value'  FFTs, but they are hard
+to come by, and sometimes don't work as well.  It's easier  to  just
+use a regular 'Complex' FFT and use a 'Real Value' wrapper.)
+
+It's best to use the last method,  and put one real number into both
+parts of a 'complex' FFT and do a 'half' sized FFT.  It's faster and
+it results in using less memory.
+
+That means that to transform a 1 million digit number  will  take  4
+megabytes.   To  transform  two, to do a multiplication, will take 8
+megs.
+
+Since we can all afford that  much memory, and do so without virtual
+memory kicking it, let's just limit our  pi  program  to  1  million
+digits of pi.
+
+(Oh, I just mentioned virtual memory....  Suffice to say that you do
+_NOT_ want to do a  FFT  in  virtual  memory.  There will be massive
+disk thrashing and it will take a long long time.  We'll  talk  more
+about that later.)
+
+You may feel that I'm shorting you some FFT theory,  etc.   Well,  I
+am.   It's  a fairly complex subject, and frankly, the theory of FFT
+isn't really required to just  simply  _use_  a FFT.  If you want to
+understand some basics, check various places on the web, such as the
+Numerical Recipe site (which  has  the  entire  book  available  for
+download),  or  the  FFTW  place,  etc.   Just do a search for their
+address.  (I don't happen  to  have  it  handy,  and it might change
+between now and then.)
+
+It's also a good idea to do the smaller length multiplications  (say
+of  256  decimal  digits) with the regular slow 'school-boy' method.
+The reason is that you don't  really  want to try and do a transform
+with a very small number.  This can be especially true later, so you
+might as well  get  into  the  habit  of  using  two  multiplication
+methods.
+
+
+
+============================================
+Getting your second basic pi program running
+============================================
+
+At  this  point,  you  should  have  a  FFT  based pi program up and
+running.  Can it  compute  64k  digits  correctly?  What about 128k?
+Can you correctly go all the way up to 1 million digits?
+
+(If you are running on a pure 'double' system, such as the  PowerPC,
+you  may  encounter  a  point  where  the program just seems to stop
+working right.  This is probably at either 1m  or  2m  digits.   The
+reason  has to do with the trig accuracy of the FFT that I mentioned
+before.  If you put that FFT accuracy check in, like I talked about,
+then it should give a fatal error and abort the program, rather than
+continuing to generate wrong digits and letting you wonder.  You can
+either change FFTs to one  with  better  trig, or fix it yourself by
+explicitly doing trig calls instead of using the  recurrance.   But,
+either way, by this point, you  really  should end up with a program
+capable of at least 1m digits of pi.)
+
+If so, then things are working correctly.  If not, go back  and  fix
+it.
+
+If  you've  run  the  program  at  various lengths, you should see a
+runtime growth of around 2.1  to  perhaps 2.4 between sizes.  That's
+fairly typical.  There will  be  some  variation  depending  on  the
+quality of the FFT, the computer hardware, etc. etc.
+
+Depending on your  system,  computing  1  million  digits  may  take
+anywhere  from  a  couple  of hours on a slow 486 to 20 minutes on a
+faster Pentium class.  Or even less on a current generation system.
+
+But it is definetly  a  good  idea  to  go  ahead and spend the time
+computing and verifying.
+
+At  this  point,  your  program  should  be roughly comparable to my
+v1.2.5 program.  There will  be  some differences in performance, of
+course.  But it should be 'good enough' for comparasion.
+
+Remember that my old v1.2 was  written niavely.  It was also done in
+a hurry.  And it was done under 16 bit DOS, so I could use a  better
+debugger  than  what  DJGPP  offered.  And v1.2 allows any length of
+digits, not just powers of two.  (That last ability adds quite a bit
+of complexity and quirkiness to the program.)  Although  v1.2.5  has
+some of those things cleaned up,it's still an ugly, niave program.
+
+
+
+========================
+Basic performance tuning
+========================
+
+Well,  now  that  you  have  a fairly tolerable FFT based pi program
+running, I guess we  should  talk  about improving the performance a
+little.  Just a little, though.  The more advanced methods will come
+later.
+
+Let's see...  There are a lot of places in the program where we  are
+squaring  a  number.   With  normal multiplication it's no different
+from a regular multiply, but  with FFT based multiplication, most of
+the time is spent  doing  the  FFT  transform.   With  a  two  value
+multiply  we  need  to  do  two  forwards  transforms, followed by a
+convolution, followed by an inverse transform.  But when we are just
+squaring a number, we only need to do one forward transform.
+
+In the square  root,  it's  possible  to  save  the square root from
+earlier passes, and  use  that  as  a  progressively  more  accurate
+starting point.   That  means  we  can  start  out  the  square root
+iteration with a longer guess.  Print out some starting  values  and
+final  values and you'll see what I mean.  After the first couple of
+passes, when the AGM  is  starting  to  converge, you'll see the two
+numbers  becomming  more alike.  How useful this will be will depend
+heavily on your program.  In my  early  days, I was saving about the
+cost of one full square root (over the whole  program  run.)   Later
+on,  as  my  square root became more advanced, and the AGM improved,
+the savings dropped to  only  a  few  percent.   Barely enough to be
+worth the cost of the variable storage.
+
+In the FFT, the first pass of the forward transform will always have
+Cosine=1 and Sine=0.  Because of that, you can optimize it a bit.
+
+The first pass through the AGM, the variable 'a' will be 1.0, so you
+save that multiplication.  And depending on how you implemented  the
+AGM,  there  might  be  more.  Trying dumping the variables for each
+pass of a 4k digit run,  and  see  if  there are any others, such as
+the calculation of C[n]^2.  You might also be able to skip computing
+that last square root.  Again, it depends heavily on  how  you  code
+your version.
+
+You  can  provide  a hard wired Sqrt(2.0) routine.  It might be more
+efficient to do Sqrt(0.5) and skip that final multiply.  Either way,
+since the number is  going  to  be  hardwired,  you can simplify the
+formula slightly.
+
+There are a few  other  things,  but  I  thought it worth mentioning
+those, since they are fairly simple.
+
+
+==================================
+FFT limitations and virtual memory
+==================================
+
+If you have a limited amount of memory,  you  may  have  encountered
+some disk thrasing when you tried to do longer lengths of pi.
+
+Alternatively, you might be running a pure 'double' CPU (such as the
+PowerPC)  and  have  encountered  a  point  where your program is no
+longer capable of correctly computing pi.  This is likely to be when
+you tried to compute two million  digits  of pi.  If you have a poor
+FFT, it might even be just one million.
+
+Or, maybe you have so much gosh  darn memory that you can go all the
+way to the 8 million digits that the  FFT  can  handle.   This  will
+occur  because  the  multiplication  pyramid is larger than what the
+'double' can handle and it's causing round-off errors.
+
+But, for what ever reason,  you  may have encountered a point beyond
+where your progran can't practically go.
+
+For the virtual memory limit, there are actual disk based FFTs  that
+could  be  used.   However,  they are more complex than what you are
+ready for.
+
+If it's trig accuracy, you  could  always just put fewer digits into
+the  FFT.   Perhaps  just two digits.  That would certainly increase
+the number of digits the FFT  can  do.   But it will cost some time.
+You'd better off improving the FFT so you can go all the  way  to  8
+million digits of pi.  (The FFT would take 32mb.)
+
+However, there is a fairly decent common solution to both  problems.
+And that is to just accept the FFT's limit, and to go beyond it, use
+a different type of multiplication.
+
+I'm  talking  about that FractalMul that I mentioned before the FFT.
+If you recursively use it  to  break those large numbers into chunks
+that your FFT _can_ handle, then that will allow you  to  go  beyond
+both of those limitations.
+
+Now, this is not the best solution.  But it is fairly quick and easy
+to  add.
+
+If  the  problem  is  that  you  have  so  much  memory  and you are
+encountering the 8 million digit limit for the FFT, you've got three
+choices.
+
+First, you could use the FractalMul like I mention above.
+
+Second, you might be able to switch to a 'long double' data type for
+the FFT.  That would increase the maximum  limit  somewhat,  at  the
+expense  of  more memory.  You might need to check the limits of the
+multiplication pyramid so you don't  overflow when you are releasing
+your carries.
+
+Third, you could reduce the number of digits you put into  each  FFT
+element.  I chose 4 digits because it was convenient.  You could put
+only  three  digits into each one, but you'd have to change the rest
+of your program to deal with  it.   Or you could put two digits into
+each FFT element.  That would definetly work.  But  it  will  double
+the memory and execution time.
+
+
+
+
+I think I should also point out that this is fairly much the end  of
+my v1.2.5 program.  And therefor, the end of part 1 of this text.
+
+
+
+
+If you need to contact me,  you  can  reach  me  at  my  Juno  email
+address.   Be  aware that Juno has limitations on size etc., so keep
+messages under 30k of content.  If you want to send me stuff, let me
+know  in  advance!   And  you'll have to send it uuencoded, cut into
+about 30k each.  No MIME, no  attachments, etc.  I try to answer all
+my mail within a week, so if  you  don't  get  a  response,  then  I
+probably didn't get it.
+
+Carey Bloodworth
+cbloodworth@juno.com
+
+

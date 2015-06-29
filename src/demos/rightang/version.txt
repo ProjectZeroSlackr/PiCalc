@@ -1,0 +1,42 @@
+This version is for the floating point FFT.
+
+The FFT actually used is  my  standard  Quad-2  FFT,  in a DiF / DiT
+pair. 
+
+The 'complex<->real wrapper' is the 'Right Angled Transform'  rather
+than  the  older, less convenient style that I normally use (and use
+in my tutorial program.)
+
+(This module also does things  in  a  'block' like nature, because I
+was planning on making it a disk transform, to show that too.  But I
+didn't get around to it.  That's not relevant to the RAT.)
+
+The   key  differences  in  fft.c  are  the  RealFFT(),  ShiftFFT(),
+LoadNumBlockIntoFFT(), and the 'release carries' section of FFTMul()
+in bigmul.c
+
+None of these are written the  cleanest, but they work and should be
+easy to follow.
+
+in RealFFT(), instead of a difficult to understand wrapper, it  just
+calls  the 'ShiftFFT' function before a forward and after an inverse
+transform.
+
+The ShiftFFT itself  just  does  a  simple  complex  multiply with a
+simple trig progression.  Nothing fancy or difficult.
+
+The LoadNumBlockIntoFFT() loads the data  differently  than  before.
+It puts the data into the 'Real' part of the complex FFT, and zero's
+the  imaginary  part.  The old style wrapper put the data in the low
+half and zero'ed the high half.
+
+The 'release carries' section of  FFTMul() just handles the new data
+format.  You sort of have to  make  two  passes  through  the  data,
+rather  than  one.   However,  if you were willing to write slightly
+more complicated code you could  release  the carries in both halves
+at the same time, then when you got to the end, you could  wrap  the
+carries  from  the real to the imaginary part.  Since you've already
+done the imaginary  part,  you'll  have  to  go  through the already
+output'ed data and add carries into there.  Not that hard.  It  just
+would have been less readable for you.
+

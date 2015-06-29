@@ -1,0 +1,15 @@
+A basic 'wide' FHT.  Uses Bailey's quad precision float.
+
+Be aware that I make NO  guarantee that the Fortran->C conversion is
+100% correct.
+
+For the full Fortran code, see Dr. Bailey's web page at:
+
+http://www.nersc.gov/~dhb
+
+It's worth  pointing  out  that  during  some  testing,  the  output
+function  managed  to get into an infinite loop!  Whether that was a
+bug in my conversion  or  the  Fortran  code  or some sublety that I
+missed, I don't know.  You might want to check the original code  if
+you plan to do anything serious with this idea.
+
